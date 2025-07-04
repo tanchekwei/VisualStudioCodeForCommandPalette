@@ -1,6 +1,7 @@
 ﻿// Modifications copyright (c) 2025 tanchekwei 
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using WorkspaceLauncherForVSCode.Classes;
 
 namespace WorkspaceLauncherForVSCode.Commands;
 
@@ -13,7 +14,7 @@ public sealed partial class RefreshWorkspacesCommand : InvokableCommand
 
     public RefreshWorkspacesCommand(IVisualStudioCodeService visualStudioCodeService, SettingsManager settingsManager, VisualStudioCodePage visualStudioCodePage)
     {
-        Icon = new IconInfo("\xE72C"); // Refresh icon
+        Icon = Classes.Icon.Refresh;
         _visualStudioCodeService = visualStudioCodeService;
         _settingsManager = settingsManager;
         _visualStudioCodePage = visualStudioCodePage;

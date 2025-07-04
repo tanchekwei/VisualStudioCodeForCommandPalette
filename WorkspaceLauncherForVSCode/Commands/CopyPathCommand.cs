@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using WorkspaceLauncherForVSCode.Classes;
 
 namespace WorkspaceLauncherForVSCode.Commands;
 
@@ -13,7 +14,7 @@ internal sealed partial class CopyPathCommand : InvokableCommand
     internal CopyPathCommand(string path)
     {
         Path = path;
-        Icon = new IconInfo("\uE8c8");
+        Icon = Classes.Icon.Copy;
     }
 
     public override CommandResult Invoke()
