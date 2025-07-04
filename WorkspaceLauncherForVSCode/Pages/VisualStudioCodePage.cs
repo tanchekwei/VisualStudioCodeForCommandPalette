@@ -17,7 +17,7 @@ using WorkspaceLauncherForVSCode.Workspaces;
 
 namespace WorkspaceLauncherForVSCode;
 
-public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
+public partial class VisualStudioCodePage : DynamicListPage, IDisposable
 {
     private readonly SettingsManager _settingsManager;
     private readonly IVisualStudioCodeService _vscodeService;
@@ -328,7 +328,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                 _cachedFilteredItems = WorkspaceFilter.Filter(SearchText, _allItems, _settingsManager.SearchBy);
                 _visibleItems.Clear();
                 _visibleItems.AddRange(_cachedFilteredItems.Take(_settingsManager.PageSize));
-                HasMoreItems = _cachedFilteredItems.Count > _settingsManager.PageSize;
+                HasMoreItems = _visibleItems.Count > _settingsManager.PageSize;
             }
         }
     }

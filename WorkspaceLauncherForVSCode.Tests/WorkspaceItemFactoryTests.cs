@@ -5,6 +5,8 @@ using WorkspaceLauncherForVSCode.Workspaces;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using WorkspaceLauncherForVSCode.Interfaces;
+using WorkspaceLauncherForVSCode.Listeners;
 
 namespace WorkspaceLauncherForVSCode.Tests
 {
@@ -20,9 +22,11 @@ namespace WorkspaceLauncherForVSCode.Tests
         [TestInitialize]
         public void TestInitialize()
         {
-            _mockVisualStudioCodePage = new Mock<VisualStudioCodePage>();
-            _mockWorkspaceStorage = new Mock<WorkspaceStorage>();
             _mockSettingsManager = new Mock<SettingsManager>();
+            var mockVsCodeService = new Mock<IVisualStudioCodeService>();
+            var mockSettingsListener = new Mock<SettingsListener>(_mockSettingsManager.Object);
+            _mockVisualStudioCodePage = new Mock<VisualStudioCodePage>(_mockSettingsManager.Object, mockVsCodeService.Object, mockSettingsListener.Object);
+            _mockWorkspaceStorage = new Mock<WorkspaceStorage>();
             _refreshCommandContextItem = new CommandContextItem(new Mock<ICommand>().Object);
             _helpCommandContextItem = new CommandContextItem(new Mock<ICommand>().Object);
         }

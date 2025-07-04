@@ -10,7 +10,7 @@ using Microsoft.Data.Sqlite;
 
 namespace WorkspaceLauncherForVSCode.Classes
 {
-    public sealed partial class WorkspaceStorage : IDisposable
+    public partial class WorkspaceStorage : IDisposable
     {
         private readonly SqliteConnection _connection;
         private SqliteCommand? _saveWorkspaceCommand;

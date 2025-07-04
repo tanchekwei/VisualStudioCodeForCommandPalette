@@ -202,7 +202,7 @@ public class SettingsManager : JsonSettingsManager
         }
     }
 
-    public SecondaryCommand VSSecondaryCommand
+    public virtual SecondaryCommand VSSecondaryCommand
     {
         get
         {
@@ -214,7 +214,7 @@ public class SettingsManager : JsonSettingsManager
         }
     }
 
-    public SecondaryCommand VSCodeSecondaryCommand
+    public virtual SecondaryCommand VSCodeSecondaryCommand
     {
         get
         {
