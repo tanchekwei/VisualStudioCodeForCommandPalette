@@ -1,0 +1,56 @@
+name: Publish to Microsoft Store and winget
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Get Version
+      id: get_version
+      run: echo "::set-output name=version::$(grep -oP '(?<=<Version>).*(?=</Version>)' WorkspaceLauncherForVSCode/WorkspaceLauncherForVSCode.csproj)"
+
+    - name: Get SHA256
+      id: get_sha256
+      run: echo "::set-output name=sha256::$(Get-FileHash -Path WorkspaceLauncherForVSCode/bin/Release/net8.0-windows10.0.19041.0/win-x64/WorkspaceLauncherForVSCode.msix -Algorithm SHA256).Hash"
+
+    - name: Publish to Microsoft Store
+      uses: microsoft/msstore-devcenter-cli-action@v2
+      with:
+        tenant-id: ${{ secrets.TENANT_ID }}
+        client-id: ${{ secrets.CLIENT_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        app-id: ${{ secrets.APP_ID }}
+        filepath: WorkspaceLauncherForVSCode/bin/Release/net8.0-windows10.0.19041.0/win-x64/WorkspaceLauncherForVSCode.msix
+
+    - name: Publish to winget
+      uses: vedantmgoyal2009/winget-releaser@v2
+      with:
+        package-id: "15722UsefulApp.WorkspaceLauncherForVSCode"
+        package-name: "Workspace Launcher for VSCode"
+        package-publisher: "tanchekwei"
+        package-version: "${{ steps.get_version.outputs.version }}"
+        package-locale: "en-US"
+        package-description: "A command palette extension for opening Visual Studio solutions and Visual Studio Code workspaces from a single, unified interface."
+        package-homepage: "https://github.com/tanchekwei/marketplace-monitor"
+        package-license: "MIT"
+        package-license-url: "https://github.com/tanchekwei/marketplace-monitor/blob/main/LICENSE"
+        installer-url: "https://github.com/tanchekwei/marketplace-monitor/releases/download/v${{ steps.get_version.outputs.version }}/WorkspaceLauncherForVSCode.msix"
+        installer-sha256: "${{ steps.get_sha256.outputs.sha256 }}"
+        winget-auth-token: ${{ secrets.WINGET_TOKEN }}
