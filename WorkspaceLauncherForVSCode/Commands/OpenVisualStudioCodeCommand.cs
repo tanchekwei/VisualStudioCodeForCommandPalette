@@ -11,7 +11,7 @@ namespace WorkspaceLauncherForVSCode.Commands;
 /// <summary>
 /// Command to open a Visual Studio Code workspace.
 /// </summary>
-internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IHasWorkspace
+public sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IHasWorkspace
 {
     private readonly VisualStudioCodePage page;
     private readonly CommandResultType commandResult;
