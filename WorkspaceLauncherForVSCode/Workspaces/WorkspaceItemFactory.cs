@@ -7,6 +7,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
 using WorkspaceLauncherForVSCode.Enums;
+using WorkspaceLauncherForVSCode.Interfaces;
 
 namespace WorkspaceLauncherForVSCode.Workspaces
 {
@@ -21,7 +22,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
         public static ListItem Create(
             VisualStudioCodeWorkspace workspace,
             VisualStudioCodePage page,
-            WorkspaceStorage workspaceStorage,
+            IWorkspaceStorage workspaceStorage,
             SettingsManager settingsManager,
             CommandContextItem refreshCommandContextItem,
             CommandContextItem helpCommandContextItem)

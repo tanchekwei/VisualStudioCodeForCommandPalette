@@ -7,10 +7,11 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Microsoft.Data.Sqlite;
+using WorkspaceLauncherForVSCode.Interfaces;
 
 namespace WorkspaceLauncherForVSCode.Classes
 {
-    public partial class WorkspaceStorage : IDisposable
+    public partial class WorkspaceStorage : IWorkspaceStorage
     {
         private readonly SqliteConnection _connection;
         private SqliteCommand? _saveWorkspaceCommand;
@@ -31,12 +32,12 @@ namespace WorkspaceLauncherForVSCode.Classes
                     PinDateTime TEXT NOT NULL
                 );";
 
-            public const string GetWorkspaces = @"SELECT 
-    w.Path, 
-    w.Name, 
-    w.Type, 
-    w.Frequency, 
-    w.LastAccessed, 
+            public const string GetWorkspaces = @"SELECT
+    w.Path,
+    w.Name,
+    w.Type,
+    w.Frequency,
+    w.LastAccessed,
     p.PinDateTime
 FROM Workspaces w
 LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
@@ -160,6 +161,7 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
             _saveWorkspaceCommand?.Dispose();
             _connection.Close();
             _connection.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

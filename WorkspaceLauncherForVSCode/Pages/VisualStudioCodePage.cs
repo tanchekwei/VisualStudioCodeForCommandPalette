@@ -22,7 +22,7 @@ public partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private readonly SettingsManager _settingsManager;
     private readonly IVisualStudioCodeService _vscodeService;
     private readonly SettingsListener _settingsListener;
-    private readonly WorkspaceStorage _workspaceStorage;
+    private readonly IWorkspaceStorage _workspaceStorage;
 
     private readonly List<ListItem> _allItems = new();
     private readonly List<ListItem> _visibleItems = new();
@@ -44,7 +44,11 @@ public partial class VisualStudioCodePage : DynamicListPage, IDisposable
     public event Action<int> TotalVisualStudioChanged;
     public event Action<int> TotalVisualStudioCodeChanged;
 
-    public VisualStudioCodePage(SettingsManager settingsManager, IVisualStudioCodeService vscodeService, SettingsListener settingsListener)
+    public VisualStudioCodePage(
+        SettingsManager settingsManager,
+        IVisualStudioCodeService vscodeService,
+        SettingsListener settingsListener,
+        IWorkspaceStorage workspaceStorage)
     {
         Title = Resource.page_title;
 #if DEBUG
@@ -56,7 +60,7 @@ public partial class VisualStudioCodePage : DynamicListPage, IDisposable
 
         _settingsManager = settingsManager;
         _vscodeService = vscodeService;
-        _workspaceStorage = new WorkspaceStorage();
+        _workspaceStorage = workspaceStorage;
         ShowDetails = _settingsManager.ShowDetails;
         _helpPage = new HelpPage(_settingsManager);
         TotalChanged += _helpPage.UpdateTotal;
@@ -348,5 +352,6 @@ public partial class VisualStudioCodePage : DynamicListPage, IDisposable
         TotalVisualStudioCodeChanged -= _helpPage.UpdateTotalVisualStudioCode;
         _workspaceStorage.Dispose();
         _refreshSemaphore.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

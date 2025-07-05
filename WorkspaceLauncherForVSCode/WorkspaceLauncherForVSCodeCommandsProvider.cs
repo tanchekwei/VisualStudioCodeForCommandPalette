@@ -1,4 +1,4 @@
-// Modifications copyright (c) 2025 tanchekwei 
+// Modifications copyright (c) 2025 tanchekwei
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -21,7 +21,11 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
         using var logger = new TimeLogger();
 #endif
         _settingsManager = new SettingsManager();
-        _vscodeService = new VisualStudioCodeService();
+        _vscodeService = new VisualStudioCodeService(
+            new VisualStudioCodeInstanceProviderWrapper(),
+            new VisualStudioCodeWorkspaceProviderWrapper(),
+            new VisualStudioProviderWrapper()
+        );
         DisplayName = "Visual Studio / Code";
 #if DEBUG
         DisplayName += " (Dev)";
@@ -34,7 +38,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
         _settingsListener = new SettingsListener(_settingsManager);
         _settingsListener.InstanceSettingsChanged += OnInstanceSettingsChanged;
 
-        _page = new VisualStudioCodePage(_settingsManager, _vscodeService, _settingsListener);
+        _page = new VisualStudioCodePage(_settingsManager, _vscodeService, _settingsListener, new WorkspaceStorage());
     }
 
     private void OnInstanceSettingsChanged(object? sender, System.EventArgs e)

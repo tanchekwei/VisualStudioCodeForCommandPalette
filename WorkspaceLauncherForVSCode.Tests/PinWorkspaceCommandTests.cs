@@ -13,7 +13,7 @@ namespace WorkspaceLauncherForVSCode.Tests
     public class PinWorkspaceCommandTests
     {
         private Mock<VisualStudioCodePage> _mockPage;
-        private Mock<WorkspaceStorage> _mockStorage;
+        private Mock<IWorkspaceStorage> _mockStorage;
         private Mock<SettingsManager> _mockSettingsManager;
         private Mock<IVisualStudioCodeService> _mockVsCodeService;
         private Mock<SettingsListener> _mockSettingsListener;
@@ -24,8 +24,12 @@ namespace WorkspaceLauncherForVSCode.Tests
             _mockSettingsManager = new Mock<SettingsManager>();
             _mockVsCodeService = new Mock<IVisualStudioCodeService>();
             _mockSettingsListener = new Mock<SettingsListener>(_mockSettingsManager.Object);
-            _mockPage = new Mock<VisualStudioCodePage>(_mockSettingsManager.Object, _mockVsCodeService.Object, _mockSettingsListener.Object);
-            _mockStorage = new Mock<WorkspaceStorage>();
+            _mockStorage = new Mock<IWorkspaceStorage>();
+            _mockPage = new Mock<VisualStudioCodePage>(
+                _mockSettingsManager.Object,
+                _mockVsCodeService.Object,
+                _mockSettingsListener.Object,
+                _mockStorage.Object);
         }
 
         [TestMethod]

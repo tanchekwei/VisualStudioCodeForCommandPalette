@@ -3,6 +3,7 @@
 using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
+using WorkspaceLauncherForVSCode.Interfaces;
 
 namespace WorkspaceLauncherForVSCode.Commands
 {
@@ -10,9 +11,9 @@ namespace WorkspaceLauncherForVSCode.Commands
     {
         private readonly VisualStudioCodeWorkspace _workspace;
         private readonly VisualStudioCodePage _page;
-        private readonly WorkspaceStorage _workspaceStorage;
+        private readonly IWorkspaceStorage _workspaceStorage;
 
-        public PinWorkspaceCommand(VisualStudioCodeWorkspace workspace, VisualStudioCodePage page, WorkspaceStorage workspaceStorage)
+        public PinWorkspaceCommand(VisualStudioCodeWorkspace workspace, VisualStudioCodePage page, IWorkspaceStorage workspaceStorage)
         {
             _workspace = workspace;
             _page = page;
