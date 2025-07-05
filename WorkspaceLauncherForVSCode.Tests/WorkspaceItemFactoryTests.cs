@@ -7,6 +7,9 @@ using WorkspaceLauncherForVSCode.Enums;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Listeners;
+using System;
+using System.Linq;
+using WorkspaceLauncherForVSCode.Commands;
 
 namespace WorkspaceLauncherForVSCode.Tests
 {
@@ -51,7 +54,7 @@ namespace WorkspaceLauncherForVSCode.Tests
             // Assert
             Assert.AreEqual("Test Solution", listItem.Title);
             Assert.AreEqual("C:\\solutions\\test.sln", listItem.Subtitle);
-            Assert.IsInstanceOfType(listItem.Command, typeof(Commands.OpenSolutionCommand));
+            Assert.IsInstanceOfType(listItem.Command, typeof(OpenSolutionCommand));
         }
 
         [TestMethod]
@@ -74,7 +77,7 @@ namespace WorkspaceLauncherForVSCode.Tests
             // Assert
             Assert.AreEqual("Test Workspace", listItem.Title);
             Assert.AreEqual("C:\\workspaces\\test.code-workspace", listItem.Subtitle);
-            Assert.IsInstanceOfType(listItem.Command, typeof(Commands.OpenVisualStudioCodeCommand));
+            Assert.IsInstanceOfType(listItem.Command, typeof(OpenVisualStudioCodeCommand));
         }
     }
 }

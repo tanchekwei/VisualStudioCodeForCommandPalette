@@ -138,7 +138,7 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
             await command.ExecuteNonQueryAsync();
         }
 
-        public async Task AddPinnedWorkspaceAsync(string path)
+        public virtual async Task AddPinnedWorkspaceAsync(string path)
         {
             using var command = _connection.CreateCommand();
             command.CommandText = Queries.AddPinnedWorkspace;
@@ -147,7 +147,7 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
             await command.ExecuteNonQueryAsync();
         }
 
-        public async Task RemovePinnedWorkspaceAsync(string path)
+        public virtual async Task RemovePinnedWorkspaceAsync(string path)
         {
             using var command = _connection.CreateCommand();
             command.CommandText = Queries.RemovePinnedWorkspace;

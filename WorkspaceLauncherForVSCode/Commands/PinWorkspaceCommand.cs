@@ -6,7 +6,7 @@ using WorkspaceLauncherForVSCode.Classes;
 
 namespace WorkspaceLauncherForVSCode.Commands
 {
-    internal sealed partial class PinWorkspaceCommand : InvokableCommand
+    public sealed partial class PinWorkspaceCommand : InvokableCommand
     {
         private readonly VisualStudioCodeWorkspace _workspace;
         private readonly VisualStudioCodePage _page;
