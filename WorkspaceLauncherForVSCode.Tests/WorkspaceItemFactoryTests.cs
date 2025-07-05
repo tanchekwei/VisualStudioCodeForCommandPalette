@@ -16,11 +16,11 @@ namespace WorkspaceLauncherForVSCode.Tests
     [TestClass]
     public class WorkspaceItemFactoryTests
     {
-        private Mock<VisualStudioCodePage> _mockVisualStudioCodePage;
-        private Mock<WorkspaceStorage> _mockWorkspaceStorage;
-        private Mock<SettingsManager> _mockSettingsManager;
-        private CommandContextItem _refreshCommandContextItem;
-        private CommandContextItem _helpCommandContextItem;
+        private Mock<VisualStudioCodePage> _mockVisualStudioCodePage = null!;
+        private Mock<WorkspaceStorage> _mockWorkspaceStorage = null!;
+        private Mock<SettingsManager> _mockSettingsManager = null!;
+        private CommandContextItem _refreshCommandContextItem = null!;
+        private CommandContextItem _helpCommandContextItem = null!;
 
         [TestInitialize]
         public void TestInitialize()

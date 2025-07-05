@@ -14,10 +14,10 @@ namespace WorkspaceLauncherForVSCode.Tests
     [TestClass]
     public class VisualStudioCodeServiceTests
     {
-        private Mock<IVisualStudioCodeInstanceProvider> _mockInstanceProvider;
-        private Mock<IVisualStudioCodeWorkspaceProvider> _mockWorkspaceProvider;
-        private Mock<IVisualStudioProvider> _mockVisualStudioProvider;
-        private VisualStudioCodeService _service;
+        private Mock<IVisualStudioCodeInstanceProvider> _mockInstanceProvider = null!;
+        private Mock<IVisualStudioCodeWorkspaceProvider> _mockWorkspaceProvider = null!;
+        private Mock<IVisualStudioProvider> _mockVisualStudioProvider = null!;
+        private VisualStudioCodeService _service = null!;
 
         [TestInitialize]
         public void TestInitialize()

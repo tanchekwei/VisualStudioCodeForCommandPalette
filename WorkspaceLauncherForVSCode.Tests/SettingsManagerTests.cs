@@ -11,7 +11,7 @@ namespace WorkspaceLauncherForVSCode.Tests
     [TestClass]
     public class SettingsManagerTests
     {
-        private SettingsManager _settingsManager;
+        private SettingsManager _settingsManager = null!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -36,21 +36,6 @@ namespace WorkspaceLauncherForVSCode.Tests
             Assert.AreEqual(8, _settingsManager.PageSize, "Default for PageSize should be 8.");
             Assert.IsFalse(_settingsManager.EnableLogging, "Default for EnableLogging should be false.");
         }
-
-        //[TestMethod]
-        //public void PageSize_WithInvalidValue_ReturnsDefault()
-        //{
-        //    // Arrange
-//'Settings' does not contain a definition for 'Find' and no accessible extension method 'Find' accepting a first argument of type 'Settings' could be found(are you missing a using directive or an assembly reference?)
-        //    var pageSizeSetting = _settingsManager.Settings.Find(s => s.Name.EndsWith(nameof(SettingsManager.PageSize))) as TextSetting;
-        //    pageSizeSetting.Value = "invalid";
-
-        //    // Act
-        //    var pageSize = _settingsManager.PageSize;
-
-        //    // Assert
-        //    Assert.AreEqual(8, pageSize, "PageSize should return the default value when the setting is invalid.");
-        //}
 
         [TestMethod]
         public void TagTypes_CanBeSetAndGet()

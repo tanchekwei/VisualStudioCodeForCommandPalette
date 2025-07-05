@@ -14,13 +14,13 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 namespace WorkspaceLauncherForVSCode.Tests
 {
     [TestClass]
-    public class VisualStudioCodePageTests
+    public class VisualStudioCodePageTests : IDisposable
     {
-        private Mock<SettingsManager> _mockSettingsManager;
-        private Mock<IVisualStudioCodeService> _mockVsCodeService;
-        private Mock<SettingsListener> _mockSettingsListener;
-        private Mock<IWorkspaceStorage> _mockWorkspaceStorage;
-        private VisualStudioCodePage _page;
+        private Mock<SettingsManager> _mockSettingsManager = null!;
+        private Mock<IVisualStudioCodeService> _mockVsCodeService = null!;
+        private Mock<SettingsListener> _mockSettingsListener = null!;
+        private Mock<IWorkspaceStorage> _mockWorkspaceStorage = null!;
+        private VisualStudioCodePage _page = null!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -38,6 +38,12 @@ namespace WorkspaceLauncherForVSCode.Tests
                 _mockVsCodeService.Object,
                 _mockSettingsListener.Object,
                 _mockWorkspaceStorage.Object);
+        }
+
+        public void Dispose()
+        {
+            _page?.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         [TestMethod]
@@ -69,8 +75,11 @@ namespace WorkspaceLauncherForVSCode.Tests
                 new ListItem(new Mock<ICommand>().Object) { Title = "workspace2" }
             };
             _page.ClearAllItems();
-            _page.GetType().GetField("_allItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(_page, allItems);
-
+            var field = _page.GetType().GetField("_allItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null)
+            {
+                field.SetValue(_page, allItems);
+            }
 
             // Act
             _page.UpdateSearchText("", "workspace1");
@@ -92,7 +101,11 @@ namespace WorkspaceLauncherForVSCode.Tests
                 allItems.Add(listItem);
             }
             _page.ClearAllItems();
-            _page.GetType().GetField("_allItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(_page, allItems);
+            var field = _page.GetType().GetField("_allItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null)
+            {
+                field.SetValue(_page, allItems);
+            }
             _mockSettingsManager.Setup(s => s.PageSize).Returns(5);
             _page.UpdateSearchText("", "");
 
@@ -100,7 +113,7 @@ namespace WorkspaceLauncherForVSCode.Tests
             _page.LoadMore();
 
             // Assert
-            Assert.AreEqual(10, _page.GetItems().Length-1);
+            Assert.AreEqual(10, _page.GetItems().Length - 1);
         }
 
         [TestMethod]
@@ -114,7 +127,11 @@ namespace WorkspaceLauncherForVSCode.Tests
 
             var allItems = new List<ListItem> { listItem };
             _page.ClearAllItems();
-            _page.GetType().GetField("_allItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(_page, allItems);
+            var field = _page.GetType().GetField("_allItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null)
+            {
+                field.SetValue(_page, allItems);
+            }
             _page.UpdateSearchText("", "");
 
 

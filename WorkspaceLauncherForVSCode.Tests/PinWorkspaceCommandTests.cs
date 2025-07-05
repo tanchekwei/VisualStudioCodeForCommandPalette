@@ -12,11 +12,11 @@ namespace WorkspaceLauncherForVSCode.Tests
     [TestClass]
     public class PinWorkspaceCommandTests
     {
-        private Mock<VisualStudioCodePage> _mockPage;
-        private Mock<IWorkspaceStorage> _mockStorage;
-        private Mock<SettingsManager> _mockSettingsManager;
-        private Mock<IVisualStudioCodeService> _mockVsCodeService;
-        private Mock<SettingsListener> _mockSettingsListener;
+        private Mock<VisualStudioCodePage> _mockPage = null!;
+        private Mock<IWorkspaceStorage> _mockStorage = null!;
+        private Mock<SettingsManager> _mockSettingsManager = null!;
+        private Mock<IVisualStudioCodeService> _mockVsCodeService = null!;
+        private Mock<SettingsListener> _mockSettingsListener = null!;
 
         [TestInitialize]
         public void TestInitialize()
