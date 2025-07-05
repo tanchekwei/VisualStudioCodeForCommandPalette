@@ -9,6 +9,7 @@ using WorkspaceLauncherForVSCode.Services;
 using Microsoft.CommandPalette.Extensions;
 using System.Linq;
 using System;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace WorkspaceLauncherForVSCode.Tests
 {

@@ -28,7 +28,7 @@ public class VisualStudioCodeInstance
     /// <param name="storagePath">The path to the storage file.</param>
     /// <param name="installationType">The type of installation (system or user).</param>
     /// <param name="type">The type of Visual Studio Code (default or insider).</param>
-    internal VisualStudioCodeInstance(string name, string executablePath, string storagePath, VisualStudioCodeInstallationType installationType, VisualStudioCodeType type)
+    public VisualStudioCodeInstance(string name, string executablePath, string storagePath, VisualStudioCodeInstallationType installationType, VisualStudioCodeType type)
     {
         this.Name = name;
         this.ExecutablePath = executablePath;
