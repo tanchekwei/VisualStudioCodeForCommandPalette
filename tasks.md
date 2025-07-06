@@ -18,4 +18,16 @@ below is the command to run test with code coverage
 PS D:\Code\VSCodeExtension\MyExtension> cd WorkspaceLauncherForVSCode.Tests
 PS D:\Code\VSCodeExtension\MyExtension\WorkspaceLauncherForVSCode.Tests> dotnet test --collect:"XPlat Code Coverage" --logger "trx;LogFileName=TestResults.trx" --verbosity minimal
 
+only read WorkspaceLauncherForVSCode.Tests\TestResults\TestResults.trx to understand what is the error
+
+do not read WorkspaceLauncherForVSCode.Tests\TestResults\c16c78a7-829f-4986-94f7-819fb77e1e2a\coverage.cobertura.xml
+
 must use the options --logger "trx;LogFileName=TestResults.trx" --verbosity minimal to reduce the result size for you to read.
+
+do not read WorkspaceLauncherForVSCode.Tests\TestResults\c16c78a7-829f-4986-94f7-819fb77e1e2a\coverage.cobertura.xml
+only read WorkspaceLauncherForVSCode.Tests\TestResults\TestResults.trx to understand what is the error
+
+to reduce warning message, run with dotnet build WorkspaceLauncherForVSCode.Tests/WorkspaceLauncherForVSCode.Tests.csproj -r win-x64--nologo -v q --property WarningLevel=0 /clp:ErrorsOnly
+
+do not read the coverage report
+do net read coverage.cobertura.xml

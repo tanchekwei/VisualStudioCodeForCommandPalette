@@ -5,8 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <Platforms>x86;x64;ARM64</Platforms>
-    <RuntimeIdentifier>win-$(Platform)</RuntimeIdentifier>
+    <Platform>x64</Platform>
     <EnableMsixTooling>true</EnableMsixTooling>
   </PropertyGroup>
 

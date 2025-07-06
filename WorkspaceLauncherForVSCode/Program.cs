@@ -11,6 +11,8 @@ namespace WorkspaceLauncherForVSCode;
 
 public class Program
 {
+    internal static ManualResetEvent? extensionDisposedEvent;
+
     [MTAThread]
     public static void Main(string[] args)
     {
@@ -20,7 +22,7 @@ public class Program
         if (args.Length > 0 && args[0] == "-RegisterProcessAsComServer")
         {
             using ExtensionServer server = new();
-            var extensionDisposedEvent = new ManualResetEvent(false);
+            extensionDisposedEvent = new ManualResetEvent(false);
 
             // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.
             // This makes sure that only one instance of SampleExtension is alive, which is returned every time the host asks for the IExtension object.
