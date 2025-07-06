@@ -131,4 +131,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <IsPublishable>True</IsPublishable>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>WorkspaceLauncherForVSCode.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 </Project>

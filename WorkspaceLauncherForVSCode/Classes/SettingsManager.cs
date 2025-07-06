@@ -138,12 +138,12 @@ public class SettingsManager : JsonSettingsManager
         Resource.setting_pageSize_desc,
         "8");
 
-    public bool EnableLogging => _enableLogging.Value;
-    public bool ShowDetails => _showDetails.Value;
-    public string PreferredEdition => _preferredEdition.Value ?? "Default";
-    public bool EnableVisualStudio => _enableVisualStudio.Value;
+    public virtual bool EnableLogging => _enableLogging.Value;
+    public virtual bool ShowDetails => _showDetails.Value;
+    public virtual string PreferredEdition => _preferredEdition.Value ?? "Default";
+    public virtual bool EnableVisualStudio => _enableVisualStudio.Value;
 
-    public TagType TagTypes
+    public virtual TagType TagTypes
     {
         get
         {
@@ -165,7 +165,7 @@ public class SettingsManager : JsonSettingsManager
         }
     }
 
-    public VisualStudioCodeEdition EnabledEditions
+    public virtual VisualStudioCodeEdition EnabledEditions
     {
         get
         {
@@ -178,7 +178,7 @@ public class SettingsManager : JsonSettingsManager
         }
     }
 
-    public CommandResultType CommandResult
+    public virtual CommandResultType CommandResult
     {
         get
         {
@@ -190,7 +190,7 @@ public class SettingsManager : JsonSettingsManager
         }
     }
 
-    public SearchBy SearchBy
+    public virtual SearchBy SearchBy
     {
         get
         {
@@ -226,7 +226,7 @@ public class SettingsManager : JsonSettingsManager
         }
     }
 
-    public int PageSize
+    public virtual int PageSize
     {
         get
         {

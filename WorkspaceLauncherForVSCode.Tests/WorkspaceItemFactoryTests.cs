@@ -16,7 +16,7 @@ namespace WorkspaceLauncherForVSCode.Tests
     [TestClass]
     public class WorkspaceItemFactoryTests
     {
-        private Mock<VisualStudioCodePage> _mockVisualStudioCodePage = null!;
+        private Mock<IVisualStudioCodePage> _mockVisualStudioCodePage = null!;
         private Mock<WorkspaceStorage> _mockWorkspaceStorage = null!;
         private Mock<SettingsManager> _mockSettingsManager = null!;
         private CommandContextItem _refreshCommandContextItem = null!;
@@ -28,7 +28,7 @@ namespace WorkspaceLauncherForVSCode.Tests
             _mockSettingsManager = new Mock<SettingsManager>();
             var mockVsCodeService = new Mock<IVisualStudioCodeService>();
             var mockSettingsListener = new Mock<SettingsListener>(_mockSettingsManager.Object);
-            _mockVisualStudioCodePage = new Mock<VisualStudioCodePage>(_mockSettingsManager.Object, mockVsCodeService.Object, mockSettingsListener.Object);
+            _mockVisualStudioCodePage = new Mock<IVisualStudioCodePage>();
             _mockWorkspaceStorage = new Mock<WorkspaceStorage>();
             _refreshCommandContextItem = new CommandContextItem(new Mock<ICommand>().Object);
             _helpCommandContextItem = new CommandContextItem(new Mock<ICommand>().Object);

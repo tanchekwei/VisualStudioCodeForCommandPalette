@@ -6,12 +6,12 @@ using WorkspaceLauncherForVSCode.Classes;
 
 namespace WorkspaceLauncherForVSCode.Commands;
 
-internal sealed partial class CopyPathCommand : InvokableCommand
+public sealed partial class CopyPathCommand : InvokableCommand
 {
     public override string Name => "Copy Path";
     internal string Path { get; }
 
-    internal CopyPathCommand(string path)
+    public CopyPathCommand(string path)
     {
         Path = path;
         Icon = Classes.Icon.Copy;

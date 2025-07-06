@@ -7,3 +7,9 @@ task 1. my test solution is in WorkspaceLauncherForVSCode.Tests folder, help me 
 dotnet build both solution ensure no error
 
 study WorkspaceLauncherForVSCode.Tests.csproj to understand the test library used and do not change it
+
+never change WorkspaceLauncherForVSCode.csproj
+
+ensure full code coverage and ensure all tests passed
+
+ensure the test case is valid

@@ -1,87 +1,83 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using WorkspaceLauncherForVSCode.Commands;
-using WorkspaceLauncherForVSCode.Classes;
-using System;
 using System.Threading.Tasks;
+using WorkspaceLauncherForVSCode.Classes;
+using WorkspaceLauncherForVSCode.Commands;
 using WorkspaceLauncherForVSCode.Interfaces;
-using WorkspaceLauncherForVSCode.Listeners;
 
 namespace WorkspaceLauncherForVSCode.Tests
 {
     [TestClass]
     public class PinWorkspaceCommandTests
     {
-        private Mock<VisualStudioCodePage> _mockPage = null!;
-        private Mock<IWorkspaceStorage> _mockStorage = null!;
-        private Mock<SettingsManager> _mockSettingsManager = null!;
-        private Mock<IVisualStudioCodeService> _mockVsCodeService = null!;
-        private Mock<SettingsListener> _mockSettingsListener = null!;
+        private Mock<IVisualStudioCodePage> _mockPage = null!;
+        private Mock<IWorkspaceStorage> _mockWorkspaceStorage = null!;
+        private VisualStudioCodeWorkspace _workspace = null!;
+        private PinWorkspaceCommand _command = null!;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            _mockSettingsManager = new Mock<SettingsManager>();
-            _mockVsCodeService = new Mock<IVisualStudioCodeService>();
-            _mockSettingsListener = new Mock<SettingsListener>(_mockSettingsManager.Object);
-            _mockStorage = new Mock<IWorkspaceStorage>();
-            _mockPage = new Mock<VisualStudioCodePage>(
-                _mockSettingsManager.Object,
-                _mockVsCodeService.Object,
-                _mockSettingsListener.Object,
-                _mockStorage.Object);
+            _mockPage = new Mock<IVisualStudioCodePage>();
+            _mockWorkspaceStorage = new Mock<IWorkspaceStorage>();
+            _workspace = new VisualStudioCodeWorkspace { Path = "test_path" };
+            _command = new PinWorkspaceCommand(_workspace, _mockPage.Object, _mockWorkspaceStorage.Object);
         }
 
         [TestMethod]
         public void Name_WhenWorkspaceIsPinned_ReturnsUnpinFromList()
         {
             // Arrange
-            var workspace = new VisualStudioCodeWorkspace { PinDateTime = DateTime.UtcNow };
-            var command = new PinWorkspaceCommand(workspace, _mockPage.Object, _mockStorage.Object);
+            _workspace.PinDateTime = System.DateTime.UtcNow;
 
             // Assert
-            Assert.AreEqual("Unpin from List", command.Name);
+            Assert.AreEqual("Unpin from List", _command.Name);
         }
 
         [TestMethod]
         public void Name_WhenWorkspaceIsNotPinned_ReturnsPinToList()
         {
             // Arrange
-            var workspace = new VisualStudioCodeWorkspace();
-            var command = new PinWorkspaceCommand(workspace, _mockPage.Object, _mockStorage.Object);
+            _workspace.PinDateTime = null;
 
             // Assert
-            Assert.AreEqual("Pin to List", command.Name);
+            Assert.AreEqual("Pin to List", _command.Name);
         }
 
         [TestMethod]
         public async Task Invoke_WhenWorkspaceIsPinned_CallsRemovePinnedWorkspaceAsync()
         {
             // Arrange
-            var workspace = new VisualStudioCodeWorkspace { Path = "test_path", PinDateTime = DateTime.UtcNow };
-            var command = new PinWorkspaceCommand(workspace, _mockPage.Object, _mockStorage.Object);
+            _workspace.PinDateTime = System.DateTime.UtcNow;
 
             // Act
-            command.Invoke();
-            await Task.Delay(100); // Wait for the async task to complete
+            _command.Invoke();
+            await Task.Delay(100);
 
             // Assert
-            _mockStorage.Verify(s => s.RemovePinnedWorkspaceAsync(workspace.Path), Times.Once);
+            _mockWorkspaceStorage.Verify(s => s.RemovePinnedWorkspaceAsync("test_path"), Times.Once);
+            if (_mockPage.Object is VisualStudioCodePage concretePage)
+            {
+                _mockPage.As<IVisualStudioCodePage>().Verify(p => concretePage.TogglePinStatus("test_path"), Times.Once);
+            }
         }
 
         [TestMethod]
         public async Task Invoke_WhenWorkspaceIsNotPinned_CallsAddPinnedWorkspaceAsync()
         {
             // Arrange
-            var workspace = new VisualStudioCodeWorkspace { Path = "test_path" };
-            var command = new PinWorkspaceCommand(workspace, _mockPage.Object, _mockStorage.Object);
+            _workspace.PinDateTime = null;
 
             // Act
-            command.Invoke();
-            await Task.Delay(100); // Wait for the async task to complete
+            _command.Invoke();
+            await Task.Delay(100);
 
             // Assert
-            _mockStorage.Verify(s => s.AddPinnedWorkspaceAsync(workspace.Path), Times.Once);
+            _mockWorkspaceStorage.Verify(s => s.AddPinnedWorkspaceAsync("test_path"), Times.Once);
+            if (_mockPage.Object is VisualStudioCodePage concretePage)
+            {
+                _mockPage.As<IVisualStudioCodePage>().Verify(p => concretePage.TogglePinStatus("test_path"), Times.Once);
+            }
         }
     }
 }

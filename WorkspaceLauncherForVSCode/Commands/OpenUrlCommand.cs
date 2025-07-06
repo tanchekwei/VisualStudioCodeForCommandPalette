@@ -6,7 +6,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace WorkspaceLauncherForVSCode.Commands
 {
-    internal sealed partial class OpenUrlCommand : InvokableCommand
+    public sealed partial class OpenUrlCommand : InvokableCommand
     {
         private readonly string Url;
 

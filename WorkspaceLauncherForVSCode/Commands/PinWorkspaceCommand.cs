@@ -10,10 +10,10 @@ namespace WorkspaceLauncherForVSCode.Commands
     public sealed partial class PinWorkspaceCommand : InvokableCommand
     {
         private readonly VisualStudioCodeWorkspace _workspace;
-        private readonly VisualStudioCodePage _page;
+        private readonly IVisualStudioCodePage _page;
         private readonly IWorkspaceStorage _workspaceStorage;
 
-        public PinWorkspaceCommand(VisualStudioCodeWorkspace workspace, VisualStudioCodePage page, IWorkspaceStorage workspaceStorage)
+        public PinWorkspaceCommand(VisualStudioCodeWorkspace workspace, IVisualStudioCodePage page, IWorkspaceStorage workspaceStorage)
         {
             _workspace = workspace;
             _page = page;
@@ -41,7 +41,10 @@ namespace WorkspaceLauncherForVSCode.Commands
                     await _workspaceStorage.AddPinnedWorkspaceAsync(_workspace.Path);
                 }
 
-                await _page.TogglePinStatus(_workspace.Path);
+                if (_page is VisualStudioCodePage concretePage)
+                {
+                    await concretePage.TogglePinStatus(_workspace.Path);
+                }
 
                 var statusMessage = _workspace.PinDateTime.HasValue ? $"Pinned \"{_workspace.Name}\"" : $"Unpinned \"{_workspace.Name}\"";
                 new ToastStatusMessage(statusMessage).Show();

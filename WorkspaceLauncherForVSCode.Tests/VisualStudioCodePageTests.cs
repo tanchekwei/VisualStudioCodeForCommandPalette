@@ -69,24 +69,39 @@ namespace WorkspaceLauncherForVSCode.Tests
         public void UpdateSearchText_FiltersItems()
         {
             // Arrange
+            var mockCommand1 = new Mock<ICommand>();
+            var mockWorkspace1 = new VisualStudioCodeWorkspace { Path = "c:\\ws1", Name = "workspace1", WorkspaceName = "workspace1" };
+            var mockHasWorkspace1 = mockCommand1.As<IHasWorkspace>();
+            mockHasWorkspace1.Setup(x => x.Workspace).Returns(mockWorkspace1);
+
+            var mockCommand2 = new Mock<ICommand>();
+            var mockWorkspace2 = new VisualStudioCodeWorkspace { Path = "c:\\ws2", Name = "workspace2", WorkspaceName = "workspace2" };
+            var mockHasWorkspace2 = mockCommand2.As<IHasWorkspace>();
+            mockHasWorkspace2.Setup(x => x.Workspace).Returns(mockWorkspace2);
+            
             var allItems = new List<ListItem>
             {
-                new ListItem(new Mock<ICommand>().Object) { Title = "workspace1" },
-                new ListItem(new Mock<ICommand>().Object) { Title = "workspace2" }
+                new ListItem(mockCommand1.Object) { Title = "workspace1" },
+                new ListItem(mockCommand2.Object) { Title = "workspace2" }
             };
-            _page.ClearAllItems();
-            var field = _page.GetType().GetField("_allItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (field != null)
-            {
-                field.SetValue(_page, allItems);
-            }
+            
+            _page = new VisualStudioCodePage(
+                _mockSettingsManager.Object,
+                _mockVsCodeService.Object,
+                _mockSettingsListener.Object,
+                _mockWorkspaceStorage.Object,
+                allItems);
 
-            // Act
+            _mockSettingsManager.Setup(s => s.SearchBy).Returns(Enums.SearchBy.Title);
+            _mockSettingsManager.Setup(s => s.PageSize).Returns(10);
             _page.UpdateSearchText("", "workspace1");
+            
+            var visibleItems = _page.GetItems();
+            var filteredItems = visibleItems.Where(x => x.Title != "Still not seeing what you´re looking for?").ToList();
 
             // Assert
-            Assert.AreEqual(1, _page.GetItems().Length);
-            Assert.AreEqual("workspace1", _page.GetItems()[0].Title);
+            Assert.AreEqual(1, filteredItems.Count);
+            Assert.AreEqual("workspace1", filteredItems[0].Title);
         }
 
         [TestMethod]
@@ -97,23 +112,31 @@ namespace WorkspaceLauncherForVSCode.Tests
             for (int i = 0; i < 10; i++)
             {
                 var mockCommand = new Mock<ICommand>();
+                var mockWorkspace = new VisualStudioCodeWorkspace { Path = $"c:\\ws{i}", Name = $"workspace{i}", WorkspaceName = $"workspace{i}" };
+                var mockHasWorkspace = mockCommand.As<IHasWorkspace>();
+                mockHasWorkspace.Setup(x => x.Workspace).Returns(mockWorkspace);
                 var listItem = new ListItem(mockCommand.Object) { Title = $"workspace{i}" };
                 allItems.Add(listItem);
             }
-            _page.ClearAllItems();
-            var field = _page.GetType().GetField("_allItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (field != null)
-            {
-                field.SetValue(_page, allItems);
-            }
+            
             _mockSettingsManager.Setup(s => s.PageSize).Returns(5);
+            
+            _page = new VisualStudioCodePage(
+                _mockSettingsManager.Object,
+                _mockVsCodeService.Object,
+                _mockSettingsListener.Object,
+                _mockWorkspaceStorage.Object,
+                allItems);
+            
             _page.UpdateSearchText("", "");
 
             // Act
             _page.LoadMore();
+            var visibleItems = _page.GetItems();
+            var filteredItems = visibleItems.Where(x => x.Title != "Still not seeing what you´re looking for?").ToList();
 
             // Assert
-            Assert.AreEqual(10, _page.GetItems().Length - 1);
+            Assert.AreEqual(10, filteredItems.Count);
         }
 
         [TestMethod]
@@ -126,12 +149,14 @@ namespace WorkspaceLauncherForVSCode.Tests
             var listItem = new ListItem(mockCommand.As<ICommand>().Object) { Title = "test" };
 
             var allItems = new List<ListItem> { listItem };
-            _page.ClearAllItems();
-            var field = _page.GetType().GetField("_allItems", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (field != null)
-            {
-                field.SetValue(_page, allItems);
-            }
+
+            _page = new VisualStudioCodePage(
+                _mockSettingsManager.Object,
+                _mockVsCodeService.Object,
+                _mockSettingsListener.Object,
+                _mockWorkspaceStorage.Object,
+                allItems);
+
             _page.UpdateSearchText("", "");
 
 
@@ -142,10 +167,5 @@ namespace WorkspaceLauncherForVSCode.Tests
             _mockWorkspaceStorage.Verify(s => s.UpdateWorkspaceFrequencyAsync("test_path"), Times.Once);
             Assert.AreEqual(2, workspace.Frequency);
         }
-    }
-
-    public interface IHasWorkspace
-    {
-        VisualStudioCodeWorkspace Workspace { get; }
     }
 }

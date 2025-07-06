@@ -13,11 +13,11 @@ namespace WorkspaceLauncherForVSCode.Commands;
 public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
 {
     public VisualStudioCodeWorkspace Workspace { get; set; }
-    private readonly VisualStudioCodePage? page;
+    private readonly IVisualStudioCodePage? page;
     private readonly CommandResultType commandResult;
     private readonly bool _elevated;
 
-    public OpenSolutionCommand(VisualStudioCodeWorkspace workspace, VisualStudioCodePage page, CommandResultType commandResult, bool elevated = false)
+    public OpenSolutionCommand(VisualStudioCodeWorkspace workspace, IVisualStudioCodePage page, CommandResultType commandResult, bool elevated = false)
     {
         Workspace = workspace;
         this.page = page;
@@ -62,7 +62,7 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
             if (window.Title.Contains(solutionName))
             {
                 window.SwitchToWindow();
-                return PageCommandResultHandler.HandleCommandResult(CommandResultType.Dismiss, page);
+                return PageCommandResultHandler.HandleCommandResult(CommandResultType.Dismiss, page as VisualStudioCodePage);
             }
         }
 
@@ -77,6 +77,6 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
             Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path));
         }
 
-        return PageCommandResultHandler.HandleCommandResult(commandResult, page);
+        return PageCommandResultHandler.HandleCommandResult(commandResult, page as VisualStudioCodePage);
     }
 }

@@ -17,7 +17,7 @@ using WorkspaceLauncherForVSCode.Workspaces;
 
 namespace WorkspaceLauncherForVSCode;
 
-public partial class VisualStudioCodePage : DynamicListPage, IDisposable
+public partial class VisualStudioCodePage : DynamicListPage, IDisposable, IVisualStudioCodePage
 {
     private readonly SettingsManager _settingsManager;
     private readonly IVisualStudioCodeService _vscodeService;
@@ -90,6 +90,20 @@ public partial class VisualStudioCodePage : DynamicListPage, IDisposable
         }];
         _ = LoadInitialWorkspacesAsync();
     }
+    
+    internal VisualStudioCodePage(
+        SettingsManager settingsManager,
+        IVisualStudioCodeService vscodeService,
+        SettingsListener settingsListener,
+        IWorkspaceStorage workspaceStorage,
+        List<ListItem> items) : this(settingsManager, vscodeService, settingsListener, workspaceStorage)
+    {
+        _allItems.AddRange(items);
+        _cachedFilteredItems.AddRange(items);
+        _visibleItems.AddRange(items.Take(_settingsManager.PageSize));
+        HasMoreItems = items.Count > _settingsManager.PageSize;
+    }
+
 
     public void StartRefresh()
     {

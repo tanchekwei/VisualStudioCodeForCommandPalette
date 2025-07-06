@@ -21,7 +21,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 
         public static ListItem Create(
             VisualStudioCodeWorkspace workspace,
-            VisualStudioCodePage page,
+            IVisualStudioCodePage page,
             IWorkspaceStorage workspaceStorage,
             SettingsManager settingsManager,
             CommandContextItem refreshCommandContextItem,
