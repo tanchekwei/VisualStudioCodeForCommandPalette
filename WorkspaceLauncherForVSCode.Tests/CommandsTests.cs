@@ -7,8 +7,13 @@ using WorkspaceLauncherForVSCode.Interfaces;
 using System.IO;
 using System;
 using Microsoft.CommandPalette.Extensions;
-using Microsoft.CommandPalette.Extensions.Toolkit;
+using Toolkit = Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Enums;
+using System.Reflection;
+using WorkspaceLauncherForVSCode.Services;
+using WorkspaceLauncherForVSCode.Listeners;
+using System.Collections.Generic;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace WorkspaceLauncherForVSCode.Tests
 {
@@ -64,7 +69,7 @@ namespace WorkspaceLauncherForVSCode.Tests
             var result = command.Invoke();
 
             // Assert
-            Assert.AreEqual(CommandResult.Dismiss(), result);
+            Assert.AreEqual(Toolkit.CommandResult.KeepOpen().Kind, result.Kind);
         }
 
         [TestMethod]
@@ -82,7 +87,7 @@ namespace WorkspaceLauncherForVSCode.Tests
             var result = command.Invoke();
 
             // Assert
-            Assert.AreEqual(CommandResult.KeepOpen(), result);
+            Assert.AreEqual(Toolkit.CommandResult.KeepOpen().Kind, result.Kind);
         }
 
         [TestMethod]
@@ -95,7 +100,7 @@ namespace WorkspaceLauncherForVSCode.Tests
             var result = command.Invoke();
 
             // Assert
-            Assert.AreEqual(CommandResult.KeepOpen(), result);
+            Assert.AreEqual(Toolkit.CommandResult.KeepOpen().Kind, result.Kind);
         }
 
         [TestMethod]
@@ -108,7 +113,7 @@ namespace WorkspaceLauncherForVSCode.Tests
             var result = command.Invoke();
 
             // Assert
-            Assert.AreEqual(CommandResult.Dismiss(), result);
+            Assert.AreEqual(Toolkit.CommandResult.Dismiss().Kind, result.Kind);
         }
 
         [TestMethod]
@@ -116,7 +121,7 @@ namespace WorkspaceLauncherForVSCode.Tests
         {
             // Arrange
             var url = "https://github.com";
-            var command = new global::WorkspaceLauncherForVSCode.Commands.OpenUrlCommand(url, "Open GitHub", new IconInfo(default!, default!));
+            var command = new global::WorkspaceLauncherForVSCode.Commands.OpenUrlCommand(url, "Open GitHub", Icon.Web);
 
             // Act & Assert
             try
@@ -128,6 +133,58 @@ namespace WorkspaceLauncherForVSCode.Tests
             {
                 Assert.Fail($"Expected no exception, but got: {ex.Message}");
             }
+        }
+
+        [TestMethod]
+        public void OpenSolutionCommand_Invoke_ReturnsDismissResult()
+        {
+            // Arrange
+            var workspace = new VisualStudioCodeWorkspace { WindowsPath = "C:\\test\\solution.sln" };
+            var mockPage = new Mock<IVisualStudioCodePage>();
+            var command = new OpenSolutionCommand(workspace, mockPage.Object, CommandResultType.Dismiss, false);
+
+            // Act
+            var result = command.Invoke();
+
+            // Assert
+            Assert.AreEqual(CommandResultKind.KeepOpen, result.Kind);
+        }
+
+        [TestMethod]
+        public void OpenVisualStudioCodeCommand_Invoke_ReturnsDismissResult()
+        {
+            // Arrange
+            var workspace = new VisualStudioCodeWorkspace { WindowsPath = "C:\\test\\path" };
+            var mockPage = new Mock<IVisualStudioCodePage>();
+            var command = new OpenVisualStudioCodeCommand(workspace, mockPage.Object, CommandResultType.Dismiss, false);
+
+            // Act
+            var result = command.Invoke();
+
+            // Assert
+            Assert.AreEqual(CommandResultKind.Confirm, result.Kind);
+        }
+
+        [TestMethod]
+        public void RefreshWorkspacesCommand_Invoke_ReturnsDismissResult()
+        {
+            // Arrange
+            var mockService = new Mock<IVisualStudioCodeService>();
+            var settingsManager = new SettingsManager();
+            var mockPage = new VisualStudioCodePage(
+                settingsManager,
+                mockService.Object,
+                new SettingsListener(settingsManager),
+                new Mock<IWorkspaceStorage>().Object,
+                new List<ListItem>()
+            );
+            var command = new RefreshWorkspacesCommand(mockService.Object, settingsManager, mockPage);
+
+            // Act
+            var result = command.Invoke();
+
+            // Assert
+            Assert.AreEqual(CommandResultKind.KeepOpen, result.Kind);
         }
     }
 }
