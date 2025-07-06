@@ -8,6 +8,7 @@ using System.IO;
 using System;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using WorkspaceLauncherForVSCode.Enums;
 
 namespace WorkspaceLauncherForVSCode.Tests
 {
@@ -46,6 +47,68 @@ namespace WorkspaceLauncherForVSCode.Tests
             {
                 Assert.Fail($"Expected no exception, but got: {ex.Message}");
             }
+        }
+
+        [TestMethod]
+        public void OpenInExplorerCommand_ForSolution_OpensDirectory()
+        {
+            // Arrange
+            var workspace = new VisualStudioCodeWorkspace
+            {
+                WindowsPath = "C:\\test\\solution.sln",
+                WorkspaceType = WorkspaceType.Solution
+            };
+            var command = new OpenInExplorerCommand(workspace.WindowsPath, workspace);
+
+            // Act
+            var result = command.Invoke();
+
+            // Assert
+            Assert.AreEqual(CommandResult.Dismiss(), result);
+        }
+
+        [TestMethod]
+        public void OpenInExplorerCommand_ForRemoteWorkspace_ShowsToast()
+        {
+            // Arrange
+            var workspace = new VisualStudioCodeWorkspace
+            {
+                WindowsPath = "C:\\test\\path",
+                VsCodeRemoteType = VsCodeRemoteType.Remote
+            };
+            var command = new OpenInExplorerCommand(workspace.WindowsPath, workspace);
+
+            // Act
+            var result = command.Invoke();
+
+            // Assert
+            Assert.AreEqual(CommandResult.KeepOpen(), result);
+        }
+
+        [TestMethod]
+        public void OpenInExplorerCommand_WithInvalidPath_ShowsToast()
+        {
+            // Arrange
+            var command = new OpenInExplorerCommand("invalidpath", null);
+
+            // Act
+            var result = command.Invoke();
+
+            // Assert
+            Assert.AreEqual(CommandResult.KeepOpen(), result);
+        }
+
+        [TestMethod]
+        public void OpenInExplorerCommand_WithNullPath_DoesNothing()
+        {
+            // Arrange
+            var command = new OpenInExplorerCommand(null, null);
+
+            // Act
+            var result = command.Invoke();
+
+            // Assert
+            Assert.AreEqual(CommandResult.Dismiss(), result);
         }
 
         [TestMethod]
