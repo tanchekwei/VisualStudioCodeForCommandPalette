@@ -255,8 +255,9 @@ public class SettingsManager : JsonSettingsManager
         Settings.Add(_searchBy);
         Settings.Add(_vsSecondaryCommand);
         Settings.Add(_vscodeSecondaryCommand);
+#if DEBUG
         Settings.Add(_enableLogging);
-
+#endif
         // Load settings from file upon initialization
         LoadSettings();
 
