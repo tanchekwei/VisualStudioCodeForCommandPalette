@@ -30,11 +30,6 @@ namespace WorkspaceLauncherForVSCode.Commands
             {
                 return CommandResult.Dismiss();
             }
-            if (workspace?.VsCodeRemoteType == VsCodeRemoteType.Remote)
-            {
-                new ToastStatusMessage($"Not supported.").Show();
-                return CommandResult.KeepOpen();
-            }
             if (workspace?.WorkspaceType == Enums.WorkspaceType.Solution)
             {
                 pathToOpen = Path.GetDirectoryName(pathToOpen) ?? string.Empty;

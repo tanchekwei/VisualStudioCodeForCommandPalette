@@ -10,4 +10,5 @@ public static class Constant
 #else
   public static readonly string AppName = "WorkspaceLauncherForVSCode";
 #endif
+  public static readonly string VscodeRemoteScheme = "vscode-remote://";
 }

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using WorkspaceLauncherForVSCode.Components;
 using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Helpers;
 using WorkspaceLauncherForVSCode.Properties;
@@ -24,7 +25,8 @@ public class VisualStudioCodeWorkspace
     public VisualStudioCodeWorkspaceSource Source { get; set; }
     public List<string> SourcePath { get; set; } = new();
     public string WorkspaceName { get; set; } = "";
-    public VsCodeRemoteType VsCodeRemoteType { get; set; }
+    public VisualStudioCodeRemoteType? VsCodeRemoteType { get; set; }
+    public string? VsCodeRemoteTypeStr { get; set; }
     public string WorkspaceTypeString { get; set; } = "";
     public DetailsElement[] Details { get; set; } = [];
     public int Frequency { get; set; }
@@ -40,13 +42,12 @@ public class VisualStudioCodeWorkspace
     internal VisualStudioCodeWorkspace(VisualStudioCodeInstance instance, string path, WorkspaceType visualStudioCodeWorkspaceType, VisualStudioCodeWorkspaceSource source, string sourcePath)
     {
         Path = path;
-        if (FileUriParser.TryConvertToWindowsPath(path, out string? windowsPath) && windowsPath != null)
+
+        if (FileUriParser.TryParse(path, out var windowsPath, out var remoteType, out var remoteTypeStr))
         {
             WindowsPath = windowsPath;
-        }
-        else
-        {
-            WindowsPath = path;
+            VsCodeRemoteType = remoteType;
+            VsCodeRemoteTypeStr = remoteTypeStr;
         }
         VSCodeInstance = instance;
         WorkspaceType = visualStudioCodeWorkspaceType;
@@ -54,7 +55,6 @@ public class VisualStudioCodeWorkspace
         SourcePath.Add(sourcePath);
 
         SetName();
-        SetVSCodeType();
         SetWorkspaceType();
         SetVSCodeMetadata();
         Name = WorkspaceName;
@@ -81,34 +81,13 @@ public class VisualStudioCodeWorkspace
         if (WorkspaceType == WorkspaceType.Workspace)
         {
             // remove .code-workspace
-            WorkspaceName = WorkspaceName.Replace(".code-workspace", "");
+            WorkspaceName = WorkspaceName.Replace(".code-workspace", "", StringComparison.OrdinalIgnoreCase);
 
             // if the workspace name is "workspace", use the folder name instead
-            if (WorkspaceName == "workspace" && nameParts.Length >= 2)
+            if (WorkspaceName.Equals("workspace", StringComparison.OrdinalIgnoreCase) && nameParts.Length >= 2)
             {
                 WorkspaceName = nameParts[nameParts.Length - 2];
             }
-        }
-    }
-
-    /// <summary>
-    /// Determines the type of the workspace (e.g., Local, WSL, Remote).
-    /// </summary>
-    /// <returns>The type of the workspace as a string.</returns>
-    public void SetVSCodeType()
-    {
-        if (Path == null) return;
-        if (Path.StartsWith("vscode-remote://wsl", System.StringComparison.OrdinalIgnoreCase))
-        {
-            VsCodeRemoteType = VsCodeRemoteType.WSL;
-        }
-        else if (Path.StartsWith("vscode-remote://", System.StringComparison.OrdinalIgnoreCase))
-        {
-            VsCodeRemoteType = VsCodeRemoteType.Remote;
-        }
-        else
-        {
-            VsCodeRemoteType = VsCodeRemoteType.Local;
         }
     }
 
@@ -143,9 +122,13 @@ public class VisualStudioCodeWorkspace
     {
         if (Path == null) return;
         var typeTags = new List<Tag>() { new Tag(WorkspaceTypeString) };
-        if (VsCodeRemoteType != VsCodeRemoteType.Local)
+        if (VsCodeRemoteType != null)
         {
             typeTags.Add(new Tag(VsCodeRemoteType.ToString()));
+        }
+        else if (VsCodeRemoteTypeStr != null)
+        {
+            typeTags.Add(new Tag(VsCodeRemoteTypeStr));
         }
 
         var detailsElements = new List<DetailsElement>();
@@ -182,9 +165,13 @@ public class VisualStudioCodeWorkspace
     {
         if (Path == null) return;
         var typeTags = new List<Tag>() { new Tag(WorkspaceTypeString) };
-        if (VsCodeRemoteType != VsCodeRemoteType.Local)
+        if (VsCodeRemoteType != null)
         {
             typeTags.Add(new Tag(VsCodeRemoteType.ToString()));
+        }
+        else if (VsCodeRemoteTypeStr != null)
+        {
+            typeTags.Add(new Tag(VsCodeRemoteTypeStr));
         }
 
         var detailsElements = new List<DetailsElement>();

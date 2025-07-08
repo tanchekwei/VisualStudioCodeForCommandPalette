@@ -83,9 +83,9 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     if (settingsManager.TagTypes.HasFlag(TagType.Type))
                     {
                         tags.Add(new Tag(workspace.WorkspaceTypeString));
-                        if (workspace.VsCodeRemoteType != VsCodeRemoteType.Local)
+                        if (workspace.VsCodeRemoteType != null)
                         {
-                            tags.Add(new Tag(workspace.VsCodeRemoteType.ToString()));
+                            tags.Add(new Tag(workspace.VsCodeRemoteType.ToDisplayName()));
                         }
                     }
                     if (settingsManager.TagTypes.HasFlag(TagType.Target))
@@ -96,7 +96,15 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                         }
                     }
 
-                    if (workspace.VsCodeRemoteType != VsCodeRemoteType.Remote)
+                    if (workspace.VsCodeRemoteType != null)
+                    {
+                        tags.Add(new Tag(workspace.VsCodeRemoteType.ToDisplayName()));
+                    }
+                    else if (workspace.VsCodeRemoteTypeStr != null)
+                    {
+                        tags.Add(new Tag(workspace.VsCodeRemoteTypeStr));
+                    }
+                    else
                     {
                         if (settingsManager.VSCodeSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
                         {

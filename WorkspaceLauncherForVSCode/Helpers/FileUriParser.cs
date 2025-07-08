@@ -1,62 +1,117 @@
-// Modifications copyright (c) 2025 tanchekwei 
+// Modifications copyright (c) 2025 tanchekwei
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Text;
+using WorkspaceLauncherForVSCode;
+using WorkspaceLauncherForVSCode.Classes;
+using WorkspaceLauncherForVSCode.Enums;
 
 namespace WorkspaceLauncherForVSCode.Helpers
 {
     public static class FileUriParser
     {
-        public static bool TryConvertToWindowsPath(string fileUri, [NotNullWhen(true)] out string? windowsPath)
+        public static bool TryParse(
+            string inputPath,
+            [NotNullWhen(true)] out string? windowsPath,
+            out VisualStudioCodeRemoteType? remoteType,
+            out string? remoteTypeStr)
         {
             windowsPath = null;
+            remoteType = null;
+            remoteTypeStr = null;
 
-            if (string.IsNullOrWhiteSpace(fileUri))
+            if (string.IsNullOrWhiteSpace(inputPath))
             {
                 return false;
             }
 
-            // Case 1: Handle vscode-remote WSL URIs (e.g., vscode-remote://wsl+Ubuntu/home/user/project)
-            if (fileUri.StartsWith("vscode-remote://wsl%2", StringComparison.OrdinalIgnoreCase))
+            if (inputPath.StartsWith(Constant.VscodeRemoteScheme, StringComparison.OrdinalIgnoreCase))
             {
-                return WslPathHelper.TryGetWindowsPathFromWslUri(fileUri, out windowsPath);
+                return TryParseRemoteUri(inputPath, out windowsPath, out remoteType, out remoteTypeStr);
             }
 
-            // Case 2: Handle file URIs for WSL (e.g., file://wsl.localhost/Ubuntu/home/user/project)
-            const string fileUriScheme = "file://";
-            if (fileUri.StartsWith(fileUriScheme, StringComparison.OrdinalIgnoreCase))
-            {
-                var potentialWslPath = fileUri.Substring(fileUriScheme.Length);
-                if (potentialWslPath.StartsWith("wsl.localhost/", StringComparison.OrdinalIgnoreCase) || potentialWslPath.StartsWith("wsl$/", StringComparison.OrdinalIgnoreCase))
-                {
-                    windowsPath = "\\\\" + potentialWslPath.Replace('/', '\\');
-                    return true;
-                }
-            }
+            return TryParseFileUri(inputPath, out windowsPath);
+        }
 
-            // Case 3: Handle direct UNC paths for WSL (e.g., \\wsl$\Ubuntu\home\user\project)
-            if (fileUri.StartsWith(@"\\wsl$\", StringComparison.OrdinalIgnoreCase) || fileUri.StartsWith(@"\\wsl.localhost\", StringComparison.OrdinalIgnoreCase))
+        private static bool TryParseFileUri(string path, [NotNullWhen(true)] out string? windowsPath)
+        {
+            path = path.Replace("%3A", ":", StringComparison.OrdinalIgnoreCase);
+
+            if (Uri.TryCreate(path, UriKind.Absolute, out var uri) && uri.IsFile)
             {
-                windowsPath = fileUri;
+                windowsPath = CapitalizeDriveLetter(uri.LocalPath.TrimStart('/'));
                 return true;
             }
 
-            // Case 4: Handle standard file URIs (e.g., file:///c:/Users/user/project)
-            // Fix for lowercase drive letters in URIs
-            fileUri = fileUri.Replace("%3A", ":").Replace("%3a", ":");
-
-            if (Uri.TryCreate(fileUri, UriKind.Absolute, out var uri) && uri.IsFile)
-            {
-                string localPath = uri.LocalPath.TrimStart('/');
-                windowsPath = CapitalizeDriveLetter(localPath);
-                return true;
-            }
-
-            // If none of the above, assume it might be a direct file path already
-            // For example, vscode-remote://codespaces+...
-            windowsPath = fileUri;
+            windowsPath = path;
             return true;
         }
+
+        private static bool TryParseRemoteUri(
+            string path,
+            [NotNullWhen(true)] out string? windowsPath,
+            out VisualStudioCodeRemoteType? remoteType,
+            out string? remoteTypeStr)
+        {
+            windowsPath = null;
+            remoteType = null;
+            remoteTypeStr = null;
+            var decodedPath = System.Net.WebUtility.UrlDecode(path);
+            int start = decodedPath.IndexOf(Constant.VscodeRemoteScheme, StringComparison.OrdinalIgnoreCase) + Constant.VscodeRemoteScheme.Length;
+            int end = decodedPath.IndexOf('+', start);
+            if (end == -1)
+            {
+                return false;
+            }
+
+            var typeString = decodedPath.Substring(start, end - start);
+            if (VisualStudioCodeRemoteHelper.TryParse(typeString.Trim(), out var parsedRemoteType))
+            {
+                remoteType = parsedRemoteType;
+            }
+            else
+            {
+                string spaced = typeString.Replace('-', ' ');
+                TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
+                remoteTypeStr = textInfo.ToTitleCase(spaced.ToLowerInvariant());
+            }
+
+            var data = decodedPath.Substring(end + 1);
+            int slashIndex = data.IndexOf('/');
+            var firstPathSegment = slashIndex >= 0 ? data.Substring(0, slashIndex) : data;
+            var remaining = slashIndex >= 0 ? data.Substring(slashIndex) : string.Empty;
+
+            if (remoteType == VisualStudioCodeRemoteType.Codespaces)
+            {
+                windowsPath = path;
+            }
+            else
+            {
+                windowsPath = $"{Constant.VscodeRemoteScheme}{typeString}+{HexToJson(firstPathSegment)}{remaining}";
+            }
+
+            return true;
+        }
+
+        public static string? HexToJson(string hex)
+        {
+            try
+            {
+                var bytes = new byte[hex.Length / 2];
+                for (var i = 0; i < bytes.Length; i++)
+                {
+                    bytes[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
+                }
+                return Encoding.UTF8.GetString(bytes);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
 
         private static string CapitalizeDriveLetter(string path)
         {
