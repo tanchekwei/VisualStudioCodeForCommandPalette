@@ -10,7 +10,7 @@ namespace WorkspaceLauncherForVSCode
     public interface IVisualStudioCodeService
     {
         List<VisualStudioCodeInstance> Instances { get; }
-        void LoadInstances(VisualStudioCodeEdition enabledEditions, string preferredEdition);
+        void LoadInstances(VisualStudioCodeEdition enabledEditions);
         Task<List<VisualStudioCodeWorkspace>> GetWorkspacesAsync(List<VisualStudioCodeWorkspace> dbWorkspaces, CancellationToken cancellationToken);
         Task<List<VisualStudioCodeWorkspace>> GetVisualStudioSolutions(List<VisualStudioCodeWorkspace> dbWorkspaces, bool showPrerelease);
     }

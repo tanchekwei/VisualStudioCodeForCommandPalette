@@ -10,14 +10,13 @@ namespace WorkspaceLauncherForVSCode.Services
 {
     public static class VisualStudioCodeInstanceProvider
     {
-        public static List<VisualStudioCodeInstance> GetInstances(VisualStudioCodeEdition enabledEditions, string preferredEdition)
+        public static List<VisualStudioCodeInstance> GetInstances(VisualStudioCodeEdition enabledEditions)
         {
 #if DEBUG
             using var logger = new TimeLogger();
 #endif
             var instances = new List<VisualStudioCodeInstance>();
             LoadInstances(enabledEditions, instances);
-            SortInstances(instances, preferredEdition);
             return instances;
         }
 
@@ -97,25 +96,6 @@ namespace WorkspaceLauncherForVSCode.Services
                 }
                 instances.Add(new VisualStudioCodeInstance(name, path, storagePath, type, codeType));
             }
-        }
-
-        private static void SortInstances(List<VisualStudioCodeInstance> instances, string preferredEdition)
-        {
-            instances.Sort((x, y) =>
-            {
-                var xIsPreferred = (preferredEdition == "Insider" && x.VisualStudioCodeType == VisualStudioCodeType.Insider) || (preferredEdition != "Insider" && x.VisualStudioCodeType == VisualStudioCodeType.Default);
-                var yIsPreferred = (preferredEdition == "Insider" && y.VisualStudioCodeType == VisualStudioCodeType.Insider) || (preferredEdition != "Insider" && y.VisualStudioCodeType == VisualStudioCodeType.Default);
-
-                if (xIsPreferred && !yIsPreferred)
-                {
-                    return -1;
-                }
-                if (!xIsPreferred && yIsPreferred)
-                {
-                    return 1;
-                }
-                return 0;
-            });
         }
     }
 }

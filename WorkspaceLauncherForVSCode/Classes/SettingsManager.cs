@@ -16,12 +16,6 @@ public class SettingsManager : JsonSettingsManager
 
     private static string Namespaced(string propertyName) => $"{_namespace}.{propertyName}";
 
-    private static readonly List<ChoiceSetSetting.Choice> _preferredEditionChoices =
-    [
-        new ChoiceSetSetting.Choice(Resource.setting_preferredEdition_option_default_label, "Default"),
-        new ChoiceSetSetting.Choice(Resource.setting_preferredEdition_option_insider_label, "Insider"),
-    ];
-
     private static readonly List<ChoiceSetSetting.Choice> _commandResultChoices =
     [
         new ChoiceSetSetting.Choice(Resource.setting_commandResult_option_dismiss_label, nameof(CommandResultType.Dismiss)),
@@ -96,12 +90,6 @@ public class SettingsManager : JsonSettingsManager
         "Enable custom Visual Studio Code installations found in the PATH",
         false);
 
-    private readonly ChoiceSetSetting _preferredEdition = new(
-        Namespaced(nameof(PreferredEdition)),
-        Resource.setting_preferredEdition_label,
-        Resource.setting_preferredEdition_desc,
-        _preferredEditionChoices);
-
     private readonly ChoiceSetSetting _commandResult = new(
         Namespaced(nameof(CommandResult)),
         Resource.setting_commandResult_label,
@@ -133,7 +121,6 @@ public class SettingsManager : JsonSettingsManager
         "8");
 
     public bool EnableLogging => _enableLogging.Value;
-    public string PreferredEdition => _preferredEdition.Value ?? "Default";
     public bool EnableVisualStudio => _enableVisualStudio.Value;
 
     public TagType TagTypes
@@ -249,7 +236,6 @@ public class SettingsManager : JsonSettingsManager
         Settings.Add(_enableSystem);
         Settings.Add(_enableInsider);
         Settings.Add(_enableCustom);
-        Settings.Add(_preferredEdition);
         Settings.Add(_commandResult);
         Settings.Add(_pageSize);
         Settings.Add(_searchBy);

@@ -14,12 +14,12 @@ namespace WorkspaceLauncherForVSCode.Services
     {
         public List<VisualStudioCodeInstance> Instances { get; private set; } = new List<VisualStudioCodeInstance>();
 
-        public void LoadInstances(VisualStudioCodeEdition enabledEditions, string preferredEdition)
+        public void LoadInstances(VisualStudioCodeEdition enabledEditions)
         {
 #if DEBUG
             using var logger = new TimeLogger();
 #endif
-            Instances = VisualStudioCodeInstanceProvider.GetInstances(enabledEditions, preferredEdition);
+            Instances = VisualStudioCodeInstanceProvider.GetInstances(enabledEditions);
         }
 
         public async Task<List<VisualStudioCodeWorkspace>> GetWorkspacesAsync(List<VisualStudioCodeWorkspace> dbWorkspaces, CancellationToken cancellationToken)

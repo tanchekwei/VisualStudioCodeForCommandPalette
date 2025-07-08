@@ -24,7 +24,6 @@ namespace WorkspaceLauncherForVSCode.Listeners
         {
             _settingsManager = settingsManager;
             _previousEditions = _settingsManager.EnabledEditions;
-            _previousPreferredEdition = _settingsManager.PreferredEdition;
             _previousSearchBy = _settingsManager.SearchBy;
             _previousEnableVisualStudio = _settingsManager.EnableVisualStudio;
             _previousVsSecondaryCommand = _settingsManager.VSSecondaryCommand;
@@ -35,17 +34,15 @@ namespace WorkspaceLauncherForVSCode.Listeners
         private void OnSettingsChanged(object? sender, Settings e)
         {
             var currentEditions = _settingsManager.EnabledEditions;
-            var currentPreferredEdition = _settingsManager.PreferredEdition;
             var currentSearchBy = _settingsManager.SearchBy;
             var currentEnableVisualStudio = _settingsManager.EnableVisualStudio;
             var currentVsSecondaryCommand = _settingsManager.VSSecondaryCommand;
             var currentVscodeSecondaryCommand = _settingsManager.VSCodeSecondaryCommand;
 
-            if (currentEditions != _previousEditions || currentPreferredEdition != _previousPreferredEdition || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand)
+            if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand)
             {
                 InstanceSettingsChanged?.Invoke(this, EventArgs.Empty);
                 _previousEditions = currentEditions;
-                _previousPreferredEdition = currentPreferredEdition;
             }
 
             if (currentSearchBy != _previousSearchBy)
