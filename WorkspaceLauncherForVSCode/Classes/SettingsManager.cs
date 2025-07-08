@@ -31,9 +31,9 @@ public class SettingsManager : JsonSettingsManager
 
     private static readonly List<ChoiceSetSetting.Choice> _searchByChoices =
     [
+        new ChoiceSetSetting.Choice("Both", nameof(SearchBy.Both)),
         new ChoiceSetSetting.Choice("Title", nameof(SearchBy.Title)),
         new ChoiceSetSetting.Choice("Path", nameof(SearchBy.Path)),
-        new ChoiceSetSetting.Choice("Both", nameof(SearchBy.Both)),
     ];
 
     private static readonly List<ChoiceSetSetting.Choice> _vscodeSecondaryCommandChoices =
@@ -198,7 +198,7 @@ public class SettingsManager : JsonSettingsManager
             {
                 return result;
             }
-            return SearchBy.Title;
+            return SearchBy.Both;
         }
     }
 
