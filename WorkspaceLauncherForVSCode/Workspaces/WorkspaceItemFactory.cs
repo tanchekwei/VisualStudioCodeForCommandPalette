@@ -45,7 +45,6 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     {
                         Title = workspace.Name ?? string.Empty,
                         HeroImage = icon,
-                        Metadata = workspace.Details,
                     };
                     if (settingsManager.TagTypes.HasFlag(TagType.Target))
                     {
@@ -78,7 +77,6 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     {
                         Title = workspace.WorkspaceName,
                         HeroImage = icon,
-                        Metadata = workspace.Details,
                     };
                     if (settingsManager.TagTypes.HasFlag(TagType.Type))
                     {

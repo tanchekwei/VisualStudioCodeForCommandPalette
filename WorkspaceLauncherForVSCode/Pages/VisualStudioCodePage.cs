@@ -57,7 +57,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _settingsManager = settingsManager;
         _vscodeService = vscodeService;
         _workspaceStorage = new WorkspaceStorage();
-        ShowDetails = _settingsManager.ShowDetails;
         _helpPage = new HelpPage(_settingsManager);
         TotalChanged += _helpPage.UpdateTotal;
         TotalVisualStudioChanged += _helpPage.UpdateTotalVisualStudio;
@@ -274,7 +273,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 
     private void OnPageSettingsChanged(object? sender, EventArgs e)
     {
-        ShowDetails = _settingsManager.ShowDetails;
         UpdateSearchText(SearchText, SearchText);
     }
 

@@ -54,12 +54,6 @@ public class SettingsManager : JsonSettingsManager
         "Enables diagnostic logging for troubleshooting.",
         false);
 
-    private readonly ToggleSetting _showDetails = new(
-       Namespaced(nameof(ShowDetails)),
-       Resource.settings_showDetails_label,
-       Resource.settings_showDetails_desc,
-       false);
-
     private readonly ToggleSetting _showTypeTag = new(
         Namespaced(nameof(_showTypeTag)),
         Resource.setting_tagType_option_type_label,
@@ -139,7 +133,6 @@ public class SettingsManager : JsonSettingsManager
         "8");
 
     public bool EnableLogging => _enableLogging.Value;
-    public bool ShowDetails => _showDetails.Value;
     public string PreferredEdition => _preferredEdition.Value ?? "Default";
     public bool EnableVisualStudio => _enableVisualStudio.Value;
 
@@ -249,7 +242,6 @@ public class SettingsManager : JsonSettingsManager
     {
         FilePath = SettingsJsonPath();
 
-        Settings.Add(_showDetails);
         Settings.Add(_showTypeTag);
         Settings.Add(_showTargetTag);
         Settings.Add(_enableVisualStudio);

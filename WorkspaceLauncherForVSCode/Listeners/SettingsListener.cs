@@ -25,7 +25,6 @@ namespace WorkspaceLauncherForVSCode.Listeners
             _settingsManager = settingsManager;
             _previousEditions = _settingsManager.EnabledEditions;
             _previousPreferredEdition = _settingsManager.PreferredEdition;
-            _previousShowDetails = _settingsManager.ShowDetails;
             _previousSearchBy = _settingsManager.SearchBy;
             _previousEnableVisualStudio = _settingsManager.EnableVisualStudio;
             _previousVsSecondaryCommand = _settingsManager.VSSecondaryCommand;
@@ -37,7 +36,6 @@ namespace WorkspaceLauncherForVSCode.Listeners
         {
             var currentEditions = _settingsManager.EnabledEditions;
             var currentPreferredEdition = _settingsManager.PreferredEdition;
-            var currentShowDetails = _settingsManager.ShowDetails;
             var currentSearchBy = _settingsManager.SearchBy;
             var currentEnableVisualStudio = _settingsManager.EnableVisualStudio;
             var currentVsSecondaryCommand = _settingsManager.VSSecondaryCommand;
@@ -50,10 +48,9 @@ namespace WorkspaceLauncherForVSCode.Listeners
                 _previousPreferredEdition = currentPreferredEdition;
             }
 
-            if (currentShowDetails != _previousShowDetails || currentSearchBy != _previousSearchBy)
+            if (currentSearchBy != _previousSearchBy)
             {
                 PageSettingsChanged?.Invoke(this, EventArgs.Empty);
-                _previousShowDetails = currentShowDetails;
                 _previousSearchBy = currentSearchBy;
             }
 

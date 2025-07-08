@@ -28,7 +28,6 @@ public class VisualStudioCodeWorkspace
     public VisualStudioCodeRemoteType? VsCodeRemoteType { get; set; }
     public string? VsCodeRemoteTypeStr { get; set; }
     public string WorkspaceTypeString { get; set; } = "";
-    public DetailsElement[] Details { get; set; } = [];
     public int Frequency { get; set; }
     public DateTime LastAccessed { get; set; }
     public DateTime? PinDateTime { get; set; }
@@ -130,31 +129,6 @@ public class VisualStudioCodeWorkspace
         {
             typeTags.Add(new Tag(VsCodeRemoteTypeStr));
         }
-
-        var detailsElements = new List<DetailsElement>();
-
-        if (VSCodeInstance != null)
-        {
-            detailsElements.Add(new DetailsElement()
-            {
-                Key = Resource.item_details_target,
-                Data = new DetailsTags() { Tags = new List<Tag>() { new Tag(VSCodeInstance.Name) }.ToArray() }
-            });
-        }
-
-        detailsElements.Add(new DetailsElement()
-        {
-            Key = Resource.item_details_type,
-            Data = new DetailsTags() { Tags = typeTags.ToArray() }
-        });
-
-        detailsElements.Add(new DetailsElement()
-        {
-            Key = Resource.item_details_path,
-            Data = new DetailsLink() { Text = Uri.UnescapeDataString(Path) },
-        });
-
-        Details = detailsElements.ToArray();
     }
 
     /// <summary>
@@ -173,30 +147,5 @@ public class VisualStudioCodeWorkspace
         {
             typeTags.Add(new Tag(VsCodeRemoteTypeStr));
         }
-
-        var detailsElements = new List<DetailsElement>();
-
-        if (VSInstance != null)
-        {
-            detailsElements.Add(new DetailsElement()
-            {
-                Key = Resource.item_details_target,
-                Data = new DetailsTags() { Tags = new List<Tag>() { new Tag(VSInstance.Name) }.ToArray() }
-            });
-        }
-
-        detailsElements.Add(new DetailsElement()
-        {
-            Key = Resource.item_details_type,
-            Data = new DetailsTags() { Tags = typeTags.ToArray() }
-        });
-
-        detailsElements.Add(new DetailsElement()
-        {
-            Key = Resource.item_details_path,
-            Data = new DetailsLink() { Text = Uri.UnescapeDataString(Path) },
-        });
-
-        Details = detailsElements.ToArray();
     }
 }
