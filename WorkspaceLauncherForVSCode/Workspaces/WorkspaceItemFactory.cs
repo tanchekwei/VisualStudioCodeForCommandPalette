@@ -39,7 +39,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             switch (workspace.WorkspaceType)
             {
                 case WorkspaceType.Solution:
-                    command = new OpenSolutionCommand(workspace, page, settingsManager.CommandResult);
+                    command = new OpenSolutionCommand(workspace, page);
                     icon = Classes.Icon.VisualStudio;
                     workspace.WindowsPath = workspace.Path;
                     details = new Details
@@ -56,7 +56,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     }
                     if (settingsManager.VSSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
                     {
-                        moreCommands.Add(new CommandContextItem(new OpenSolutionCommand(workspace, page, settingsManager.CommandResult, elevated: true)));
+                        moreCommands.Add(new CommandContextItem(new OpenSolutionCommand(workspace, page, elevated: true)));
                         if (!string.IsNullOrEmpty(workspace.WindowsPath))
                         {
                             moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
@@ -68,11 +68,11 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                         {
                             moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
                         }
-                        moreCommands.Add(new CommandContextItem(new OpenSolutionCommand(workspace, page, settingsManager.CommandResult, elevated: true)));
+                        moreCommands.Add(new CommandContextItem(new OpenSolutionCommand(workspace, page, elevated: true)));
                     }
                     break;
                 default:
-                    command = new OpenVisualStudioCodeCommand(workspace, page, settingsManager.CommandResult);
+                    command = new OpenVisualStudioCodeCommand(workspace, page);
                     icon = Classes.Icon.VisualStudioCode;
                     details = new Details
                     {
@@ -105,7 +105,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     {
                         if (settingsManager.VSCodeSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
                         {
-                            moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(workspace, page, settingsManager.CommandResult, elevated: true)));
+                            moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(workspace, page, elevated: true)));
                             if (!string.IsNullOrEmpty(workspace.WindowsPath))
                             {
                                 moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
@@ -117,7 +117,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                             {
                                 moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
                             }
-                            moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(workspace, page, settingsManager.CommandResult, elevated: true)));
+                            moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(workspace, page, elevated: true)));
                         }
                     }
                     else

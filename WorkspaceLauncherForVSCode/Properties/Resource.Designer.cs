@@ -146,61 +146,6 @@ namespace WorkspaceLauncherForVSCode.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to What should happen after opening a Visual Studio Code workspace.
-        /// </summary>
-        internal static string setting_commandResult_desc
-        {
-            get
-            {
-                return ResourceManager.GetString("setting_commandResult_desc", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Command Result Action.
-        /// </summary>
-        internal static string setting_commandResult_label
-        {
-            get
-            {
-                return ResourceManager.GetString("setting_commandResult_label", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Dismiss.
-        /// </summary>
-        internal static string setting_commandResult_option_dismiss_label
-        {
-            get
-            {
-                return ResourceManager.GetString("setting_commandResult_option_dismiss_label", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Go Back.
-        /// </summary>
-        internal static string setting_commandResult_option_goback_label
-        {
-            get
-            {
-                return ResourceManager.GetString("setting_commandResult_option_goback_label", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Keep Open.
-        /// </summary>
-        internal static string setting_commandResult_option_keepopen_label
-        {
-            get
-            {
-                return ResourceManager.GetString("setting_commandResult_option_keepopen_label", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Number of items to load per page..
         /// </summary>
         internal static string setting_pageSize_desc

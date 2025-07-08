@@ -174,21 +174,6 @@
   <data name="setting_tagType_option_typeandtarget_label" xml:space="preserve">
     <value>Type &amp; Target</value>
   </data>
-  <data name="setting_commandResult_label" xml:space="preserve">
-    <value>Command Result Action</value>
-  </data>
-  <data name="setting_commandResult_desc" xml:space="preserve">
-    <value>What should happen after opening a Visual Studio Code workspace</value>
-  </data>
-  <data name="setting_commandResult_option_dismiss_label" xml:space="preserve">
-    <value>Dismiss</value>
-  </data>
-  <data name="setting_commandResult_option_goback_label" xml:space="preserve">
-    <value>Go Back</value>
-  </data>
-  <data name="setting_commandResult_option_keepopen_label" xml:space="preserve">
-    <value>Keep Open</value>
-  </data>
   <data name="setting_pageSize_label" xml:space="preserve">
     <value>Page Size</value>
   </data>

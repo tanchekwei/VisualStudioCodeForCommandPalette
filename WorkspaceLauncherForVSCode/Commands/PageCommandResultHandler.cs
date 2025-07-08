@@ -7,7 +7,7 @@ namespace WorkspaceLauncherForVSCode.Commands;
 
 public static class PageCommandResultHandler
 {
-    public static CommandResult HandleCommandResult(CommandResultType resultType, VisualStudioCodePage? page)
+    public static CommandResult HandleCommandResult(VisualStudioCodePage? page)
     {
         if (page != null)
         {
@@ -19,11 +19,6 @@ public static class PageCommandResultHandler
             }
         }
 
-        return resultType switch
-        {
-            CommandResultType.GoBack => CommandResult.GoBack(),
-            CommandResultType.KeepOpen => CommandResult.KeepOpen(),
-            _ => CommandResult.Dismiss(),
-        };
+        return CommandResult.Dismiss();
     }
 }

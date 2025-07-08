@@ -16,13 +16,6 @@ public class SettingsManager : JsonSettingsManager
 
     private static string Namespaced(string propertyName) => $"{_namespace}.{propertyName}";
 
-    private static readonly List<ChoiceSetSetting.Choice> _commandResultChoices =
-    [
-        new ChoiceSetSetting.Choice(Resource.setting_commandResult_option_dismiss_label, nameof(CommandResultType.Dismiss)),
-        new ChoiceSetSetting.Choice(Resource.setting_commandResult_option_goback_label, nameof(CommandResultType.GoBack)),
-        new ChoiceSetSetting.Choice(Resource.setting_commandResult_option_keepopen_label, nameof(CommandResultType.KeepOpen)),
-    ];
-
     private static readonly List<ChoiceSetSetting.Choice> _searchByChoices =
     [
         new ChoiceSetSetting.Choice("Both", nameof(SearchBy.Both)),
@@ -90,12 +83,6 @@ public class SettingsManager : JsonSettingsManager
         "Enable custom Visual Studio Code installations found in the PATH",
         false);
 
-    private readonly ChoiceSetSetting _commandResult = new(
-        Namespaced(nameof(CommandResult)),
-        Resource.setting_commandResult_label,
-        Resource.setting_commandResult_desc,
-        _commandResultChoices);
-
     private readonly ChoiceSetSetting _searchBy = new(
         Namespaced(nameof(SearchBy)),
         "Search By",
@@ -155,18 +142,6 @@ public class SettingsManager : JsonSettingsManager
             if (_enableInsider.Value) editions |= VisualStudioCodeEdition.Insider;
             if (_enableCustom.Value) editions |= VisualStudioCodeEdition.Custom;
             return editions;
-        }
-    }
-
-    public CommandResultType CommandResult
-    {
-        get
-        {
-            if (Enum.TryParse<CommandResultType>(_commandResult.Value, out var result))
-            {
-                return result;
-            }
-            return CommandResultType.Dismiss;
         }
     }
 
@@ -236,7 +211,6 @@ public class SettingsManager : JsonSettingsManager
         Settings.Add(_enableSystem);
         Settings.Add(_enableInsider);
         Settings.Add(_enableCustom);
-        Settings.Add(_commandResult);
         Settings.Add(_pageSize);
         Settings.Add(_searchBy);
         Settings.Add(_vsSecondaryCommand);

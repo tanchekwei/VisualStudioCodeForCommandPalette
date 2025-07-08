@@ -14,7 +14,6 @@ namespace WorkspaceLauncherForVSCode.Commands;
 internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IHasWorkspace
 {
     private readonly VisualStudioCodePage page;
-    private readonly CommandResultType commandResult;
     private readonly bool _elevated;
 
     public VisualStudioCodeWorkspace Workspace { get; set; }
@@ -24,12 +23,10 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
     /// </summary>
     /// <param name="workspace">The Visual Studio Code workspace to open.</param>
     /// <param name="page">The Visual Studio Code page instance.</param>
-    /// <param name="commandResult">The command result setting value.</param>
-    public OpenVisualStudioCodeCommand(VisualStudioCodeWorkspace workspace, VisualStudioCodePage page, CommandResultType commandResult, bool elevated = false)
+    public OpenVisualStudioCodeCommand(VisualStudioCodeWorkspace workspace, VisualStudioCodePage page, bool elevated = false)
     {
         Workspace = workspace;
         this.page = page;
-        this.commandResult = commandResult;
         _elevated = elevated;
         this.Icon = Classes.Icon.VisualStudioCode;
 
@@ -86,6 +83,6 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
         // Update frequency
         Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path));
 
-        return PageCommandResultHandler.HandleCommandResult(commandResult, page);
+        return PageCommandResultHandler.HandleCommandResult(page);
     }
 }
