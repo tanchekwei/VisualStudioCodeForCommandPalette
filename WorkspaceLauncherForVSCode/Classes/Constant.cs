@@ -11,4 +11,5 @@ public static class Constant
     public const string AppName = "WorkspaceLauncherForVSCode";
 #endif
     public const string VscodeRemoteScheme = "vscode-remote://";
+    public static readonly string AssemblyVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? string.Empty;
 }

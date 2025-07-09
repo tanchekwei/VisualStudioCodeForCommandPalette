@@ -30,7 +30,7 @@ namespace WorkspaceLauncherForVSCode.Commands
             {
                 return CommandResult.Dismiss();
             }
-            if (workspace?.WorkspaceType == Enums.WorkspaceType.Solution)
+            if (workspace?.WorkspaceType == Enums.WorkspaceType.Solution || workspace?.WorkspaceType == WorkspaceType.Workspace)
             {
                 pathToOpen = Path.GetDirectoryName(pathToOpen) ?? string.Empty;
             }

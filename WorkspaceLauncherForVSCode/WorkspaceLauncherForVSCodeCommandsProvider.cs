@@ -4,6 +4,7 @@ using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Listeners;
+using WorkspaceLauncherForVSCode.Pages;
 using WorkspaceLauncherForVSCode.Services;
 
 namespace WorkspaceLauncherForVSCode;
@@ -11,17 +12,17 @@ namespace WorkspaceLauncherForVSCode;
 public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvider
 {
     private readonly SettingsManager _settingsManager;
-    private readonly VisualStudioCodeService _vscodeService;
+    private readonly IVisualStudioCodeService _vscodeService;
     private readonly SettingsListener _settingsListener;
     private readonly VisualStudioCodePage _page;
 
-    public WorkspaceLauncherForVSCodeCommandsProvider()
+    public WorkspaceLauncherForVSCodeCommandsProvider(SettingsManager settingsManager, IVisualStudioCodeService visualStudioCodeService, SettingsListener settingsListener, VisualStudioCodePage page)
     {
 #if DEBUG
         using var logger = new TimeLogger();
 #endif
-        _settingsManager = new SettingsManager();
-        _vscodeService = new VisualStudioCodeService();
+        _settingsManager = settingsManager;
+        _vscodeService = visualStudioCodeService;
         DisplayName = "Visual Studio / Code";
 #if DEBUG
         DisplayName += " (Dev)";
@@ -31,10 +32,10 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
 
         _vscodeService.LoadInstances(_settingsManager.EnabledEditions);
 
-        _settingsListener = new SettingsListener(_settingsManager);
+        _settingsListener = settingsListener;
         _settingsListener.InstanceSettingsChanged += OnInstanceSettingsChanged;
 
-        _page = new VisualStudioCodePage(_settingsManager, _vscodeService, _settingsListener);
+        _page = page;
     }
 
     private void OnInstanceSettingsChanged(object? sender, System.EventArgs e)

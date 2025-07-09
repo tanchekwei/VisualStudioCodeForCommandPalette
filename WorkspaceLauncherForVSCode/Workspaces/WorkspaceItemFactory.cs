@@ -8,6 +8,7 @@ using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
 using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Helpers;
+using WorkspaceLauncherForVSCode.Pages;
 
 namespace WorkspaceLauncherForVSCode.Workspaces
 {
@@ -139,6 +140,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             }
 
             moreCommands.Add(helpCommandContextItem);
+            moreCommands.Add(new CommandContextItem(new DetailPage(workspace)));
             moreCommands.Add(new CommandContextItem(new CopyPathCommand(workspace.WindowsPath ?? string.Empty)));
             moreCommands.Add(refreshCommandContextItem);
             moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, page, workspaceStorage)));

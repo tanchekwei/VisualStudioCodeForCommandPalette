@@ -12,71 +12,30 @@ namespace WorkspaceLauncherForVSCode.Pages
 {
     public sealed partial class HelpPage : ListPage
     {
-        private static readonly ListItem _openSettingsItem = new ListItem(new OpenInExplorerCommand(Utilities.BaseSettingsPath(Constant.AppName), null, "Open extension settings / logs folder"));
-        private static readonly ListItem _viewSourceItem = new ListItem(new OpenUrlCommand("https://github.com/tanchekwei/WorkspaceLauncherForVSCode", "View source code", Classes.Icon.GitHub));
-        private static readonly ListItem _reportBugItem = new ListItem(new OpenUrlCommand("https://github.com/tanchekwei/WorkspaceLauncherForVSCode/issues/new", "Report issue", Classes.Icon.GitHub));
         private readonly ListItem _settingsItem;
-        private int _total;
-        private int _totalVisualStudio;
-        private int _totalVisualStudioCode;
-        public HelpPage(SettingsManager settingsManager)
+        private readonly CountTracker _countTracker;
+        public HelpPage(SettingsManager settingsManager, CountTracker countTracker)
         {
             Name = "Help";
             Icon = Classes.Icon.Help;
             Id = "HelpPage";
             _settingsItem = new ListItem(settingsManager.Settings.SettingsPage) { Title = "Setting", Icon = Classes.Icon.Setting };
+            _countTracker = countTracker;
         }
 
         public override IListItem[] GetItems()
         {
+            StaticHelpItems.CountItems[0].Title = _countTracker[CountType.VisualStudio].ToString();
+            StaticHelpItems.CountItems[1].Title = _countTracker[CountType.VisualStudioCode].ToString();
+            StaticHelpItems.CountItems[2].Title = _countTracker[CountType.Total].ToString();
             return [
-                _reportBugItem,
-                _viewSourceItem,
-                new ListItem()
-                {
-                    Title = $"{_totalVisualStudio}",
-                    Subtitle = "Visual Studio Count",
-                    Icon = Classes.Icon.VisualStudio,
-                },
-                new ListItem()
-                {
-                    Title = $"{_totalVisualStudioCode}",
-                    Subtitle = "Visual Studio Code Count",
-                    Icon = Classes.Icon.VisualStudioCode,
-                },
-                new ListItem()
-                {
-                    Title = $"{_total}",
-                    Subtitle = "Visual Studio / Code Count",
-                    Icon = Classes.Icon.VisualStudioAndVisualStudioCode,
-                },
-                new ListItem()
-                {
-                    Title = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? string.Empty,
-                    Subtitle = "Extension Version",
-                    Icon = Classes.Icon.Extension,
-                },
-                _settingsItem,
-                _openSettingsItem,
+                StaticHelpItems.ReportBug,
+                StaticHelpItems.ViewSource,
+                ..StaticHelpItems.CountItems,
+                StaticHelpItems.ExtensionVersion,
+                StaticHelpItems.SettingsItem,
+                StaticHelpItems.OpenSettings,
             ];
-        }
-
-        public void UpdateTotal(int count)
-        {
-            _total = count;
-            RaiseItemsChanged();
-        }
-
-        public void UpdateTotalVisualStudio(int count)
-        {
-            _totalVisualStudio = count;
-            RaiseItemsChanged();
-        }
-
-        public void UpdateTotalVisualStudioCode(int count)
-        {
-            _totalVisualStudioCode = count;
-            RaiseItemsChanged();
         }
     }
 }

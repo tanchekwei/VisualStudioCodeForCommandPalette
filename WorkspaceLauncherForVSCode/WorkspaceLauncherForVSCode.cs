@@ -5,6 +5,11 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.CommandPalette.Extensions;
 using WorkspaceLauncherForVSCode.Classes;
+using Microsoft.Extensions.DependencyInjection;
+using WorkspaceLauncherForVSCode.Pages;
+using WorkspaceLauncherForVSCode.Services;
+using WorkspaceLauncherForVSCode.Listeners;
+using WorkspaceLauncherForVSCode.Commands;
 
 namespace WorkspaceLauncherForVSCode;
 
@@ -17,11 +22,30 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
 {
     private readonly ManualResetEvent _extensionDisposedEvent;
 
-    private readonly WorkspaceLauncherForVSCodeCommandsProvider _provider = new();
+    private readonly WorkspaceLauncherForVSCodeCommandsProvider _provider;
 
     public WorkspaceLauncherForVSCode(ManualResetEvent extensionDisposedEvent)
     {
         this._extensionDisposedEvent = extensionDisposedEvent;
+        var services = new ServiceCollection();
+
+        // Register dependencies
+        services.AddSingleton<SettingsManager>();
+        services.AddSingleton<HelpPage>();
+        services.AddSingleton<IVisualStudioCodeService, VisualStudioCodeService>();
+        services.AddSingleton<SettingsListener>();
+        services.AddSingleton<VisualStudioCodePage>();
+        services.AddSingleton<WorkspaceStorage>();
+        services.AddSingleton<RefreshWorkspacesCommand>();
+        services.AddSingleton<CountTracker>();
+        services.AddSingleton<WorkspaceLauncherForVSCodeCommandsProvider>();
+
+        // Build the provider
+        var provider = services.BuildServiceProvider();
+
+        StaticHelpItems.Initialize(provider.GetRequiredService<SettingsManager>());
+
+        _provider = provider.GetRequiredService<WorkspaceLauncherForVSCodeCommandsProvider>();
     }
 
     public object? GetProvider(ProviderType providerType)

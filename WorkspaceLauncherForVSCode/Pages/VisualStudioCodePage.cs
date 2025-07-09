@@ -23,6 +23,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private readonly IVisualStudioCodeService _vscodeService;
     private readonly SettingsListener _settingsListener;
     private readonly WorkspaceStorage _workspaceStorage;
+    private readonly CountTracker _countTracker;
 
     private readonly List<ListItem> _allItems = new();
     private readonly List<ListItem> _visibleItems = new();
@@ -38,31 +39,33 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private CommandContextItem _helpCommandContextItem;
     private readonly IListItem[] _noResultsRefreshItem;
     private readonly IListItem[] _refreshSuggestionItem;
-    private readonly HelpPage _helpPage;
 
-    public event Action<int> TotalChanged;
-    public event Action<int> TotalVisualStudioChanged;
-    public event Action<int> TotalVisualStudioCodeChanged;
-
-    public VisualStudioCodePage(SettingsManager settingsManager, IVisualStudioCodeService vscodeService, SettingsListener settingsListener)
+    public VisualStudioCodePage
+    (
+        SettingsManager settingsManager,
+        IVisualStudioCodeService vscodeService,
+        SettingsListener settingsListener,
+        WorkspaceStorage workspaceStorage,
+        RefreshWorkspacesCommand refreshWorkspacesCommand,
+        HelpPage helpPage,
+        CountTracker countTracker
+    )
     {
         Title = Resource.page_title;
 #if DEBUG
         Title += " (Dev)";
 #endif
-        this.Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
+        Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
         Name = Resource.page_command_name;
         Id = "VisualStudioCodePage";
 
         _settingsManager = settingsManager;
         _vscodeService = vscodeService;
-        _workspaceStorage = new WorkspaceStorage();
-        _helpPage = new HelpPage(_settingsManager);
-        TotalChanged += _helpPage.UpdateTotal;
-        TotalVisualStudioChanged += _helpPage.UpdateTotalVisualStudio;
-        TotalVisualStudioCodeChanged += _helpPage.UpdateTotalVisualStudioCode;
-        _helpCommandContextItem = new CommandContextItem(_helpPage);
-        _refreshWorkspacesCommand = new(_vscodeService, settingsManager, this);
+        _workspaceStorage = workspaceStorage;
+        _countTracker = countTracker;
+        _helpCommandContextItem = new CommandContextItem(helpPage);
+        _refreshWorkspacesCommand = refreshWorkspacesCommand;
+        _refreshWorkspacesCommand.TriggerRefresh += (s, e) => StartRefresh();
         _refreshWorkspacesCommandContextItem = new CommandContextItem(_refreshWorkspacesCommand)
         {
             MoreCommands = [
@@ -214,12 +217,12 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             var workspaces = await workspacesTask;
             var solutions = solutionsTask != null ? await solutionsTask : new List<VisualStudioCodeWorkspace>();
 
-            TotalVisualStudioCodeChanged?.Invoke(workspaces.Count);
-            TotalVisualStudioChanged?.Invoke(solutions.Count);
+            _countTracker.Update(CountType.VisualStudioCode, workspaces.Count);
+            _countTracker.Update(CountType.VisualStudio, solutions.Count);
 
             workspaces.AddRange(solutions);
 
-            TotalChanged?.Invoke(workspaces.Count);
+            _countTracker.Update(CountType.Total, workspaces.Count);
 
             await _workspaceStorage.SaveWorkspacesAsync(workspaces);
             UpdateWorkspaceList(workspaces, cancellationToken);
@@ -341,9 +344,9 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _cancellationTokenSource.Cancel();
         _cancellationTokenSource.Dispose();
         _settingsListener.PageSettingsChanged -= OnPageSettingsChanged;
-        TotalChanged -= _helpPage.UpdateTotal;
-        TotalVisualStudioChanged -= _helpPage.UpdateTotalVisualStudio;
-        TotalVisualStudioCodeChanged -= _helpPage.UpdateTotalVisualStudioCode;
+        //TotalChanged -= _helpPage.UpdateTotal;
+        //TotalVisualStudioChanged -= _helpPage.UpdateTotalVisualStudio;
+        //TotalVisualStudioCodeChanged -= _helpPage.UpdateTotalVisualStudioCode;
         _workspaceStorage.Dispose();
         _refreshSemaphore.Dispose();
     }

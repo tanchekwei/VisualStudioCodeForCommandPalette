@@ -68,6 +68,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CommandPalette.Extensions" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.WindowsAppSDK" />
   </ItemGroup>
   <ItemGroup>
