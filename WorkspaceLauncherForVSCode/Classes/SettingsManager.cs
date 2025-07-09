@@ -51,8 +51,8 @@ public class SettingsManager : JsonSettingsManager
     private readonly ToggleSetting _showTypeTag = new(
         Namespaced(nameof(_showTypeTag)),
         Resource.setting_tagType_option_type_label,
-        "Show the 'Type' tag (Workspace/Folder)",
-        false);
+        "Show the 'Type' tag (Workspace/WSL/Codespaces/Dev Container/SSH Remote/Attached Container)",
+        true);
 
     private readonly ToggleSetting _showTargetTag = new(
         Namespaced(nameof(_showTargetTag)),

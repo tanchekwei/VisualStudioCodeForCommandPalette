@@ -16,6 +16,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
         private SearchBy _previousSearchBy;
         private SecondaryCommand _previousVsSecondaryCommand;
         private SecondaryCommand _previousVscodeSecondaryCommand;
+        private TagType _previousTagTypes;
 
         public event EventHandler? InstanceSettingsChanged;
         public event EventHandler? PageSettingsChanged;
@@ -28,6 +29,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
             _previousEnableVisualStudio = _settingsManager.EnableVisualStudio;
             _previousVsSecondaryCommand = _settingsManager.VSSecondaryCommand;
             _previousVscodeSecondaryCommand = _settingsManager.VSCodeSecondaryCommand;
+            _previousTagTypes = _settingsManager.TagTypes;
             _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
         }
 
@@ -38,8 +40,9 @@ namespace WorkspaceLauncherForVSCode.Listeners
             var currentEnableVisualStudio = _settingsManager.EnableVisualStudio;
             var currentVsSecondaryCommand = _settingsManager.VSSecondaryCommand;
             var currentVscodeSecondaryCommand = _settingsManager.VSCodeSecondaryCommand;
+            var currentTagTypes = _settingsManager.TagTypes;
 
-            if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand)
+            if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand || currentTagTypes != _previousTagTypes)
             {
                 InstanceSettingsChanged?.Invoke(this, EventArgs.Empty);
                 _previousEditions = currentEditions;
