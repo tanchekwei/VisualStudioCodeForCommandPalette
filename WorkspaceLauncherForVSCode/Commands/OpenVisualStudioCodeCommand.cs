@@ -61,7 +61,7 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
         }
 
         var pathToValidate = Workspace.WindowsPath ?? Workspace.Path;
-        if (Workspace.VsCodeRemoteType == null)
+        if (Workspace.VisualStudioCodeRemoteUri == null)
         {
             var pathInvalidResult = CommandHelpers.IsPathValid(pathToValidate);
             if (pathInvalidResult != null)

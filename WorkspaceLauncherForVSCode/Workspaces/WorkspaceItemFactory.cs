@@ -7,6 +7,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
 using WorkspaceLauncherForVSCode.Enums;
+using WorkspaceLauncherForVSCode.Helpers;
 
 namespace WorkspaceLauncherForVSCode.Workspaces
 {
@@ -80,13 +81,13 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     };
                     if (settingsManager.TagTypes.HasFlag(TagType.Type))
                     {
-                        if (workspace.VsCodeRemoteType != null)
+                        if (workspace.VisualStudioCodeRemoteUri != null)
                         {
-                            tags.Add(new Tag(workspace.VsCodeRemoteType.ToDisplayName()));
+                            tags.Add(new Tag(workspace.VisualStudioCodeRemoteUri.Type.ToDisplayName()));
                         }
-                        else if (workspace.VsCodeRemoteTypeStr != null)
+                        else if (workspace.VisualStudioCodeRemoteUri?.TypeStr != null)
                         {
-                            tags.Add(new Tag(workspace.VsCodeRemoteTypeStr));
+                            tags.Add(new Tag(workspace.VisualStudioCodeRemoteUri.TypeStr));
                         }
                         else if (workspace.WorkspaceType == WorkspaceType.Workspace)
                         {
@@ -100,7 +101,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                             tags.Add(new Tag(name));
                         }
                     }
-                    else
+                    if (workspace.VisualStudioCodeRemoteUri is null)
                     {
                         if (settingsManager.VSCodeSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
                         {
@@ -119,6 +120,17 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                             moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(workspace, page, settingsManager.CommandResult, elevated: true)));
                         }
                     }
+                    else
+                    {
+                        switch (workspace.VisualStudioCodeRemoteUri.Type)
+                        {
+                            case VisualStudioCodeRemoteType.Codespaces:
+                                moreCommands.Add(new CommandContextItem(new Commands.OpenUrlCommand( $"https://{workspace.VisualStudioCodeRemoteUri.InfoRaw}.github.dev/", "Open in Browser", Classes.Icon.GitHub)));
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                     break;
             }
 
@@ -127,15 +139,25 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             moreCommands.Add(refreshCommandContextItem);
             moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, page, workspaceStorage)));
 
-            var item = new ListItem(command)
+            string subtitle = string.Empty;
+            if (workspace.VisualStudioCodeRemoteUri is null)
             {
-                Title = details.Title ?? "(no title)",
-                Subtitle = !string.IsNullOrEmpty(workspace.WindowsPath) ? Uri.UnescapeDataString(workspace.WindowsPath) : workspace.WindowsPath ?? string.Empty,
-                Details = details,
-                Icon = icon,
-                Tags = tags.ToArray(),
-                MoreCommands = moreCommands.ToArray(),
-            };
+                subtitle = Uri.UnescapeDataString(workspace.WindowsPath);
+            }
+            else
+            {
+                subtitle = workspace.WindowsPath;
+            }
+
+                var item = new ListItem(command)
+                {
+                    Title = details.Title ?? "(no title)",
+                    Subtitle = subtitle,
+                    Details = details,
+                    Icon = icon,
+                    Tags = tags.ToArray(),
+                    MoreCommands = moreCommands.ToArray(),
+                };
             return item;
         }
     }

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Components;
 using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Helpers;
@@ -25,8 +26,7 @@ public class VisualStudioCodeWorkspace
     public VisualStudioCodeWorkspaceSource Source { get; set; }
     public List<string> SourcePath { get; set; } = new();
     public string WorkspaceName { get; set; } = "";
-    public VisualStudioCodeRemoteType? VsCodeRemoteType { get; set; }
-    public string? VsCodeRemoteTypeStr { get; set; }
+    public VisualStudioCodeRemoteUri? VisualStudioCodeRemoteUri { get; set; }
     public string WorkspaceTypeString { get; set; } = "";
     public int Frequency { get; set; }
     public DateTime LastAccessed { get; set; }
@@ -41,12 +41,14 @@ public class VisualStudioCodeWorkspace
     internal VisualStudioCodeWorkspace(VisualStudioCodeInstance instance, string path, WorkspaceType visualStudioCodeWorkspaceType, VisualStudioCodeWorkspaceSource source, string sourcePath)
     {
         Path = path;
-
-        if (FileUriParser.TryParse(path, out var windowsPath, out var remoteType, out var remoteTypeStr))
+        if (VisualStudioCodeRemoteUri.IsVisualStudioCodeRemoteUri(path))
+        {
+            VisualStudioCodeRemoteUri = new(path);
+            WindowsPath = VisualStudioCodeRemoteUri?.GetSubtitle();
+        }
+        else if (FileUriParser.TryParse(path, out var windowsPath))
         {
             WindowsPath = windowsPath;
-            VsCodeRemoteType = remoteType;
-            VsCodeRemoteTypeStr = remoteTypeStr;
         }
         VSCodeInstance = instance;
         WorkspaceType = visualStudioCodeWorkspaceType;
@@ -121,13 +123,13 @@ public class VisualStudioCodeWorkspace
     {
         if (Path == null) return;
         var typeTags = new List<Tag>() { new Tag(WorkspaceTypeString) };
-        if (VsCodeRemoteType != null)
+        if (VisualStudioCodeRemoteUri != null)
         {
-            typeTags.Add(new Tag(VsCodeRemoteType.ToString()));
+            typeTags.Add(new Tag(VisualStudioCodeRemoteUri.Type.ToDisplayName()));
         }
-        else if (VsCodeRemoteTypeStr != null)
+        else if (VisualStudioCodeRemoteUri?.TypeStr != null)
         {
-            typeTags.Add(new Tag(VsCodeRemoteTypeStr));
+            typeTags.Add(new Tag(VisualStudioCodeRemoteUri.TypeStr));
         }
     }
 
@@ -137,15 +139,5 @@ public class VisualStudioCodeWorkspace
     /// <returns>An array of details elements containing information about the workspace.</returns>
     public void SetVSMetadata()
     {
-        if (Path == null) return;
-        var typeTags = new List<Tag>() { new Tag(WorkspaceTypeString) };
-        if (VsCodeRemoteType != null)
-        {
-            typeTags.Add(new Tag(VsCodeRemoteType.ToString()));
-        }
-        else if (VsCodeRemoteTypeStr != null)
-        {
-            typeTags.Add(new Tag(VsCodeRemoteTypeStr));
-        }
     }
 }
