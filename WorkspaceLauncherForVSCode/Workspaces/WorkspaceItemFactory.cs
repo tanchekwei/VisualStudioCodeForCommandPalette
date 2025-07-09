@@ -125,7 +125,11 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                         switch (workspace.VisualStudioCodeRemoteUri.Type)
                         {
                             case VisualStudioCodeRemoteType.Codespaces:
-                                moreCommands.Add(new CommandContextItem(new Commands.OpenUrlCommand( $"https://{workspace.VisualStudioCodeRemoteUri.InfoRaw}.github.dev/", "Open in Browser", Classes.Icon.GitHub)));
+                                moreCommands.Add(new CommandContextItem(new Commands.OpenUrlCommand(workspace.WindowsPath, "Open in Browser", Classes.Icon.GitHub)));
+                                break;
+                            case VisualStudioCodeRemoteType.WSL:
+                            case VisualStudioCodeRemoteType.DevContainer:
+                                moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
                                 break;
                             default:
                                 break;
