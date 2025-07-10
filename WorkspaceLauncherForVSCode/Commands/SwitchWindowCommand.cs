@@ -14,7 +14,7 @@ using WorkspaceLauncherForVSCode.Pages;
 
 namespace WorkspaceLauncherForVSCode.Commands;
 
-internal partial class SwitchWindowCommand : InvokableCommand
+internal sealed partial class SwitchWindowCommand : InvokableCommand
 {
     private readonly Window _window;
 

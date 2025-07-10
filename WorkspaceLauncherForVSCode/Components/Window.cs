@@ -72,7 +72,8 @@ namespace WorkspaceLauncherForVSCode.Components
 
         public override string ToString()
         {
-            return Title + " (" + processInfo.Process.ProcessName?.ToUpper(CultureInfo.CurrentCulture) + ")";
+            var processName = processInfo.Process?.ProcessName?.ToUpper(CultureInfo.CurrentCulture) ?? "N/A";
+            return Title + " (" + processName + ")";
         }
 
         internal WindowSizeState GetWindowSizeState()

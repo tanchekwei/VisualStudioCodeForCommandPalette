@@ -10,8 +10,6 @@ namespace WorkspaceLauncherForVSCode.Listeners
     {
         private readonly SettingsManager _settingsManager;
         private VisualStudioCodeEdition _previousEditions;
-        private string _previousPreferredEdition;
-        private bool _previousShowDetails;
         private bool _previousEnableVisualStudio;
         private SearchBy _previousSearchBy;
         private SecondaryCommand _previousVsSecondaryCommand;

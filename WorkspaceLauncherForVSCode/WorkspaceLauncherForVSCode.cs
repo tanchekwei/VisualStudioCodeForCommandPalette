@@ -4,12 +4,12 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.CommandPalette.Extensions;
-using WorkspaceLauncherForVSCode.Classes;
 using Microsoft.Extensions.DependencyInjection;
+using WorkspaceLauncherForVSCode.Classes;
+using WorkspaceLauncherForVSCode.Commands;
+using WorkspaceLauncherForVSCode.Listeners;
 using WorkspaceLauncherForVSCode.Pages;
 using WorkspaceLauncherForVSCode.Services;
-using WorkspaceLauncherForVSCode.Listeners;
-using WorkspaceLauncherForVSCode.Commands;
 
 namespace WorkspaceLauncherForVSCode;
 
@@ -42,7 +42,7 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
         // Build the provider
         var provider = services.BuildServiceProvider();
 
-        StaticHelpItems.Initialize(provider.GetRequiredService<SettingsManager>());
+        StaticHelpItems.Initialize(provider.GetRequiredService<SettingsManager>(), provider.GetRequiredService<CountTracker>());
 
         _provider = provider.GetRequiredService<WorkspaceLauncherForVSCodeCommandsProvider>();
     }

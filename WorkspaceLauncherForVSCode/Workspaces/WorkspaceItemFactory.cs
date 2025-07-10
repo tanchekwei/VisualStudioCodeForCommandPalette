@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Windows.System;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
 using WorkspaceLauncherForVSCode.Enums;
@@ -104,6 +105,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     }
                     if (workspace.VisualStudioCodeRemoteUri is null)
                     {
+                        countTracker.Update((WorkspaceType)workspace.WorkspaceType, countTracker[(WorkspaceType)workspace.WorkspaceType] + 1);
                         if (settingsManager.VSCodeSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
                         {
                             moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(workspace, page, elevated: true)));
@@ -123,14 +125,24 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     }
                     else
                     {
+                        if (workspace.VisualStudioCodeRemoteUri.Type.HasValue)
+                        {
+                            countTracker.Update(workspace.VisualStudioCodeRemoteUri.Type.Value, countTracker[workspace.VisualStudioCodeRemoteUri.Type.Value] + 1);
+                        }
                         switch (workspace.VisualStudioCodeRemoteUri.Type)
                         {
                             case VisualStudioCodeRemoteType.Codespaces:
-                                moreCommands.Add(new CommandContextItem(new Commands.OpenUrlCommand(workspace.WindowsPath, "Open in Browser", Classes.Icon.GitHub)));
+                                if (!string.IsNullOrEmpty(workspace.WindowsPath))
+                                {
+                                    moreCommands.Add(new CommandContextItem(new Commands.OpenUrlCommand(workspace.WindowsPath, "Open in Browser", Classes.Icon.GitHub)));
+                                }
                                 break;
                             case VisualStudioCodeRemoteType.WSL:
                             case VisualStudioCodeRemoteType.DevContainer:
-                                moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
+                                if (!string.IsNullOrEmpty(workspace.WindowsPath))
+                                {
+                                    moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
+                                }
                                 break;
                             default:
                                 break;
@@ -139,30 +151,36 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     break;
             }
 
-            moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, countTracker, workspace)));
-            moreCommands.Add(new CommandContextItem(new CopyPathCommand(workspace.WindowsPath ?? string.Empty)));
+            moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, countTracker, workspace))
+            {
+                RequestedShortcut = KeyChordHelpers.FromModifiers(false, false, false, false, (int)VirtualKey.F1, 0),
+            });
+            moreCommands.Add(new CommandContextItem(new CopyPathCommand(workspace.WindowsPath ?? string.Empty))
+            {
+                RequestedShortcut = KeyChordHelpers.FromModifiers(true, false, false, false, (int)VirtualKey.C, 0),
+            });
             moreCommands.Add(refreshCommandContextItem);
             moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, page, workspaceStorage)));
 
             string subtitle = string.Empty;
             if (workspace.VisualStudioCodeRemoteUri is null)
             {
-                subtitle = Uri.UnescapeDataString(workspace.WindowsPath);
+                subtitle = Uri.UnescapeDataString(workspace.WindowsPath ?? string.Empty);
             }
             else
             {
-                subtitle = workspace.WindowsPath;
+                subtitle = workspace.WindowsPath ?? string.Empty;
             }
 
-                var item = new ListItem(command)
-                {
-                    Title = details.Title ?? "(no title)",
-                    Subtitle = subtitle,
-                    Details = details,
-                    Icon = icon,
-                    Tags = tags.ToArray(),
-                    MoreCommands = moreCommands.ToArray(),
-                };
+            var item = new ListItem(command)
+            {
+                Title = details.Title ?? "(no title)",
+                Subtitle = subtitle ?? string.Empty,
+                Details = details,
+                Icon = icon,
+                Tags = tags.ToArray(),
+                MoreCommands = moreCommands.ToArray(),
+            };
             return item;
         }
     }

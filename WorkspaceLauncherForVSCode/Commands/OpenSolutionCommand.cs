@@ -50,6 +50,11 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
             return CommandResult.Dismiss();
         }
 
+        if (page != null)
+        {
+            Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path));
+        }
+
         OpenWindows.Instance.UpdateVisualStudioWindowsList();
         var visualStudioWindows = OpenWindows.Instance.Windows;
         var matchedElevatedVisualStudioWindows = new List<Window>();
@@ -65,6 +70,10 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
             }
             else
             {
+                if (window.Process.Process == null)
+                {
+                    continue;
+                }
                 string? commandLine = NativeProcessCommandLine.GetCommandLine(window.Process.Process);
                 string? solutionPath = NativeProcessCommandLine.ExtractSolutionPath(commandLine);
                 if (solutionPath == Workspace.WindowsPath)
@@ -77,20 +86,15 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
 
         //if (matchedElevatedVisualStudioWindows.Count > 0)
         //{
-            // TODO: Waiting on https://github.com/microsoft/PowerToys/pull/38025 for GotoPage support.
-            // Since we can't retrieve the command line from elevated processes, we can't determine their solution path.
-            // If any elevated Visual Studio windows have a title that contains the solution name,
-            // consider navigating to a selection page to let the user choose which window to switch to or reopen the solution.
+        // TODO: Waiting on https://github.com/microsoft/PowerToys/pull/38025 for GotoPage support.
+        // Since we can't retrieve the command line from elevated processes, we can't determine their solution path.
+        // If any elevated Visual Studio windows have a title that contains the solution name,
+        // consider navigating to a selection page to let the user choose which window to switch to or reopen the solution.
         //}
 
         if (Workspace.VSInstance != null)
         {
             OpenInShellHelper.OpenInShell(Workspace.VSInstance.InstancePath, Workspace.Path, runAs: _elevated ? OpenInShellHelper.ShellRunAsType.Administrator : OpenInShellHelper.ShellRunAsType.None);
-        }
-
-        if (page != null)
-        {
-            Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path));
         }
 
         return PageCommandResultHandler.HandleCommandResult(page);

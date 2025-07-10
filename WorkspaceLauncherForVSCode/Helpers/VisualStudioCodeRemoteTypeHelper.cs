@@ -1,6 +1,5 @@
 // Modifications Copyright (c) 2025 tanchekwei 
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
-
 using System;
 using System.Collections.Generic;
 using WorkspaceLauncherForVSCode.Enums;
@@ -34,7 +33,7 @@ public static class VisualStudioCodeRemoteTypeHelper
       VisualStudioCodeRemoteType.Codespaces => "Codespaces",
       VisualStudioCodeRemoteType.AttachedContainer => "Attached Container",
       VisualStudioCodeRemoteType.SSHRemote => "SSH Remote",
-      _ => input.ToString()
+      _ => input.Value.ToString()
     };
   }
 }

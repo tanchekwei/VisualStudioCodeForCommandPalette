@@ -137,7 +137,7 @@ public class VisualStudioCodeWorkspace
     /// Gets the details of the workspace.
     /// </summary>
     /// <returns>An array of details elements containing information about the workspace.</returns>
-    public void SetVSMetadata()
+    public static void SetVSMetadata()
     {
     }
 }

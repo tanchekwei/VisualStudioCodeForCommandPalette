@@ -1,10 +1,9 @@
 using System;
+using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Net;
 using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Helpers;
-using ABI.System;
 
 namespace WorkspaceLauncherForVSCode.Classes;
 
@@ -13,7 +12,7 @@ public class VisualStudioCodeRemoteUri
     public const string Scheme = Constant.VscodeRemoteScheme;
     public string Uri { get; }
     public string TypeStr { get; }
-    public VisualStudioCodeRemoteType? Type { get;  }
+    public VisualStudioCodeRemoteType? Type { get; }
     public string InfoRaw { get; }
     public string InfoDecoded { get; }
     public JsonElement? InfoJson { get; }
@@ -38,7 +37,7 @@ public class VisualStudioCodeRemoteUri
         var path = firstSlash == -1 ? "/" : withoutScheme.Substring(firstSlash);
 
         // Handle encoded `+` (for codespaces)
-        string remoteType = null, remoteInfoRaw = null;
+        string remoteType = string.Empty, remoteInfoRaw = string.Empty;
 
         if (beforePath.Contains('+'))
         {

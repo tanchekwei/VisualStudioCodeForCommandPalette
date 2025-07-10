@@ -9,16 +9,16 @@ namespace WorkspaceLauncherForVSCode.Pages
 {
     public static class StaticHelpItems
     {
-        public static readonly ListItem OpenSettings = new(
+        public static readonly ListItem OpenSettingsFolder = new(
             new OpenInExplorerCommand(Utilities.BaseSettingsPath(Constant.AppName), null, "Open extension settings / logs folder")
         );
 
         public static readonly ListItem ViewSource = new(
-            new Commands.OpenUrlCommand("https://github.com/tanchekwei/WorkspaceLauncherForVSCode", "View source code", Classes.Icon.GitHub)
+            new Commands.OpenUrlCommand("https://github.com/tanchekwei/VisualStudioCodeForCommandPalette", "View source code", Classes.Icon.GitHub)
         );
 
         public static readonly ListItem ReportBug = new(
-            new Commands.OpenUrlCommand("https://github.com/tanchekwei/WorkspaceLauncherForVSCode/issues/new", "Report issue", Classes.Icon.GitHub)
+            new Commands.OpenUrlCommand("https://github.com/tanchekwei/VisualStudioCodeForCommandPalette/issues/new", "Report issue", Classes.Icon.GitHub)
         );
 
         public static readonly ListItem ExtensionVersion = new()
@@ -28,32 +28,79 @@ namespace WorkspaceLauncherForVSCode.Pages
             Icon = Classes.Icon.Extension
         };
 
-        public static readonly List<ListItem> CountItems = new()
+        public static List<ListItem> CountItems { get; private set; } = null!;
+        public static CommandContextItem CountDetail { get; private set; } = null!;
+
+        public static readonly List<ListItem> CountDetailItems = new()
         {
             new ListItem
             {
-                Subtitle = "Visual Studio Count",
-                Icon = Classes.Icon.VisualStudio,
-            },
-            new ListItem
-            {
-                Subtitle = "Visual Studio Code Count",
+                Subtitle = "Folder",
                 Icon = Classes.Icon.VisualStudioCode,
             },
             new ListItem
             {
-                Subtitle = "Visual Studio / Code Count",
-                Icon = Classes.Icon.VisualStudioAndVisualStudioCode,
+                Subtitle = "Workspace",
+                Icon = Classes.Icon.VisualStudioCode,
+            },
+            new ListItem
+            {
+                Subtitle = "Codespaces",
+                Icon = Classes.Icon.VisualStudioCode,
+            },
+            new ListItem
+            {
+                Subtitle = "WSL",
+                Icon = Classes.Icon.VisualStudioCode,
+            },
+            new ListItem
+            {
+                Subtitle = "Dev Container",
+                Icon = Classes.Icon.VisualStudioCode,
+            },
+            new ListItem
+            {
+                Subtitle = "Attached Container",
+                Icon = Classes.Icon.VisualStudioCode,
+            },
+            new ListItem
+            {
+                Subtitle = "SSH Remote",
+                Icon = Classes.Icon.VisualStudioCode,
+            },
+            new ListItem
+            {
+                Subtitle = "Total",
+                Icon = Classes.Icon.VisualStudioCode,
             }
         };
 
         public static ListItem SettingsItem { get; private set; } = null!;
-        public static void Initialize(SettingsManager settingsManager)
+        public static void Initialize(SettingsManager settingsManager, CountTracker countTracker)
         {
             SettingsItem = new ListItem(settingsManager.Settings.SettingsPage)
             {
                 Title = "Setting",
                 Icon = Classes.Icon.Setting
+            };
+            CountDetail = new(new VisualStudioCodeCountDetailPage(countTracker));
+            CountItems = new()
+            {
+                new ListItem
+                {
+                    Subtitle = "Visual Studio",
+                    Icon = Classes.Icon.VisualStudio,
+                },
+                new ListItem(CountDetail)
+                {
+                    Subtitle = "Visual Studio Code",
+                    Icon = Classes.Icon.VisualStudioCode,
+                },
+                new ListItem
+                {
+                    Subtitle = "Total",
+                    Icon = Classes.Icon.VisualStudioAndVisualStudioCode,
+                }
             };
         }
     }

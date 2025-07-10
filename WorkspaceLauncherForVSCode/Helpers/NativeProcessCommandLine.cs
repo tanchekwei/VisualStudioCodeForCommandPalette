@@ -54,7 +54,7 @@ namespace WorkspaceLauncherForVSCode.Helpers
             var args = commandLine.Trim();
 
             // Remove the quoted executable path
-            if (args.StartsWith("\""))
+            if (args.StartsWith('\"'))
             {
                 var endQuote = args.IndexOf('"', 1);
                 if (endQuote < 0 || endQuote + 1 >= args.Length)
@@ -72,7 +72,7 @@ namespace WorkspaceLauncherForVSCode.Helpers
             }
 
             // First argument is the solution path (possibly quoted)
-            if (args.StartsWith("\""))
+            if (args.StartsWith('\"'))
             {
                 var endQuote = args.IndexOf('"', 1);
                 return endQuote > 0 ? args[1..endQuote] : null;

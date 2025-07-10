@@ -21,6 +21,7 @@ namespace WorkspaceLauncherForVSCode.Services
             var visualStudioService = new VisualStudioService();
             visualStudioService.InitInstances(Array.Empty<string>());
             var results = visualStudioService.GetResults(showPrerelease);
+            var workspaceMap = dbWorkspaces.Where(w => w.Path != null).ToDictionary(w => w.Path!, w => w);
 
             var list = results.Select(r =>
             {
@@ -34,15 +35,10 @@ namespace WorkspaceLauncherForVSCode.Services
                     LastAccessed = r.LastAccessed,
                 };
                 vs.SetWorkspaceType();
-                vs.SetVSMetadata();
-                foreach (var workspace in dbWorkspaces)
+                if (r.FullPath != null && workspaceMap.TryGetValue(r.FullPath, out var workspace))
                 {
-                    if (workspace.Path == vs.Path)
-                    {
-                        vs.Frequency = workspace.Frequency;
-                        vs.PinDateTime = workspace.PinDateTime;
-                        break;
-                    }
+                    vs.Frequency = workspace.Frequency;
+                    vs.PinDateTime = workspace.PinDateTime;
                 }
                 return vs;
             }).ToList();

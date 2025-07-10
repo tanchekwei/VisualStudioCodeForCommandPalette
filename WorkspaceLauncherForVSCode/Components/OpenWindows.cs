@@ -47,9 +47,9 @@ namespace WorkspaceLauncherForVSCode.Components
                 newWindow.ClassName != "Windows.UI.Core.CoreWindow" &&
                 !newWindow.IsCloaked)
             {
-                if (string.Equals(newWindow.Process?.Process.ProcessName, "devenv", StringComparison.OrdinalIgnoreCase))
+                if (newWindow.Process?.Process != null && string.Equals(newWindow.Process.Process.ProcessName, "devenv", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (newWindow.Process?.Process is Process proc && IsProcessElevated(proc.Id))
+                    if (newWindow.Process.Process is Process proc && IsProcessElevated(proc.Id))
                     {
                         newWindow.IsProcessElevated = true;
                     }
@@ -60,7 +60,7 @@ namespace WorkspaceLauncherForVSCode.Components
             return true;
         }
 
-        private bool IsProcessElevated(int processId)
+        private static bool IsProcessElevated(int processId)
         {
             IntPtr hProcess = NativeMethods.OpenProcess(0x1000 /* PROCESS_QUERY_INFORMATION */, false, processId);
             if (hProcess == IntPtr.Zero)
@@ -72,7 +72,7 @@ namespace WorkspaceLauncherForVSCode.Components
                 if (!NativeMethods.OpenProcessToken(hProcess, 0x0008 /* TOKEN_QUERY */, out hToken))
                     return false;
 
-                uint tokenInfoLength = (uint)Marshal.SizeOf(typeof(int));
+                uint tokenInfoLength = (uint)Marshal.SizeOf<int>();
                 IntPtr elevationPtr = Marshal.AllocHGlobal((int)tokenInfoLength);
                 try
                 {

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Windows.System;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
 using WorkspaceLauncherForVSCode.Interfaces;
@@ -69,7 +70,8 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         {
             MoreCommands = [
                 _helpCommandContextItem,
-            ]
+            ],
+            RequestedShortcut = KeyChordHelpers.FromModifiers(false, false, false, false, (int)VirtualKey.F5, 0),
         };
         _settingsListener = settingsListener;
         _settingsListener.PageSettingsChanged += OnPageSettingsChanged;
@@ -85,26 +87,13 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             Title = "Still not seeing what you´re looking for?",
             Subtitle = "Double-click or press Enter to refresh the list.",
         }];
-        _ = LoadInitialWorkspacesAsync();
+
+        _ = RefreshWorkspacesAsync(true);
     }
 
     public void StartRefresh()
     {
         _ = RefreshWorkspacesAsync(isUserInitiated: true);
-    }
-
-    private async Task LoadInitialWorkspacesAsync()
-    {
-#if DEBUG
-        using var logger = new TimeLogger();
-#endif
-        var workspaces = await _workspaceStorage.GetWorkspacesAsync();
-        if (workspaces.Count > 0)
-        {
-            UpdateWorkspaceList(workspaces, CancellationToken.None);
-        }
-
-        await RefreshWorkspacesAsync(isUserInitiated: false);
     }
 
     public override IListItem[] GetItems()
