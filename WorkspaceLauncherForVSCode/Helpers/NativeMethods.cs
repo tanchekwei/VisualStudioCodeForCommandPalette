@@ -75,6 +75,49 @@ namespace WorkspaceLauncherForVSCode.Helpers
         [DllImport("kernel32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool CloseHandle(IntPtr hObject);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        public static extern bool OpenProcessToken(IntPtr ProcessHandle, uint DesiredAccess, out IntPtr TokenHandle);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+        public const int TokenElevation = 20;
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        public static extern bool GetTokenInformation(IntPtr tokenHandle, int tokenInfoClass,
+            IntPtr tokenInfo, uint tokenInfoLength, out uint returnLength);
+
+        [DllImport("ntdll.dll")]
+        public static extern int NtQueryInformationProcess(
+            IntPtr processHandle,
+            int processInformationClass,
+            out PROCESS_BASIC_INFORMATION processInformation,
+            int processInformationLength,
+            out int returnLength);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool ReadProcessMemory(
+            IntPtr hProcess,
+            IntPtr lpBaseAddress,
+            [Out] out IntPtr lpBuffer,
+            int dwSize,
+            out IntPtr lpNumberOfBytesRead);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool ReadProcessMemory(
+            IntPtr hProcess,
+            IntPtr lpBaseAddress,
+            [Out] out UNICODE_STRING lpBuffer,
+            int dwSize,
+            out IntPtr lpNumberOfBytesRead);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool ReadProcessMemory(
+            IntPtr hProcess,
+            IntPtr lpBaseAddress,
+            [Out] byte[] lpBuffer,
+            int dwSize,
+            out IntPtr lpNumberOfBytesRead);
     }
 
     internal static class Win32Constants
@@ -282,5 +325,31 @@ namespace WorkspaceLauncherForVSCode.Helpers
     {
         WS_EX_TOOLWINDOW = 0x0080,
         WS_EX_APPWINDOW = 0x40000,
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct UNICODE_STRING
+    {
+        public ushort Length;
+        public ushort MaximumLength;
+        public IntPtr Buffer;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct PROCESS_BASIC_INFORMATION
+    {
+        public IntPtr Reserved1;
+        public IntPtr PebBaseAddress;
+        public IntPtr Reserved2_0;
+        public IntPtr Reserved2_1;
+        public IntPtr UniqueProcessId;
+        public IntPtr Reserved3;
+    }
+
+    [Flags]
+    enum ProcessAccessFlags : uint
+    {
+        QueryInformation = 0x0400,
+        VirtualMemoryRead = 0x0010
     }
 }

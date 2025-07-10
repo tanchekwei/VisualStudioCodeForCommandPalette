@@ -1,11 +1,11 @@
 // Modifications copyright (c) 2025 tanchekwei 
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.CmdPal.Ext.System.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Components;
-using WorkspaceLauncherForVSCode.Enums;
+using WorkspaceLauncherForVSCode.Helpers;
 using WorkspaceLauncherForVSCode.Interfaces;
 
 namespace WorkspaceLauncherForVSCode.Commands;
@@ -50,19 +50,38 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
             return CommandResult.Dismiss();
         }
 
-        OpenWindows.Instance.UpdateOpenWindowsList();
-        var openVSWindows = OpenWindows.Instance.Windows.Where(w => w.Process.Name == "devenv");
-
-        var solutionName = System.IO.Path.GetFileNameWithoutExtension(Workspace.Path);
-
-        foreach (var window in openVSWindows)
+        OpenWindows.Instance.UpdateVisualStudioWindowsList();
+        var visualStudioWindows = OpenWindows.Instance.Windows;
+        var matchedElevatedVisualStudioWindows = new List<Window>();
+        foreach (var window in visualStudioWindows)
         {
-            if (window.Title.Contains(solutionName))
+            if (window.IsProcessElevated)
             {
-                window.SwitchToWindow();
-                return PageCommandResultHandler.HandleCommandResult(page);
+                //var solutionName = System.IO.Path.GetFileNameWithoutExtension(Workspace.Path);
+                //if (window.Title.Contains(solutionName))
+                //{
+                //    matchedElevatedVisualStudioWindows.Add(window);
+                //}
+            }
+            else
+            {
+                string? commandLine = NativeProcessCommandLine.GetCommandLine(window.Process.Process);
+                string? solutionPath = NativeProcessCommandLine.ExtractSolutionPath(commandLine);
+                if (solutionPath == Workspace.WindowsPath)
+                {
+                    window.SwitchToWindow();
+                    return PageCommandResultHandler.HandleCommandResult(page);
+                }
             }
         }
+
+        //if (matchedElevatedVisualStudioWindows.Count > 0)
+        //{
+            // TODO: Waiting on https://github.com/microsoft/PowerToys/pull/38025 for GotoPage support.
+            // Since we can't retrieve the command line from elevated processes, we can't determine their solution path.
+            // If any elevated Visual Studio windows have a title that contains the solution name,
+            // consider navigating to a selection page to let the user choose which window to switch to or reopen the solution.
+        //}
 
         if (Workspace.VSInstance != null)
         {
@@ -71,7 +90,6 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
 
         if (page != null)
         {
-            // Update frequency
             Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path));
         }
 

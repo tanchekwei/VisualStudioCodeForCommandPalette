@@ -80,7 +80,6 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
 
         OpenInShellHelper.OpenInShell(Workspace.VSCodeInstance.ExecutablePath, arguments, runAs: _elevated ? OpenInShellHelper.ShellRunAsType.Administrator : OpenInShellHelper.ShellRunAsType.None);
 
-        // Update frequency
         Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path));
 
         return PageCommandResultHandler.HandleCommandResult(page);

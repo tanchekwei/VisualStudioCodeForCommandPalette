@@ -37,6 +37,7 @@ namespace WorkspaceLauncherForVSCode.Components
 
         internal IntPtr Hwnd => hwnd;
         internal WindowProcess Process => processInfo;
+        internal bool IsProcessElevated { get; set; }
         internal bool Visible => NativeMethods.IsWindowVisible(Hwnd);
         internal bool IsCloaked => GetWindowCloakState() != WindowCloakState.None;
         internal bool IsWindow => NativeMethods.IsWindow(Hwnd);
@@ -71,7 +72,7 @@ namespace WorkspaceLauncherForVSCode.Components
 
         public override string ToString()
         {
-            return Title + " (" + processInfo.Name?.ToUpper(CultureInfo.CurrentCulture) + ")";
+            return Title + " (" + processInfo.Process.ProcessName?.ToUpper(CultureInfo.CurrentCulture) + ")";
         }
 
         internal WindowSizeState GetWindowSizeState()
