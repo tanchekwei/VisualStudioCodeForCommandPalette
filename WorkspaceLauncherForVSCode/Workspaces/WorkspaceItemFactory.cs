@@ -25,8 +25,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             VisualStudioCodePage page,
             WorkspaceStorage workspaceStorage,
             SettingsManager settingsManager,
-            CommandContextItem refreshCommandContextItem,
-            CommandContextItem helpCommandContextItem)
+            CountTracker countTracker,
+            CommandContextItem refreshCommandContextItem)
         {
 #if DEBUG
             using var logger = new TimeLogger();
@@ -139,8 +139,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     break;
             }
 
-            moreCommands.Add(helpCommandContextItem);
-            moreCommands.Add(new CommandContextItem(new DetailPage(workspace)));
+            moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, countTracker, workspace)));
             moreCommands.Add(new CommandContextItem(new CopyPathCommand(workspace.WindowsPath ?? string.Empty)));
             moreCommands.Add(refreshCommandContextItem);
             moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, page, workspaceStorage)));

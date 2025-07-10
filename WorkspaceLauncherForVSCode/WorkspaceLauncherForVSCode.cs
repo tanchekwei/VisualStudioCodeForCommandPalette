@@ -31,7 +31,6 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
 
         // Register dependencies
         services.AddSingleton<SettingsManager>();
-        services.AddSingleton<HelpPage>();
         services.AddSingleton<IVisualStudioCodeService, VisualStudioCodeService>();
         services.AddSingleton<SettingsListener>();
         services.AddSingleton<VisualStudioCodePage>();

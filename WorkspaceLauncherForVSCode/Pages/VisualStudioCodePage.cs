@@ -47,7 +47,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         SettingsListener settingsListener,
         WorkspaceStorage workspaceStorage,
         RefreshWorkspacesCommand refreshWorkspacesCommand,
-        HelpPage helpPage,
         CountTracker countTracker
     )
     {
@@ -63,7 +62,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _vscodeService = vscodeService;
         _workspaceStorage = workspaceStorage;
         _countTracker = countTracker;
-        _helpCommandContextItem = new CommandContextItem(helpPage);
+        _helpCommandContextItem = new CommandContextItem(new HelpPage(settingsManager, countTracker, null));
         _refreshWorkspacesCommand = refreshWorkspacesCommand;
         _refreshWorkspacesCommand.TriggerRefresh += (s, e) => StartRefresh();
         _refreshWorkspacesCommandContextItem = new CommandContextItem(_refreshWorkspacesCommand)
@@ -255,7 +254,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         using var logger = new TimeLogger();
 #endif
         var newItems = workspaces
-            .Select(w => WorkspaceItemFactory.Create(w, this, _workspaceStorage, _settingsManager, _refreshWorkspacesCommandContextItem, _helpCommandContextItem))
+            .Select(w => WorkspaceItemFactory.Create(w, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem))
             .ToList();
 
         lock (_itemsLock)
@@ -292,7 +291,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                     workspace.PinDateTime = workspace.PinDateTime.HasValue ? null : DateTime.UtcNow;
                     if (_allItems.Remove(itemToUpdate))
                     {
-                        _allItems.Add(WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _refreshWorkspacesCommandContextItem, _helpCommandContextItem));
+                        _allItems.Add(WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem));
                     }
 
                     _cachedFilteredItems = WorkspaceFilter.Filter(SearchText, _allItems, _settingsManager.SearchBy);
@@ -344,9 +343,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _cancellationTokenSource.Cancel();
         _cancellationTokenSource.Dispose();
         _settingsListener.PageSettingsChanged -= OnPageSettingsChanged;
-        //TotalChanged -= _helpPage.UpdateTotal;
-        //TotalVisualStudioChanged -= _helpPage.UpdateTotalVisualStudio;
-        //TotalVisualStudioCodeChanged -= _helpPage.UpdateTotalVisualStudioCode;
         _workspaceStorage.Dispose();
         _refreshSemaphore.Dispose();
     }
