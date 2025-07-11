@@ -2,11 +2,7 @@
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Text;
-using WorkspaceLauncherForVSCode;
-using WorkspaceLauncherForVSCode.Classes;
-using WorkspaceLauncherForVSCode.Enums;
 
 namespace WorkspaceLauncherForVSCode.Helpers
 {

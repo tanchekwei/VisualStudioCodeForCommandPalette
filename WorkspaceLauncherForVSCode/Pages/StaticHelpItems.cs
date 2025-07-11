@@ -28,9 +28,6 @@ namespace WorkspaceLauncherForVSCode.Pages
             Icon = Classes.Icon.Extension
         };
 
-        public static List<ListItem> CountItems { get; private set; } = null!;
-        public static CommandContextItem CountDetail { get; private set; } = null!;
-
         public static readonly List<ListItem> CountDetailItems = new()
         {
             new ListItem
@@ -76,6 +73,8 @@ namespace WorkspaceLauncherForVSCode.Pages
         };
 
         public static ListItem SettingsItem { get; private set; } = null!;
+        public static CommandContextItem CountDetail { get; private set; } = null!;
+        public static List<ListItem> CountItems { get; private set; } = null!;
         public static void Initialize(SettingsManager settingsManager, CountTracker countTracker)
         {
             SettingsItem = new ListItem(settingsManager.Settings.SettingsPage)

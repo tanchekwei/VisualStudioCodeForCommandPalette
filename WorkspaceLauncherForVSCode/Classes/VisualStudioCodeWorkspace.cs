@@ -4,10 +4,8 @@ using System;
 using System.Collections.Generic;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
-using WorkspaceLauncherForVSCode.Components;
 using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Helpers;
-using WorkspaceLauncherForVSCode.Properties;
 using WorkspaceLauncherForVSCode.Services.VisualStudio.Models;
 
 namespace WorkspaceLauncherForVSCode;

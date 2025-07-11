@@ -51,6 +51,8 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
             public const string GetPinnedWorkspaces = "SELECT Path, PinDateTime FROM PinnedWorkspaces";
             public const string AddPinnedWorkspace = "INSERT OR REPLACE INTO PinnedWorkspaces (Path, PinDateTime) VALUES (@Path, @PinDateTime)";
             public const string RemovePinnedWorkspace = "DELETE FROM PinnedWorkspaces WHERE Path = @Path";
+
+            public const string ResetAllFrequencies = "UPDATE Workspaces SET Frequency = 0";
         }
 
         public WorkspaceStorage()
@@ -135,6 +137,13 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
             command.CommandText = Queries.UpdateFrequency;
             command.Parameters.AddWithValue("@path", path);
             command.Parameters.AddWithValue("@LastAccessed", DateTime.Now.ToString("o"));
+            await command.ExecuteNonQueryAsync();
+        }
+
+        public async Task ResetAllFrequenciesAsync()
+        {
+            using var command = _connection.CreateCommand();
+            command.CommandText = Queries.ResetAllFrequencies;
             await command.ExecuteNonQueryAsync();
         }
 

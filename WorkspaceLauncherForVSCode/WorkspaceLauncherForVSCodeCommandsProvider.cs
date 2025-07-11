@@ -4,8 +4,6 @@ using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Listeners;
-using WorkspaceLauncherForVSCode.Pages;
-using WorkspaceLauncherForVSCode.Services;
 
 namespace WorkspaceLauncherForVSCode;
 
