@@ -78,7 +78,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     icon = Classes.Icon.VisualStudioCode;
                     details = new Details
                     {
-                        Title = workspace.WorkspaceName,
+                        Title = workspace.GetWorkspaceName(),
                         HeroImage = icon,
                     };
                     if (settingsManager.TagTypes.HasFlag(TagType.Type))

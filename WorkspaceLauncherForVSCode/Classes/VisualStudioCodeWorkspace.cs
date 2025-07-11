@@ -138,4 +138,30 @@ public class VisualStudioCodeWorkspace
     public static void SetVSMetadata()
     {
     }
+
+    public string GetWorkspaceName()
+    {
+        string workspaceName;
+        if (VisualStudioCodeRemoteUri is null)
+        {
+            return WorkspaceName;
+        }
+        switch (VisualStudioCodeRemoteUri.Type)
+        {
+            case VisualStudioCodeRemoteType.DevContainer:
+                if (string.IsNullOrEmpty(WindowsPath) || VisualStudioCodeRemoteUri.IsVisualStudioCodeRemoteUri(WindowsPath))
+                {
+                    workspaceName = WorkspaceName;
+                }
+                else
+                {
+                    workspaceName = System.IO.Path.GetFileName(WindowsPath) ?? WorkspaceName;
+                }
+                break;
+            default:
+                workspaceName = WorkspaceName;
+                break;
+        }
+        return workspaceName;
+    }
 }
