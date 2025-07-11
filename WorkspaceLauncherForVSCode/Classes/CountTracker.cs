@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using WorkspaceLauncherForVSCode.Enums;
 
 namespace WorkspaceLauncherForVSCode.Classes;
@@ -33,6 +34,24 @@ public class CountTracker
     if (!_vscodeLocalCounts.TryGetValue(localType, out var oldValue) || oldValue != value)
     {
       _vscodeLocalCounts[localType] = value;
+    }
+  }
+
+  public void Reset()
+  {
+    foreach (var key in _counts.Keys.ToList())
+    {
+      _counts[key] = 0;
+    }
+
+    foreach (var key in _vscodeRemoteCounts.Keys.ToList())
+    {
+      _vscodeRemoteCounts[key] = 0;
+    }
+
+    foreach (var key in _vscodeLocalCounts.Keys.ToList())
+    {
+      _vscodeLocalCounts[key] = 0;
     }
   }
 }

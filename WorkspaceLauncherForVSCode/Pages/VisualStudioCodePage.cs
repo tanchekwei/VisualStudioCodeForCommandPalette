@@ -186,6 +186,8 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 
             IsLoading = true;
 
+            _countTracker.Reset();
+
             if (isUserInitiated)
             {
                 _vscodeService.LoadInstances(_settingsManager.EnabledEditions);
