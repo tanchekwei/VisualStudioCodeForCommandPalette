@@ -14,6 +14,7 @@ This project provides a command palette extension for opening Visual Studio solu
     - **Copy Path**: Copies the full file path of the solution, workspace, or folder to the clipboard.
     - **Pin to List / Unpin from List**: Pins or unpins a workspace to keep it at the top of the list.
     - **Open in Explorer**: Opens the solution, workspace, or folder location in the default file explorer.
+    - **Open in Terminal**: Opens the solution, workspace, or folder location in your preferred terminal (Command Prompt or PowerShell).
     - **Run as Administrator**: Open the solution, workspace, or folder with administrative privileges.
     - **Refresh Workspaces**: Manually reloads the list of solutions and workspaces to reflect any recent changes.
 
@@ -52,45 +53,34 @@ This project provides a command palette extension for opening Visual Studio solu
 
   * **Show Details Panel**: Toggles the visibility of the details panel on the right.
   * **Page Size**: Sets the number of items to display per page. (Default: `8`)
-  * **Command Result Action**: Defines the behavior after launching an item.
-
-    * `Dismiss`: Close the Command Palette.
-    * `Go Back`: Return to the previous view in the Command Palette.
-    * `Keep Open`: Keep the results list open.
   * **Enable Logging**: Enables diagnostic logging for troubleshooting purposes.
 
 * **Search & Appearance**
-
-  * **Search By**: Determines which properties to use when searching.
-
-    * `Title`: Search by the workspace or solution title.
-    * `Path`: Search by the file path.
-    * `Both`: Search by both title and path.
+  * **Search By**: Determines which properties to use when searching (`Title`, `Path`, or `Both`).
+  * **Sort By**: Determines the sorting order of workspaces.
+      * `Last Used, Usage Count`: The default sort order.
+      * `Last Used`: Sorts by most recently used.
+      * `Usage Count`: Sorts by most frequently used.
+      * `Alphabetical by Title`: Sorts alphabetically by title.
   * **Tags**: Configure which informational tags are displayed for each item.
-
     * **Show 'Type' tag**: Displays whether the item is a `Workspace` or `Folder`.
     * **Show 'Target' tag**: Displays the target application, like `Visual Studio Code` or `Insiders`.
 
+* **Commands**
+  * **Terminal Type**: Choose the terminal to be opened with the "Open in Terminal" command.
+      * `PowerShell`
+      * `Command Prompt`
+
 * **Visual Studio**
-
   * **Enable Visual Studio**: Enables searching for Visual Studio solutions.
-  * **Secondary Command**: Configures the secondary action for Visual Studio items.
-
-    * `Open in Explorer`: Opens the item's location in File Explorer.
-    * `Run as Administrator`: Launches the item with administrative privileges.
+  * **Secondary Command**: Configures the secondary action for Visual Studio items (`Open in Explorer` or `Run as Administrator`).
 
 * **Visual Studio Code**
-
   * **Enabled Installations**: Choose which VS Code installations to scan for workspaces.
-
     * **Enable Visual Studio Code**: The standard user-specific installation.
     * **Enable Visual Studio Code (System)**: The system-wide installation.
     * **Enable Visual Studio Code - Insiders**: The Insiders edition.
     * **Enable Visual Studio Code (Custom)**: Custom installations found in the system's `PATH`.
-  * **Preferred Edition**: If a workspace has been opened in both stable and Insiders editions, this setting determines **which one to prefer**.
-
-    * `Default`: Prefers the stable version.
-    * `Insider`: Prefers the Insiders version.
   * **Secondary Command**: Configures the secondary action for Visual Studio Code items.
 
     * `Open in Explorer`: Opens the item's location in File Explorer.
