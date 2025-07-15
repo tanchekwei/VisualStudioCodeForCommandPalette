@@ -313,6 +313,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                 if (openCommand?.Workspace != null)
                 {
                     openCommand.Workspace.Frequency++;
+                    openCommand.Workspace.LastAccessed = DateTime.Now;
                 }
 
                 // Re-apply filter and sort

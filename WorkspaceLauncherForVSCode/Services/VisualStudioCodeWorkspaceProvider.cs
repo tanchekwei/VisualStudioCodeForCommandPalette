@@ -28,17 +28,18 @@ namespace WorkspaceLauncherForVSCode.Services
 
             await Task.WhenAll(vscdbTask, storageJsonTask);
 
-            var allWorkspaces = new ConcurrentBag<VisualStudioCodeWorkspace>(vscdbTask.Result.Concat(storageJsonTask.Result));
-            foreach (var workspace in dbWorkspaces)
+            var allWorkspaces = vscdbTask.Result.Concat(storageJsonTask.Result).ToList();
+            var workspaceMap = dbWorkspaces
+                .Where(w => w.Path != null)
+                .ToDictionary(w => w.Path!, w => w);
+
+            foreach (var workspace in allWorkspaces)
             {
-                foreach (var vsCodeWorkspace in allWorkspaces)
+                if (workspace.Path != null && workspaceMap.TryGetValue(workspace.Path, out var dbWorkspace))
                 {
-                    if (workspace.Path == vsCodeWorkspace.Path)
-                    {
-                        vsCodeWorkspace.Frequency = workspace.Frequency;
-                        vsCodeWorkspace.PinDateTime = workspace.PinDateTime;
-                        break;
-                    }
+                    workspace.Frequency = dbWorkspace.Frequency;
+                    workspace.LastAccessed = dbWorkspace.LastAccessed;
+                    workspace.PinDateTime = dbWorkspace.PinDateTime;
                 }
             }
 

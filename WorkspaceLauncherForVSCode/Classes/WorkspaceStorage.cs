@@ -44,7 +44,14 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
 
             public const string SaveWorkspace = @"
                 INSERT OR REPLACE INTO Workspaces (Path, Name, Type, Frequency, LastAccessed)
-                VALUES (@Path, @Name, @Type, COALESCE((SELECT Frequency FROM Workspaces WHERE Path = @Path), 0), @LastAccessed)";
+                VALUES (
+                    @Path,
+                    @Name,
+                    @Type,
+                    COALESCE((SELECT Frequency FROM Workspaces WHERE Path = @Path), @Frequency),
+                    COALESCE((SELECT LastAccessed FROM Workspaces WHERE Path = @Path), @LastAccessed)
+                );
+                ";
 
             public const string UpdateFrequency = "UPDATE Workspaces SET Frequency = Frequency + 1, LastAccessed = @LastAccessed WHERE Path = @path";
 
@@ -105,6 +112,7 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
                 _saveWorkspaceCommand.Parameters.Add("@Path", SqliteType.Text);
                 _saveWorkspaceCommand.Parameters.Add("@Name", SqliteType.Text);
                 _saveWorkspaceCommand.Parameters.Add("@Type", SqliteType.Integer);
+                _saveWorkspaceCommand.Parameters.Add("@Frequency", SqliteType.Integer);
                 _saveWorkspaceCommand.Parameters.Add("@LastAccessed", SqliteType.Text);
             }
             _saveWorkspaceCommand.Transaction = transaction;
@@ -112,6 +120,7 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
             var pathParam = _saveWorkspaceCommand.Parameters["@Path"];
             var nameParam = _saveWorkspaceCommand.Parameters["@Name"];
             var typeParam = _saveWorkspaceCommand.Parameters["@Type"];
+            var frequencyParam = _saveWorkspaceCommand.Parameters["@Frequency"];
             var lastAccessedParam = _saveWorkspaceCommand.Parameters["@LastAccessed"];
 
             foreach (var workspace in workspaces)
@@ -124,6 +133,7 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
                 pathParam.Value = workspace.Path;
                 nameParam.Value = workspace.Name ?? (object)DBNull.Value;
                 typeParam.Value = (int)workspace.WorkspaceType;
+                frequencyParam.Value = 0;
                 lastAccessedParam.Value = workspace.LastAccessed.ToString("o");
                 await _saveWorkspaceCommand.ExecuteNonQueryAsync();
             }

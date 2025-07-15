@@ -38,6 +38,7 @@ namespace WorkspaceLauncherForVSCode.Services
                 if (r.FullPath != null && workspaceMap.TryGetValue(r.FullPath, out var workspace))
                 {
                     vs.Frequency = workspace.Frequency;
+                    vs.LastAccessed = workspace.LastAccessed;
                     vs.PinDateTime = workspace.PinDateTime;
                 }
                 return vs;
