@@ -75,7 +75,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             if (pinned.Count > 0)
             {
                 finalItems.AddRange(
-                    pinned.OrderBy(x => ((IHasWorkspace)x.Command).Workspace?.PinDateTime)
+                    pinned.OrderBy(x => ((IHasWorkspace?)x.Command)?.Workspace?.PinDateTime)
                 );
             }
 

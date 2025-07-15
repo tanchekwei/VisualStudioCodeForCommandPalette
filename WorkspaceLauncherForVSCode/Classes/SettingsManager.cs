@@ -43,6 +43,12 @@ public class SettingsManager : JsonSettingsManager
         new ChoiceSetSetting.Choice("Alphabetical by Title", nameof(SortBy.Alphabetical)),
     ];
 
+    private static readonly List<ChoiceSetSetting.Choice> _terminalTypeChoices =
+    [
+        new ChoiceSetSetting.Choice("PowerShell", nameof(TerminalType.PowerShell)),
+        new ChoiceSetSetting.Choice("Command Prompt", nameof(TerminalType.Cmd)),
+    ];
+
     private readonly ToggleSetting _enableLogging = new(
         Namespaced(nameof(EnableLogging)),
         "Enable Logging",
@@ -120,6 +126,24 @@ public class SettingsManager : JsonSettingsManager
         "Sort By",
         "Determines the sorting order of workspaces.",
         _sortByChoices);
+
+    private readonly ChoiceSetSetting _terminalType = new(
+        Namespaced(nameof(TerminalType)),
+        "Terminal Type",
+        "The terminal to use for the 'Open in Terminal' command.",
+        _terminalTypeChoices);
+
+    public TerminalType TerminalType
+    {
+        get
+        {
+            if (Enum.TryParse<TerminalType>(_terminalType.Value, out var result))
+            {
+                return result;
+            }
+            return TerminalType.PowerShell;
+        }
+    }
 
     public SortBy SortBy
     {
@@ -240,6 +264,7 @@ public class SettingsManager : JsonSettingsManager
         Settings.Add(_pageSize);
         Settings.Add(_searchBy);
         Settings.Add(_sortBy);
+        Settings.Add(_terminalType);
         Settings.Add(_vsSecondaryCommand);
         Settings.Add(_vscodeSecondaryCommand);
 #if DEBUG

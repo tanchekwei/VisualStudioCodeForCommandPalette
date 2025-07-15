@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.System;
@@ -149,6 +150,11 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                         }
                     }
                     break;
+            }
+
+            if (moreCommands.Any(c => c.Command is OpenInExplorerCommand))
+            {
+                moreCommands.Add(new CommandContextItem(new OpenInTerminalCommand(workspace, settingsManager)));
             }
 
             moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, countTracker, workspace))
