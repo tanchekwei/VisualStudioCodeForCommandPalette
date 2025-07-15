@@ -35,6 +35,14 @@ public class SettingsManager : JsonSettingsManager
         new ChoiceSetSetting.Choice("Open in Explorer", nameof(SecondaryCommand.OpenInExplorer)),
     ];
 
+    private static readonly List<ChoiceSetSetting.Choice> _sortByChoices =
+    [
+        new ChoiceSetSetting.Choice("Last Used, Usage Count", nameof(SortBy.Default)),
+        new ChoiceSetSetting.Choice("Last Used", nameof(SortBy.LastAccessed)),
+        new ChoiceSetSetting.Choice("Usage Count", nameof(SortBy.Frequency)),
+        new ChoiceSetSetting.Choice("Alphabetical by Title", nameof(SortBy.Alphabetical)),
+    ];
+
     private readonly ToggleSetting _enableLogging = new(
         Namespaced(nameof(EnableLogging)),
         "Enable Logging",
@@ -106,6 +114,24 @@ public class SettingsManager : JsonSettingsManager
         Resource.setting_pageSize_label,
         Resource.setting_pageSize_desc,
         "8");
+
+    private readonly ChoiceSetSetting _sortBy = new(
+        Namespaced(nameof(SortBy)),
+        "Sort By",
+        "Determines the sorting order of workspaces.",
+        _sortByChoices);
+
+    public SortBy SortBy
+    {
+        get
+        {
+            if (Enum.TryParse<SortBy>(_sortBy.Value, out var result))
+            {
+                return result;
+            }
+            return SortBy.Default;
+        }
+    }
 
     public bool EnableLogging => _enableLogging.Value;
     public bool EnableVisualStudio => _enableVisualStudio.Value;
@@ -213,6 +239,7 @@ public class SettingsManager : JsonSettingsManager
         Settings.Add(_enableCustom);
         Settings.Add(_pageSize);
         Settings.Add(_searchBy);
+        Settings.Add(_sortBy);
         Settings.Add(_vsSecondaryCommand);
         Settings.Add(_vscodeSecondaryCommand);
 #if DEBUG

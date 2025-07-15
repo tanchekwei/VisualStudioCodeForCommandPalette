@@ -134,7 +134,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 #endif
         lock (_itemsLock)
         {
-            _cachedFilteredItems = WorkspaceFilter.Filter(newSearch, _allItems, _settingsManager.SearchBy);
+            _cachedFilteredItems = WorkspaceFilter.Filter(newSearch, _allItems, _settingsManager.SearchBy, _settingsManager.SortBy);
             _visibleItems.Clear();
             _visibleItems.AddRange(_cachedFilteredItems.Take(_settingsManager.PageSize));
             HasMoreItems = _cachedFilteredItems.Count > _settingsManager.PageSize;
@@ -256,7 +256,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             _allItems.AddRange(newItems);
 
             // Apply the current filter to the newly loaded items
-            _cachedFilteredItems = WorkspaceFilter.Filter(SearchText, _allItems, _settingsManager.SearchBy);
+            _cachedFilteredItems = WorkspaceFilter.Filter(SearchText, _allItems, _settingsManager.SearchBy, _settingsManager.SortBy);
             _visibleItems.Clear();
             _visibleItems.AddRange(_cachedFilteredItems.Take(_settingsManager.PageSize));
             HasMoreItems = _cachedFilteredItems.Count > _settingsManager.PageSize;
@@ -285,7 +285,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                         _allItems.Add(WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem));
                     }
 
-                    _cachedFilteredItems = WorkspaceFilter.Filter(SearchText, _allItems, _settingsManager.SearchBy);
+                    _cachedFilteredItems = WorkspaceFilter.Filter(SearchText, _allItems, _settingsManager.SearchBy, _settingsManager.SortBy);
                     _visibleItems.Clear();
                     _visibleItems.AddRange(_cachedFilteredItems.Take(_settingsManager.PageSize));
                     HasMoreItems = _cachedFilteredItems.Count > _settingsManager.PageSize;
@@ -317,7 +317,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                 }
 
                 // Re-apply filter and sort
-                _cachedFilteredItems = WorkspaceFilter.Filter(SearchText, _allItems, _settingsManager.SearchBy);
+                _cachedFilteredItems = WorkspaceFilter.Filter(SearchText, _allItems, _settingsManager.SearchBy, _settingsManager.SortBy);
                 _visibleItems.Clear();
                 _visibleItems.AddRange(_cachedFilteredItems.Take(_settingsManager.PageSize));
                 HasMoreItems = _cachedFilteredItems.Count > _settingsManager.PageSize;

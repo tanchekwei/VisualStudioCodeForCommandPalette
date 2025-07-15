@@ -1,5 +1,4 @@
-// Modifications copyright (c) 2025 tanchekwei
-// Licensed under the MIT License. See the LICENSE file in the project root for details.
+#pragma warning disable CA1416
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,83 +11,86 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 {
     public static class WorkspaceFilter
     {
-        public static List<ListItem> Filter(string searchText, List<ListItem> allItems, SearchBy searchBy)
+        public static List<ListItem> Filter(string searchText, List<ListItem> allItems, SearchBy searchBy, SortBy sortBy)
         {
 #if DEBUG
             using var logger = new TimeLogger();
 #endif
-            List<ListItem> filteredItems;
-            if (string.IsNullOrWhiteSpace(searchText))
-            {
-                filteredItems = allItems
-                    .OrderBy(x =>
-                    {
-                        if ((x.Command as IHasWorkspace)!.Workspace!.PinDateTime.HasValue)
-                        {
-                            if (!x.Tags.Contains(WorkspaceItemFactory.PinTag))
-                            {
-                                x.Tags = [.. x.Tags, WorkspaceItemFactory.PinTag];
-                            }
-                            return (x.Command as IHasWorkspace)!.Workspace!.PinDateTime;
-                        }
-                        else
-                        {
-                            return DateTime.MaxValue;
-                        }
-                    })
-                    .ThenByDescending(x => (x.Command as IHasWorkspace)?.Workspace!.LastAccessed)
-                    .ThenByDescending(x => (x.Command as IHasWorkspace)?.Workspace!.Frequency)
-                    .ToList();
-            }
-            else
+            IEnumerable<ListItem> filteredItems = allItems;
+
+            if (!string.IsNullOrWhiteSpace(searchText))
             {
                 var matcher = StringMatcher.Instance;
                 matcher.UserSettingSearchPrecision = SearchPrecisionScore.Regular;
 
-                var matches = allItems
+                filteredItems = allItems
                     .Select(item =>
                     {
-                        MatchResult titleMatch = new MatchResult(false, 0);
-                        MatchResult subtitleMatch = new MatchResult(false, 0);
+                        var titleScore = (searchBy is SearchBy.Title or SearchBy.Both)
+                            ? matcher.FuzzyMatch(searchText, item.Title)
+                            : new MatchResult(false, 0);
 
-                        switch (searchBy)
-                        {
-                            case SearchBy.Title:
-                                titleMatch = matcher.FuzzyMatch(searchText, item.Title);
-                                break;
-                            case SearchBy.Path:
-                                subtitleMatch = matcher.FuzzyMatch(searchText, item.Subtitle ?? "");
-                                break;
-                            case SearchBy.Both:
-                            default:
-                                titleMatch = matcher.FuzzyMatch(searchText, item.Title);
-                                subtitleMatch = matcher.FuzzyMatch(searchText, item.Subtitle ?? "");
-                                break;
-                        }
+                        var subtitleScore = (searchBy is SearchBy.Path or SearchBy.Both)
+                            ? matcher.FuzzyMatch(searchText, item.Subtitle ?? string.Empty)
+                            : new MatchResult(false, 0);
 
-                        var bestMatch = titleMatch.Score >= subtitleMatch.Score ? titleMatch : subtitleMatch;
-                        return new { item, match = bestMatch };
+                        var bestMatch = titleScore.Score >= subtitleScore.Score ? titleScore : subtitleScore;
+                        return (item, bestMatch);
                     })
-                    .Where(x => x.match.Success);
-                filteredItems = matches
-                    .OrderByDescending(x => (x.item.Command as IHasWorkspace)?.Workspace!.LastAccessed)
-                    .ThenByDescending(x => (x.item.Command as IHasWorkspace)?.Workspace!.Frequency)
-                    .ThenByDescending(x => x.match.Score)
-                    .Select(x =>
-                    {
-                        if ((x.item.Command as IHasWorkspace)?.Workspace!.PinDateTime.HasValue ?? false)
-                        {
-                            if (!x.item.Tags.Contains(WorkspaceItemFactory.PinTag))
-                            {
-                                x.item.Tags = [.. x.item.Tags, WorkspaceItemFactory.PinTag];
-                            }
-                        }
-                        return x.item;
-                    })
-                    .ToList();
+                    .Where(x => x.bestMatch.Success)
+                    .OrderByDescending(x => x.bestMatch.Score)
+                    .Select(x => x.item);
             }
 
-            return filteredItems;
+            var pinned = new List<ListItem>();
+            var unpinned = new List<(ListItem Item, VisualStudioCodeWorkspace? Workspace)>();
+
+            foreach (var item in filteredItems)
+            {
+                if (item.Command is IHasWorkspace { Workspace: var ws })
+                {
+                    if (ws?.PinDateTime is not null)
+                        pinned.Add(item);
+                    else
+                        unpinned.Add((item, ws));
+                }
+                else
+                {
+                    unpinned.Add((item, null));
+                }
+            }
+
+            var sortedUnpinned = sortBy switch
+            {
+                SortBy.LastAccessed => unpinned.OrderByDescending(x => x.Workspace?.LastAccessed),
+                SortBy.Frequency => unpinned.OrderByDescending(x => x.Workspace?.Frequency),
+                SortBy.Alphabetical => unpinned.OrderBy(x => x.Item.Title, StringComparer.OrdinalIgnoreCase),
+                _ => unpinned
+                    .OrderByDescending(x => x.Workspace?.LastAccessed)
+                    .ThenByDescending(x => x.Workspace?.Frequency),
+            };
+
+            var finalItems = new List<ListItem>(pinned.Count + unpinned.Count);
+
+            if (pinned.Count > 0)
+            {
+                finalItems.AddRange(
+                    pinned.OrderBy(x => ((IHasWorkspace)x.Command).Workspace?.PinDateTime)
+                );
+            }
+
+            finalItems.AddRange(sortedUnpinned.Select(x => x.Item));
+
+            foreach (var item in finalItems)
+            {
+                if (item.Command is IHasWorkspace { Workspace.PinDateTime: not null } &&
+                    !item.Tags.Contains(WorkspaceItemFactory.PinTag))
+                {
+                    item.Tags = item.Tags.Append(WorkspaceItemFactory.PinTag).ToArray();
+                }
+            }
+
+            return finalItems;
         }
     }
 }

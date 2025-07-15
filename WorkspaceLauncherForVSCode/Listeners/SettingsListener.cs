@@ -15,6 +15,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
         private SecondaryCommand _previousVsSecondaryCommand;
         private SecondaryCommand _previousVscodeSecondaryCommand;
         private TagType _previousTagTypes;
+        private SortBy _previousSortBy;
 
         public event EventHandler? InstanceSettingsChanged;
         public event EventHandler? PageSettingsChanged;
@@ -28,6 +29,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
             _previousVsSecondaryCommand = _settingsManager.VSSecondaryCommand;
             _previousVscodeSecondaryCommand = _settingsManager.VSCodeSecondaryCommand;
             _previousTagTypes = _settingsManager.TagTypes;
+            _previousSortBy = _settingsManager.SortBy;
             _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
         }
 
@@ -39,8 +41,9 @@ namespace WorkspaceLauncherForVSCode.Listeners
             var currentVsSecondaryCommand = _settingsManager.VSSecondaryCommand;
             var currentVscodeSecondaryCommand = _settingsManager.VSCodeSecondaryCommand;
             var currentTagTypes = _settingsManager.TagTypes;
+            var currentSortBy = _settingsManager.SortBy;
 
-            if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand || currentTagTypes != _previousTagTypes)
+            if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand || currentTagTypes != _previousTagTypes || currentSortBy != _previousSortBy)
             {
                 InstanceSettingsChanged?.Invoke(this, EventArgs.Empty);
                 _previousEditions = currentEditions;
