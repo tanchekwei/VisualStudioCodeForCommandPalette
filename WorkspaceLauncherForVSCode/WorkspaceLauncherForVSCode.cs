@@ -11,6 +11,7 @@ using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Listeners;
 using WorkspaceLauncherForVSCode.Pages;
 using WorkspaceLauncherForVSCode.Services;
+using WorkspaceLauncherForVSCode.Services.VisualStudio;
 
 namespace WorkspaceLauncherForVSCode;
 
@@ -33,6 +34,7 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
         // Register dependencies
         services.AddSingleton<SettingsManager>();
         services.AddSingleton<IVisualStudioCodeService, VisualStudioCodeService>();
+        services.AddSingleton<VisualStudioService>();
         services.AddSingleton<SettingsListener>();
         services.AddSingleton<VisualStudioCodePage>();
         services.AddSingleton<WorkspaceStorage>();

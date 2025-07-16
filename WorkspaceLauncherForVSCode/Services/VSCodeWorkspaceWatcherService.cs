@@ -13,10 +13,11 @@ namespace WorkspaceLauncherForVSCode.Services
 {
     public partial class VSCodeWorkspaceWatcherService : IVSCodeWorkspaceWatcherService, IDisposable
     {
-        private readonly Timer _timer;
+        private Timer? _timer;
         private readonly IVisualStudioCodeService _vscodeService;
         private readonly SettingsManager _settingsManager;
         private List<VisualStudioCodeWorkspace> _lastKnownWorkspaces = new();
+        private bool _isWatching;
 
         public event EventHandler? TriggerRefresh;
 
@@ -24,40 +25,55 @@ namespace WorkspaceLauncherForVSCode.Services
         {
             _vscodeService = vscodeService;
             _settingsManager = settingsManager;
-            _timer = new Timer(async _ => await CheckForChanges(), null, Timeout.Infinite, Timeout.Infinite);
         }
 
         public void StartWatching()
         {
-            _timer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(5));
+            if (_isWatching)
+            {
+                return;
+            }
+#if DEBUG
+            using var logger = new TimeLogger();
+#endif
+            if (_settingsManager.EnableWorkspaceWatcher && _settingsManager.SortBy == Enums.SortBy.RecentFromVSCode)
+            {
+                if (_timer == null)
+                {
+                    _timer = new Timer(async _ => await CheckForChanges(), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+                }
+                else
+                {
+                    _timer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(5));
+                }
+                _isWatching = true;
+            }
         }
 
         public void StopWatching()
         {
-            _timer.Change(Timeout.Infinite, Timeout.Infinite);
+            _timer?.Change(Timeout.Infinite, Timeout.Infinite);
+            _isWatching = false;
         }
 
         private async Task CheckForChanges()
         {
-            if (_settingsManager.EnableWorkspaceWatcher && _settingsManager.SortBy == Enums.SortBy.RecentFromVSCode)
-            {
 #if DEBUG
                 using var logger = new TimeLogger();
 #endif
-                var currentWorkspaces = new List<VisualStudioCodeWorkspace>();
-                var instances = _vscodeService.GetInstances();
+            var currentWorkspaces = new List<VisualStudioCodeWorkspace>();
+            var instances = _vscodeService.GetInstances();
 
-                foreach (var instance in instances)
-                {
-                    var workspaces = await VscdbWorkspaceReader.GetWorkspacesAsync(instance, CancellationToken.None);
-                    currentWorkspaces.AddRange(workspaces);
-                }
+            foreach (var instance in instances)
+            {
+                var workspaces = await VscdbWorkspaceReader.GetWorkspacesAsync(instance, CancellationToken.None);
+                currentWorkspaces.AddRange(workspaces);
+            }
 
-                if (!_lastKnownWorkspaces.SequenceEqual(currentWorkspaces))
-                {
-                    _lastKnownWorkspaces = currentWorkspaces;
-                    TriggerRefresh?.Invoke(this, EventArgs.Empty);
-                }
+            if (!_lastKnownWorkspaces.SequenceEqual(currentWorkspaces))
+            {
+                _lastKnownWorkspaces = currentWorkspaces;
+                TriggerRefresh?.Invoke(this, EventArgs.Empty);
             }
         }
 

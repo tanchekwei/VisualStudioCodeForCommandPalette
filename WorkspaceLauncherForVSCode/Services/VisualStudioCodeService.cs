@@ -7,13 +7,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
+using WorkspaceLauncherForVSCode.Services.VisualStudio;
 
 namespace WorkspaceLauncherForVSCode.Services
 {
     public class VisualStudioCodeService : IVisualStudioCodeService
     {
         public List<VisualStudioCodeInstance> Instances { get; private set; } = new List<VisualStudioCodeInstance>();
-
+        private readonly VisualStudioService _visualStudioService;
+        public VisualStudioCodeService(VisualStudioService visualStudioService)
+        {
+            _visualStudioService = visualStudioService;
+        }
         public void LoadInstances(VisualStudioCodeEdition enabledEditions)
         {
 #if DEBUG
@@ -78,7 +83,7 @@ namespace WorkspaceLauncherForVSCode.Services
 
         public Task<List<VisualStudioCodeWorkspace>> GetVisualStudioSolutions(IEnumerable<VisualStudioCodeWorkspace> dbWorkspaces, bool includeRegistry)
         {
-            return VisualStudioProvider.GetSolutions(dbWorkspaces.ToList(), includeRegistry);
+            return VisualStudioProvider.GetSolutions(_visualStudioService, dbWorkspaces.ToList(), includeRegistry);
         }
     }
 }
