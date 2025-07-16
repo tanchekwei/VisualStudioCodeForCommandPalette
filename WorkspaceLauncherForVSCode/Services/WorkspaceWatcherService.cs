@@ -14,14 +14,13 @@ namespace WorkspaceLauncherForVSCode.Services
     public class WorkspaceWatcherService : IWorkspaceWatcherService, IDisposable
     {
         private readonly Timer _timer;
-        private readonly VisualStudioCodePage _page;
         private readonly IVisualStudioCodeService _vscodeService;
         private readonly SettingsManager _settingsManager;
         private List<VisualStudioCodeWorkspace> _lastKnownWorkspaces = new();
+        public event EventHandler? TriggerRefresh;
 
-        public WorkspaceWatcherService(VisualStudioCodePage page, IVisualStudioCodeService vscodeService, SettingsManager settingsManager)
+        public WorkspaceWatcherService( IVisualStudioCodeService vscodeService, SettingsManager settingsManager)
         {
-            _page = page;
             _vscodeService = vscodeService;
             _settingsManager = settingsManager;
             _timer = new Timer(async _ => await CheckForChanges(), null, Timeout.Infinite, Timeout.Infinite);
@@ -42,6 +41,9 @@ namespace WorkspaceLauncherForVSCode.Services
 
         private async Task CheckForChanges()
         {
+#if DEBUG
+    using var logger = new TimeLogger();
+#endif
             var currentWorkspaces = new List<VisualStudioCodeWorkspace>();
             var instances = _vscodeService.GetInstances();
 
@@ -57,7 +59,7 @@ namespace WorkspaceLauncherForVSCode.Services
             if (!_lastKnownWorkspaces.SequenceEqual(currentWorkspaces))
             {
                 _lastKnownWorkspaces = currentWorkspaces;
-                _page.StartRefresh();
+                TriggerRefresh?.Invoke(this, EventArgs.Empty);
             }
         }
 
