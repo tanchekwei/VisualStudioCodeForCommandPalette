@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Services.VisualStudio;
@@ -12,10 +13,13 @@ namespace WorkspaceLauncherForVSCode.Services
 {
     public partial class VSWorkspaceWatcherService : IVSWorkspaceWatcherService, IDisposable
     {
+        private const int DEBOUNCE_MILLISECONDS = 1000;
+
         private readonly List<FileSystemWatcher> _watchers = new();
         private readonly SettingsManager _settingsManager;
         private readonly VisualStudioService _visualStudioService;
         private bool _isWatching;
+        private Timer? _debounceTimer;
 
         public event EventHandler? TriggerRefresh;
 
@@ -70,10 +74,17 @@ namespace WorkspaceLauncherForVSCode.Services
                 watcher.Dispose();
             }
             _watchers.Clear();
+            _debounceTimer?.Dispose();
             _isWatching = false;
         }
 
         private void OnChanged(object sender, FileSystemEventArgs e)
+        {
+            _debounceTimer?.Dispose();
+            _debounceTimer = new Timer(TriggerRefreshCallback, null, DEBOUNCE_MILLISECONDS, Timeout.Infinite);
+        }
+
+        private void TriggerRefreshCallback(object? state)
         {
 #if DEBUG
             using var logger = new TimeLogger();
