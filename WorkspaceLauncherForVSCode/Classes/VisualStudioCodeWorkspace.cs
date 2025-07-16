@@ -13,7 +13,7 @@ namespace WorkspaceLauncherForVSCode;
 /// <summary>
 /// Represents a Visual Studio Code workspace.
 /// </summary>
-public class VisualStudioCodeWorkspace
+public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
 {
     public string? Path { get; set; }
     public string? Name { get; set; }
@@ -164,5 +164,30 @@ public class VisualStudioCodeWorkspace
                 break;
         }
         return workspaceName;
+    }
+
+    public bool Equals(VisualStudioCodeWorkspace? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return Path == other.Path;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj as VisualStudioCodeWorkspace);
+    }
+
+    public override int GetHashCode()
+    {
+        return Path?.GetHashCode() ?? 0;
     }
 }

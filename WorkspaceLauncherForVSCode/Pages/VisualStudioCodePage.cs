@@ -52,7 +52,8 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         WorkspaceStorage workspaceStorage,
         RefreshWorkspacesCommand refreshWorkspacesCommand,
         CountTracker countTracker,
-        IPinService pinService
+        IPinService pinService,
+        IWorkspaceWatcherService workspaceWatcherService
     )
     {
         Title = Resource.page_title;
@@ -68,11 +69,12 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _workspaceStorage = workspaceStorage;
         _countTracker = countTracker;
         _pinService = pinService;
-        _workspaceWatcherService = new WorkspaceWatcherService(this, _vscodeService, _settingsManager);
+        _workspaceWatcherService = workspaceWatcherService;
 
         _helpCommandContextItem = new CommandContextItem(new HelpPage(settingsManager, countTracker, null));
         _refreshWorkspacesCommand = refreshWorkspacesCommand;
         _refreshWorkspacesCommand.TriggerRefresh += (s, e) => StartRefresh();
+        _workspaceWatcherService.TriggerRefresh += (s, e) => StartRefresh();
         _pinService.RefreshList += (s, e) => RefreshList();
         _refreshWorkspacesCommandContextItem = new CommandContextItem(_refreshWorkspacesCommand)
         {
