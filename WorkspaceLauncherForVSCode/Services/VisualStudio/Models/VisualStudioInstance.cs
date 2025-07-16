@@ -19,7 +19,7 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio.Models
 
         public bool IsPrerelease { get; }
 
-        private string ApplicationPrivateSettingsPath { get; }
+        public string ApplicationPrivateSettingsPath { get; }
 
         public string InstancePath { get; }
 
