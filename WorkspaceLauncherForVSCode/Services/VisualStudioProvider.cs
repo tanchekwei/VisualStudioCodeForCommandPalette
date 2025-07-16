@@ -32,7 +32,7 @@ namespace WorkspaceLauncherForVSCode.Services
                     WindowsPath = r.FullPath,
                     WorkspaceType = WorkspaceType.Solution,
                     VSInstance = r.Instance,
-                    LastAccessed = r.LastAccessed,
+                    VSLastAccessed = r.LastAccessed,
                 };
                 vs.SetWorkspaceType();
                 if (r.FullPath != null && workspaceMap.TryGetValue(r.FullPath, out var workspace))

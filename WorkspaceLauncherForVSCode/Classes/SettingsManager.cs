@@ -58,9 +58,15 @@ public class SettingsManager : JsonSettingsManager
         ),
         new ChoiceSetSetting.Choice(
             "Recent from Visual Studio Code\n" +
+            "Sorts using the same order as Visual Studio Code's recent list.\n" +
             "- Only works if one Visual Studio Code instance is enabled.\n" +
             "- Please tick only one of: Enable Visual Studio Code (User), (System), (Insiders), or (Custom).",
             nameof(SortBy.RecentFromVSCode)
+        ),
+        new ChoiceSetSetting.Choice(
+            "Recent from Visual Studio\n" +
+            "Sorts using Visual Studio's recent solution list from its configuration files.",
+            nameof(SortBy.RecentFromVS)
         )
     ];
 

@@ -28,6 +28,7 @@ public class VisualStudioCodeWorkspace
     public string WorkspaceTypeString { get; set; } = "";
     public int Frequency { get; set; }
     public DateTime LastAccessed { get; set; }
+    public DateTime VSLastAccessed { get; set; }
     public DateTime? PinDateTime { get; set; }
 
     public VisualStudioCodeWorkspace() { }
