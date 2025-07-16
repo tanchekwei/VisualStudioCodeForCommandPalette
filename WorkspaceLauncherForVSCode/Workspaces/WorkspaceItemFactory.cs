@@ -30,7 +30,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             WorkspaceStorage workspaceStorage,
             SettingsManager settingsManager,
             CountTracker countTracker,
-            CommandContextItem refreshCommandContextItem)
+            CommandContextItem refreshCommandContextItem,
+            IPinService pinService)
         {
 #if DEBUG
             using var logger = new TimeLogger();
@@ -40,7 +41,6 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             Details details;
             var tags = new List<Tag>();
             List<CommandContextItem> moreCommands = new();
-            var pinService = new PinService(page, workspaceStorage);
 
             switch (workspace.WorkspaceType)
             {

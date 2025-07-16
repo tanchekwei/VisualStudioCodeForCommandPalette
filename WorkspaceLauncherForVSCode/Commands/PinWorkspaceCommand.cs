@@ -28,7 +28,7 @@ namespace WorkspaceLauncherForVSCode.Commands
                 return CommandResult.KeepOpen();
             }
 
-            _ = _pinService.TogglePinStatusAsync(_workspace.Path);
+            _ = _pinService.TogglePinStatusAsync(_workspace);
 
             return CommandResult.KeepOpen();
         }
