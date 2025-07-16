@@ -25,6 +25,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private readonly IVisualStudioCodeService _vscodeService;
     private readonly SettingsListener _settingsListener;
     private readonly WorkspaceStorage _workspaceStorage;
+    private readonly IPinService _pinService;
     private readonly CountTracker _countTracker;
     private readonly IWorkspaceWatcherService _workspaceWatcherService;
 
@@ -50,7 +51,8 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         SettingsListener settingsListener,
         WorkspaceStorage workspaceStorage,
         RefreshWorkspacesCommand refreshWorkspacesCommand,
-        CountTracker countTracker
+        CountTracker countTracker,
+        IPinService pinService
     )
     {
         Title = Resource.page_title;
@@ -65,11 +67,13 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _vscodeService = vscodeService;
         _workspaceStorage = workspaceStorage;
         _countTracker = countTracker;
+        _pinService = pinService;
         _workspaceWatcherService = new WorkspaceWatcherService(this, _vscodeService, _settingsManager);
 
         _helpCommandContextItem = new CommandContextItem(new HelpPage(settingsManager, countTracker, null));
         _refreshWorkspacesCommand = refreshWorkspacesCommand;
         _refreshWorkspacesCommand.TriggerRefresh += (s, e) => StartRefresh();
+        _pinService.RefreshList += (s, e) => RefreshList();
         _refreshWorkspacesCommandContextItem = new CommandContextItem(_refreshWorkspacesCommand)
         {
             MoreCommands = [
@@ -177,7 +181,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private IEnumerable<ListItem> CreateListItems(IEnumerable<VisualStudioCodeWorkspace> workspaces)
     {
         return workspaces.Select(w =>
-            WorkspaceItemFactory.Create(w, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem));
+            WorkspaceItemFactory.Create(w, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService));
     }
 
     private async Task RefreshWorkspacesAsync(bool isUserInitiated)

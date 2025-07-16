@@ -12,18 +12,16 @@ namespace WorkspaceLauncherForVSCode.Services
 {
     public class PinService : IPinService
     {
-        private readonly VisualStudioCodePage _page;
         private readonly WorkspaceStorage _workspaceStorage;
+        public event EventHandler? RefreshList;
 
-        public PinService(VisualStudioCodePage page, WorkspaceStorage workspaceStorage)
+        public PinService(WorkspaceStorage workspaceStorage)
         {
-            _page = page;
             _workspaceStorage = workspaceStorage;
         }
 
-        public async Task TogglePinStatusAsync(string path)
+        public async Task TogglePinStatusAsync(VisualStudioCodeWorkspace workspace)
         {
-            var workspace = _page.AllWorkspaces.FirstOrDefault(w => w.Path == path);
             if (workspace == null)
             {
                 return;
@@ -31,18 +29,18 @@ namespace WorkspaceLauncherForVSCode.Services
 
             if (workspace.PinDateTime.HasValue)
             {
-                await _workspaceStorage.RemovePinnedWorkspaceAsync(path);
+                await _workspaceStorage.RemovePinnedWorkspaceAsync(workspace.Path);
                 workspace.PinDateTime = null;
                 new ToastStatusMessage($"Unpinned \"{workspace.Name}\"").Show();
             }
             else
             {
-                await _workspaceStorage.AddPinnedWorkspaceAsync(path);
+                await _workspaceStorage.AddPinnedWorkspaceAsync(workspace.Path);
                 workspace.PinDateTime = DateTime.UtcNow;
                 new ToastStatusMessage($"Pinned \"{workspace.Name}\"").Show();
             }
 
-            _page.RefreshList();
+            RefreshList?.Invoke(this, EventArgs.Empty);
         }
     }
 }

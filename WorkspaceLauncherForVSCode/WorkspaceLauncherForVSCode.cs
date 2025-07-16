@@ -7,6 +7,7 @@ using Microsoft.CommandPalette.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
+using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Listeners;
 using WorkspaceLauncherForVSCode.Pages;
 using WorkspaceLauncherForVSCode.Services;
@@ -37,6 +38,7 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
         services.AddSingleton<WorkspaceStorage>();
         services.AddSingleton<RefreshWorkspacesCommand>();
         services.AddSingleton<CountTracker>();
+        services.AddSingleton<IPinService, PinService>();
         services.AddSingleton<WorkspaceLauncherForVSCodeCommandsProvider>();
 
         // Build the provider
