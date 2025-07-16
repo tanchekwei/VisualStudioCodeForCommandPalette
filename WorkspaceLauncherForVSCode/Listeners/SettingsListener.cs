@@ -47,6 +47,10 @@ namespace WorkspaceLauncherForVSCode.Listeners
             {
                 InstanceSettingsChanged?.Invoke(this, EventArgs.Empty);
                 _previousEditions = currentEditions;
+                _previousVsSecondaryCommand = currentVsSecondaryCommand;
+                _previousVscodeSecondaryCommand = currentVscodeSecondaryCommand;
+                _previousTagTypes = currentTagTypes;
+                _previousSortBy = currentSortBy;
             }
 
             if (currentSearchBy != _previousSearchBy)
