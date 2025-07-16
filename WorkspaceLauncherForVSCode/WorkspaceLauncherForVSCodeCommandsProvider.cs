@@ -28,8 +28,6 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
         Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
         Settings = _settingsManager.Settings;
 
-        _vscodeService.LoadInstances(_settingsManager.EnabledEditions);
-
         _settingsListener = settingsListener;
         _settingsListener.InstanceSettingsChanged += OnInstanceSettingsChanged;
 
