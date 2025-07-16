@@ -88,6 +88,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         };
         _settingsListener = settingsListener;
         _settingsListener.PageSettingsChanged += OnPageSettingsChanged;
+        _settingsListener.SortSettingsChanged += OnSortSettingsChanged;
         _noResultsRefreshItem = [
             new ListItem(_refreshWorkspacesCommandContextItem)
             {
@@ -102,12 +103,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         }];
 
         _ = RefreshWorkspacesAsync(true);
-
-        if (_settingsManager.EnableWorkspaceWatcher)
-        {
-            _vscodeWatcherService.StartWatching();
-            _vsWatcherService.StartWatching();
-        }
+        StartStopWatchingVSCodeConfig();
     }
 
     private void RefreshWorkspacesInBackground()
@@ -310,17 +306,43 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 #if DEBUG
             using var logger = new TimeLogger();
 #endif
+        UpdateSearchText(SearchText, SearchText);
+    }
+
+    private void OnSortSettingsChanged(object? sender, EventArgs e)
+    {
+#if DEBUG
+        using var logger = new TimeLogger();
+#endif
+        StartStopWatchingVSCodeConfig();
+        StartRefresh();
+    }
+
+    private void StartStopWatchingVSCodeConfig()
+    {
         if (_settingsManager.EnableWorkspaceWatcher)
         {
-            _vscodeWatcherService.StartWatching();
-            _vsWatcherService.StartWatching();
+            if (_settingsManager.SortBy == Enums.SortBy.RecentFromVSCode)
+            {
+                _vscodeWatcherService.StartWatching();
+                _vsWatcherService.StopWatching();
+            }
+            else if (_settingsManager.SortBy == Enums.SortBy.RecentFromVS)
+            {
+                _vscodeWatcherService.StopWatching();
+                _vsWatcherService.StartWatching();
+            }
+            else
+            {
+                _vscodeWatcherService.StopWatching();
+                _vsWatcherService.StopWatching();
+            }
         }
         else
         {
             _vscodeWatcherService.StopWatching();
             _vsWatcherService.StopWatching();
         }
-        UpdateSearchText(SearchText, SearchText);
     }
 
     public void RefreshList()

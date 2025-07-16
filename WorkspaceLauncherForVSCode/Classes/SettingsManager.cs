@@ -134,8 +134,8 @@ public class SettingsManager : JsonSettingsManager
     private readonly ToggleSetting _enableWorkspaceWatcher = new(
         Namespaced(nameof(EnableWorkspaceWatcher)),
         "Enable Workspace Watcher",
-        "Automatically refreshes the workspace list when changes are detected in Visual Studio Code's recent list.",
-        false);
+        "Automatically refreshes the workspace list when changes are detected in Visual Studio / Code's recent list.",
+        true);
 
     private readonly ChoiceSetSetting _searchBy = new(
         Namespaced(nameof(SearchBy)),
@@ -308,7 +308,7 @@ public class SettingsManager : JsonSettingsManager
         Settings.Add(_terminalType);
         Settings.Add(_vsSecondaryCommand);
         Settings.Add(_vscodeSecondaryCommand);
-        Settings.Add(_enableWorkspaceWatcher);
+        // Settings.Add(_enableWorkspaceWatcher);
 #if DEBUG
         Settings.Add(_enableLogging);
 #endif

@@ -20,6 +20,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
 
         public event EventHandler? InstanceSettingsChanged;
         public event EventHandler? PageSettingsChanged;
+        public event EventHandler? SortSettingsChanged;
 
         public SettingsListener(SettingsManager settingsManager)
         {
@@ -46,21 +47,27 @@ namespace WorkspaceLauncherForVSCode.Listeners
             var currentSortBy = _settingsManager.SortBy;
             var currentEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
 
-            if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand || currentTagTypes != _previousTagTypes || currentSortBy != _previousSortBy)
+            if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand || currentTagTypes != _previousTagTypes)
             {
                 InstanceSettingsChanged?.Invoke(this, EventArgs.Empty);
                 _previousEditions = currentEditions;
                 _previousVsSecondaryCommand = currentVsSecondaryCommand;
                 _previousVscodeSecondaryCommand = currentVscodeSecondaryCommand;
                 _previousTagTypes = currentTagTypes;
-                _previousSortBy = currentSortBy;
             }
 
-            if (currentSearchBy != _previousSearchBy || currentEnableWorkspaceWatcher != _prevEnableWorkspaceWatcher)
+            if (currentSearchBy != _previousSearchBy)
             {
                 PageSettingsChanged?.Invoke(this, EventArgs.Empty);
                 _previousSearchBy = currentSearchBy;
+            }
+
+            if (currentEnableWorkspaceWatcher != _prevEnableWorkspaceWatcher ||
+                currentSortBy != _previousSortBy)
+            {
+                SortSettingsChanged.Invoke(this, EventArgs.Empty);
                 _prevEnableWorkspaceWatcher = currentEnableWorkspaceWatcher;
+                _previousSortBy = currentSortBy;
             }
 
             if (currentEnableVisualStudio != _previousEnableVisualStudio)
