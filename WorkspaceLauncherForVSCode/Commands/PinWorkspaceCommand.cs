@@ -3,20 +3,19 @@
 using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
+using WorkspaceLauncherForVSCode.Interfaces;
 
 namespace WorkspaceLauncherForVSCode.Commands
 {
     internal sealed partial class PinWorkspaceCommand : InvokableCommand
     {
         private readonly VisualStudioCodeWorkspace _workspace;
-        private readonly VisualStudioCodePage _page;
-        private readonly WorkspaceStorage _workspaceStorage;
+        private readonly IPinService _pinService;
 
-        public PinWorkspaceCommand(VisualStudioCodeWorkspace workspace, VisualStudioCodePage page, WorkspaceStorage workspaceStorage)
+        public PinWorkspaceCommand(VisualStudioCodeWorkspace workspace, IPinService pinService)
         {
             _workspace = workspace;
-            _page = page;
-            _workspaceStorage = workspaceStorage;
+            _pinService = pinService;
         }
 
         public override string Name => _workspace.PinDateTime.HasValue ? "Unpin from List" : "Pin to List";
@@ -29,22 +28,7 @@ namespace WorkspaceLauncherForVSCode.Commands
                 return CommandResult.KeepOpen();
             }
 
-            _ = Task.Run(async () =>
-            {
-                if (_workspace.PinDateTime.HasValue)
-                {
-                    await _workspaceStorage.RemovePinnedWorkspaceAsync(_workspace.Path);
-                }
-                else
-                {
-                    await _workspaceStorage.AddPinnedWorkspaceAsync(_workspace.Path);
-                }
-
-                await _page.TogglePinStatus(_workspace.Path);
-
-                var statusMessage = _workspace.PinDateTime.HasValue ? $"Pinned \"{_workspace.Name}\"" : $"Unpinned \"{_workspace.Name}\"";
-                new ToastStatusMessage(statusMessage).Show();
-            });
+            _ = _pinService.TogglePinStatusAsync(_workspace.Path);
 
             return CommandResult.KeepOpen();
         }

@@ -12,6 +12,7 @@ using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Helpers;
 using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Pages;
+using WorkspaceLauncherForVSCode.Services;
 
 namespace WorkspaceLauncherForVSCode.Workspaces
 {
@@ -39,6 +40,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             Details details;
             var tags = new List<Tag>();
             List<CommandContextItem> moreCommands = new();
+            var pinService = new PinService(page, workspaceStorage);
 
             switch (workspace.WorkspaceType)
             {
@@ -167,7 +169,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 RequestedShortcut = KeyChordHelpers.FromModifiers(true, false, false, false, (int)VirtualKey.C, 0),
             });
             moreCommands.Add(refreshCommandContextItem);
-            moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, page, workspaceStorage)));
+            moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, pinService)));
 
             string subtitle = string.Empty;
             if (workspace.VisualStudioCodeRemoteUri is null)
