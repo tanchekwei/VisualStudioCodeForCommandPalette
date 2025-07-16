@@ -76,9 +76,9 @@ namespace WorkspaceLauncherForVSCode.Services
             }
         }
 
-        public Task<List<VisualStudioCodeWorkspace>> GetVisualStudioSolutions(IEnumerable<VisualStudioCodeWorkspace> dbWorkspaces, bool showPrerelease)
+        public Task<List<VisualStudioCodeWorkspace>> GetVisualStudioSolutions(IEnumerable<VisualStudioCodeWorkspace> dbWorkspaces, bool includeRegistry)
         {
-            return VisualStudioProvider.GetSolutions(dbWorkspaces.ToList(), showPrerelease);
+            return VisualStudioProvider.GetSolutions(dbWorkspaces.ToList(), includeRegistry);
         }
     }
 }
