@@ -39,7 +39,7 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
         services.AddSingleton<RefreshWorkspacesCommand>();
         services.AddSingleton<CountTracker>();
         services.AddSingleton<IPinService, PinService>();
-        services.AddSingleton<IWorkspaceWatcherService, WorkspaceWatcherService>();
+        services.AddSingleton<IVSCodeWorkspaceWatcherService, VSCodeWorkspaceWatcherService>();
         services.AddSingleton<WorkspaceLauncherForVSCodeCommandsProvider>();
 
         // Build the provider

@@ -25,9 +25,9 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private readonly IVisualStudioCodeService _vscodeService;
     private readonly SettingsListener _settingsListener;
     private readonly WorkspaceStorage _workspaceStorage;
-    private readonly IPinService _pinService;
     private readonly CountTracker _countTracker;
-    private readonly IWorkspaceWatcherService _workspaceWatcherService;
+    private readonly IVSCodeWorkspaceWatcherService _vscodeWatcherService;
+    private readonly IPinService _pinService;
 
     public List<VisualStudioCodeWorkspace> AllWorkspaces { get; } = new();
     private readonly List<ListItem> _visibleItems = new();
@@ -52,8 +52,8 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         WorkspaceStorage workspaceStorage,
         RefreshWorkspacesCommand refreshWorkspacesCommand,
         CountTracker countTracker,
-        IPinService pinService,
-        IWorkspaceWatcherService workspaceWatcherService
+        IVSCodeWorkspaceWatcherService vscodeWatcherService,
+        IPinService pinService
     )
     {
         Title = Resource.page_title;
@@ -68,14 +68,13 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _vscodeService = vscodeService;
         _workspaceStorage = workspaceStorage;
         _countTracker = countTracker;
+        _vscodeWatcherService = vscodeWatcherService;
         _pinService = pinService;
-        _workspaceWatcherService = workspaceWatcherService;
+        _vscodeWatcherService.TriggerRefresh += (s, e) => RefreshWorkspacesInBackground();
 
         _helpCommandContextItem = new CommandContextItem(new HelpPage(settingsManager, countTracker, null));
         _refreshWorkspacesCommand = refreshWorkspacesCommand;
         _refreshWorkspacesCommand.TriggerRefresh += (s, e) => StartRefresh();
-        _workspaceWatcherService.TriggerRefresh += (s, e) => StartRefresh();
-        _pinService.RefreshList += (s, e) => RefreshList();
         _refreshWorkspacesCommandContextItem = new CommandContextItem(_refreshWorkspacesCommand)
         {
             MoreCommands = [
@@ -102,8 +101,13 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 
         if (_settingsManager.EnableWorkspaceWatcher)
         {
-            _workspaceWatcherService.StartWatching();
+            _vscodeWatcherService.StartWatching();
         }
+    }
+
+    private void RefreshWorkspacesInBackground()
+    {
+        _ = RefreshWorkspacesAsync(isUserInitiated: false, isBackground: true);
     }
 
     public void StartRefresh()
@@ -186,7 +190,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             WorkspaceItemFactory.Create(w, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService));
     }
 
-    private async Task RefreshWorkspacesAsync(bool isUserInitiated)
+    private async Task RefreshWorkspacesAsync(bool isUserInitiated, bool isBackground = false)
     {
         if (!_refreshSemaphore.Wait(0))
         {
@@ -196,12 +200,19 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         try
         {
             var cancellationToken = InitializeRefresh();
-            var (workspaces, solutions) = await FetchWorkspacesAsync(isUserInitiated, cancellationToken);
+            var (workspaces, solutions) = await FetchWorkspacesAsync(isUserInitiated, cancellationToken, isBackground);
 
             if (cancellationToken.IsCancellationRequested) return;
 
             var allWorkspaces = await ProcessAndSaveWorkspaces(workspaces, solutions);
-            FinalizeRefresh(allWorkspaces, cancellationToken);
+            if (!isBackground)
+            {
+                FinalizeRefresh(allWorkspaces, cancellationToken);
+            }
+            else
+            {
+                UpdateWorkspaceList(allWorkspaces, cancellationToken);
+            }
         }
         catch (OperationCanceledException)
         {
@@ -226,7 +237,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         return _cancellationTokenSource.Token;
     }
 
-    private async Task<(List<VisualStudioCodeWorkspace>, List<VisualStudioCodeWorkspace>)> FetchWorkspacesAsync(bool isUserInitiated, CancellationToken cancellationToken)
+    private async Task<(List<VisualStudioCodeWorkspace>, List<VisualStudioCodeWorkspace>)> FetchWorkspacesAsync(bool isUserInitiated, CancellationToken cancellationToken, bool isBackground = false)
     {
         if (isUserInitiated)
         {
@@ -235,9 +246,12 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 
         var dbWorkspaces = await _workspaceStorage.GetWorkspacesAsync();
         var workspacesTask = _vscodeService.GetWorkspacesAsync(dbWorkspaces, cancellationToken);
-        var solutionsTask = _settingsManager.EnableVisualStudio
-            ? _vscodeService.GetVisualStudioSolutions(dbWorkspaces, true)
-            : Task.FromResult(new List<VisualStudioCodeWorkspace>());
+        var solutionsTask = Task.FromResult(new List<VisualStudioCodeWorkspace>());
+        if (_settingsManager.EnableVisualStudio && !isBackground)
+        {
+            solutionsTask = _vscodeService.GetVisualStudioSolutions(dbWorkspaces, true);
+        }
+
 
         await Task.WhenAll(workspacesTask, solutionsTask);
 
@@ -290,11 +304,11 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     {
         if (_settingsManager.EnableWorkspaceWatcher)
         {
-            _workspaceWatcherService.StartWatching();
+            _vscodeWatcherService.StartWatching();
         }
         else
         {
-            _workspaceWatcherService.StopWatching();
+            _vscodeWatcherService.StopWatching();
         }
         UpdateSearchText(SearchText, SearchText);
     }
@@ -351,6 +365,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _settingsListener.PageSettingsChanged -= OnPageSettingsChanged;
         _workspaceStorage.Dispose();
         _refreshSemaphore.Dispose();
-        (_workspaceWatcherService as IDisposable)?.Dispose();
+        (_vscodeWatcherService as IDisposable)?.Dispose();
     }
 }

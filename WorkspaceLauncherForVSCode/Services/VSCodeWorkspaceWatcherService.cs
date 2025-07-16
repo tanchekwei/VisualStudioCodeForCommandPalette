@@ -11,7 +11,7 @@ using WorkspaceLauncherForVSCode.Workspaces.Readers;
 
 namespace WorkspaceLauncherForVSCode.Services
 {
-    public partial class WorkspaceWatcherService : IWorkspaceWatcherService, IDisposable
+    public partial class VSCodeWorkspaceWatcherService : IVSCodeWorkspaceWatcherService, IDisposable
     {
         private readonly Timer _timer;
         private readonly IVisualStudioCodeService _vscodeService;
@@ -20,7 +20,7 @@ namespace WorkspaceLauncherForVSCode.Services
 
         public event EventHandler? TriggerRefresh;
 
-        public WorkspaceWatcherService( IVisualStudioCodeService vscodeService, SettingsManager settingsManager)
+        public VSCodeWorkspaceWatcherService(IVisualStudioCodeService vscodeService, SettingsManager settingsManager)
         {
             _vscodeService = vscodeService;
             _settingsManager = settingsManager;
@@ -29,10 +29,7 @@ namespace WorkspaceLauncherForVSCode.Services
 
         public void StartWatching()
         {
-            if (_settingsManager.EnableWorkspaceWatcher && _settingsManager.SortBy == Enums.SortBy.RecentFromVSCode)
-            {
-                _timer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(5));
-            }
+            _timer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(5));
         }
 
         public void StopWatching()
@@ -42,22 +39,25 @@ namespace WorkspaceLauncherForVSCode.Services
 
         private async Task CheckForChanges()
         {
+            if (_settingsManager.EnableWorkspaceWatcher && _settingsManager.SortBy == Enums.SortBy.RecentFromVSCode)
+            {
 #if DEBUG
-    using var logger = new TimeLogger();
+                using var logger = new TimeLogger();
 #endif
-            var currentWorkspaces = new List<VisualStudioCodeWorkspace>();
-            var instances = _vscodeService.GetInstances();
+                var currentWorkspaces = new List<VisualStudioCodeWorkspace>();
+                var instances = _vscodeService.GetInstances();
 
-            foreach (var instance in instances)
-            {
-                var workspaces = await VscdbWorkspaceReader.GetWorkspacesAsync(instance, CancellationToken.None);
-                currentWorkspaces.AddRange(workspaces);
-            }
+                foreach (var instance in instances)
+                {
+                    var workspaces = await VscdbWorkspaceReader.GetWorkspacesAsync(instance, CancellationToken.None);
+                    currentWorkspaces.AddRange(workspaces);
+                }
 
-            if (!_lastKnownWorkspaces.SequenceEqual(currentWorkspaces))
-            {
-                _lastKnownWorkspaces = currentWorkspaces;
-                TriggerRefresh?.Invoke(this, EventArgs.Empty);
+                if (!_lastKnownWorkspaces.SequenceEqual(currentWorkspaces))
+                {
+                    _lastKnownWorkspaces = currentWorkspaces;
+                    TriggerRefresh?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
 
