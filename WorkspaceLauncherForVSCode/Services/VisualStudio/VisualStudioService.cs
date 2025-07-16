@@ -20,13 +20,12 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
         private const string VsWhereBin = "vswhere.exe";
         private const string VisualStudioDataDir = @"%LOCALAPPDATA%\Microsoft\VisualStudio";
 
-        private readonly List<VsCodeModels.VisualStudioInstance> _instances;
+        private List<VsCodeModels.VisualStudioInstance>? _instances;
 
-        public ReadOnlyCollection<VsCodeModels.VisualStudioInstance> Instances => _instances.AsReadOnly();
+        public ReadOnlyCollection<VsCodeModels.VisualStudioInstance>? Instances => _instances?.AsReadOnly();
 
         public VisualStudioService()
         {
-            _instances = new List<VsCodeModels.VisualStudioInstance>();
         }
 
         public void InitInstances(string[] excludedVersions)
@@ -34,9 +33,13 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
 #if DEBUG
             using var logger = new TimeLogger();
 #endif
+            if (_instances != null)
+            {
+                return;
+            }
             var paths = new string?[] { null, VsWhereDir };
             var exceptions = new List<(string? Path, Exception Exception)>(paths.Length);
-            _instances.Clear();
+            _instances = new();
 
             foreach (var path in paths)
             {

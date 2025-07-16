@@ -307,6 +307,9 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 
     private void OnPageSettingsChanged(object? sender, EventArgs e)
     {
+#if DEBUG
+            using var logger = new TimeLogger();
+#endif
         if (_settingsManager.EnableWorkspaceWatcher)
         {
             _vscodeWatcherService.StartWatching();

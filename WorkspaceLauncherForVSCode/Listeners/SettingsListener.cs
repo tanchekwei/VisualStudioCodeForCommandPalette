@@ -16,6 +16,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
         private SecondaryCommand _previousVscodeSecondaryCommand;
         private TagType _previousTagTypes;
         private SortBy _previousSortBy;
+        private bool _prevEnableWorkspaceWatcher;
 
         public event EventHandler? InstanceSettingsChanged;
         public event EventHandler? PageSettingsChanged;
@@ -30,6 +31,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
             _previousVscodeSecondaryCommand = _settingsManager.VSCodeSecondaryCommand;
             _previousTagTypes = _settingsManager.TagTypes;
             _previousSortBy = _settingsManager.SortBy;
+            _prevEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
             _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
         }
 
@@ -42,6 +44,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
             var currentVscodeSecondaryCommand = _settingsManager.VSCodeSecondaryCommand;
             var currentTagTypes = _settingsManager.TagTypes;
             var currentSortBy = _settingsManager.SortBy;
+            var currentEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
 
             if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand || currentTagTypes != _previousTagTypes || currentSortBy != _previousSortBy)
             {
@@ -53,10 +56,11 @@ namespace WorkspaceLauncherForVSCode.Listeners
                 _previousSortBy = currentSortBy;
             }
 
-            if (currentSearchBy != _previousSearchBy)
+            if (currentSearchBy != _previousSearchBy || currentEnableWorkspaceWatcher != _prevEnableWorkspaceWatcher)
             {
                 PageSettingsChanged?.Invoke(this, EventArgs.Empty);
                 _previousSearchBy = currentSearchBy;
+                _prevEnableWorkspaceWatcher = currentEnableWorkspaceWatcher;
             }
 
             if (currentEnableVisualStudio != _previousEnableVisualStudio)

@@ -15,21 +15,33 @@ namespace WorkspaceLauncherForVSCode.Services
         private readonly List<FileSystemWatcher> _watchers = new();
         private readonly SettingsManager _settingsManager;
         private readonly VisualStudioService _visualStudioService;
+        private bool _isWatching;
 
         public event EventHandler? TriggerRefresh;
 
-        public VSWorkspaceWatcherService(SettingsManager settingsManager)
+        public VSWorkspaceWatcherService(SettingsManager settingsManager, VisualStudioService visualStudioService)
         {
             _settingsManager = settingsManager;
-            _visualStudioService = new VisualStudioService();
-            _visualStudioService.InitInstances(Array.Empty<string>());
+            _visualStudioService = visualStudioService;
         }
 
         public void StartWatching()
         {
+            if (_isWatching)
+            {
+                return;
+            }
+#if DEBUG
+            using var logger = new TimeLogger();
+#endif
             if (_settingsManager.EnableWorkspaceWatcher && _settingsManager.SortBy == Enums.SortBy.RecentFromVS)
             {
+                _visualStudioService.InitInstances(Array.Empty<string>());
                 var instances = _visualStudioService.Instances;
+                if (instances is null)
+                {
+                    return;
+                }
                 foreach (var instance in instances)
                 {
                     if (instance.ApplicationPrivateSettingsPath is not null && File.Exists(instance.ApplicationPrivateSettingsPath))
@@ -45,6 +57,7 @@ namespace WorkspaceLauncherForVSCode.Services
                         _watchers.Add(watcher);
                     }
                 }
+                _isWatching = true;
             }
         }
 
@@ -57,6 +70,7 @@ namespace WorkspaceLauncherForVSCode.Services
                 watcher.Dispose();
             }
             _watchers.Clear();
+            _isWatching = false;
         }
 
         private void OnChanged(object sender, FileSystemEventArgs e)

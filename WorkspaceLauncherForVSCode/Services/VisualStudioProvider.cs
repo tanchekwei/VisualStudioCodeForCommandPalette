@@ -13,12 +13,11 @@ namespace WorkspaceLauncherForVSCode.Services
     public static class VisualStudioProvider
     {
         public static Task<List<VisualStudioCodeWorkspace>> GetSolutions(
-            List<VisualStudioCodeWorkspace> dbWorkspaces, bool showPrerelease)
+            VisualStudioService visualStudioService, List<VisualStudioCodeWorkspace> dbWorkspaces, bool showPrerelease)
         {
 #if DEBUG
             using var logger = new TimeLogger();
 #endif
-            var visualStudioService = new VisualStudioService();
             visualStudioService.InitInstances(Array.Empty<string>());
             var results = visualStudioService.GetResults(showPrerelease);
             var workspaceMap = dbWorkspaces.Where(w => w.Path != null).ToDictionary(w => w.Path!, w => w);
