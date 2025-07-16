@@ -165,12 +165,6 @@
   <data name="setting_tagType_option_none_label" xml:space="preserve">
     <value>-</value>
   </data>
-  <data name="setting_tagType_option_type_label" xml:space="preserve">
-    <value>Type</value>
-  </data>
-  <data name="setting_tagType_option_target_label" xml:space="preserve">
-    <value>Target</value>
-  </data>
   <data name="setting_tagType_option_typeandtarget_label" xml:space="preserve">
     <value>Type &amp; Target</value>
   </data>

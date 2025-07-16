@@ -64,7 +64,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             {
                 SortBy.LastAccessed => unpinned.OrderByDescending(x => x.Workspace?.LastAccessed),
                 SortBy.Frequency => unpinned.OrderByDescending(x => x.Workspace?.Frequency),
-                SortBy.Alphabetical => unpinned.OrderBy(x => x.Item.Title, StringComparer.OrdinalIgnoreCase),
+                SortBy.RecentFromVSCode => unpinned.AsEnumerable(),
                 _ => unpinned
                     .OrderByDescending(x => x.Workspace?.LastAccessed)
                     .ThenByDescending(x => x.Workspace?.Frequency),

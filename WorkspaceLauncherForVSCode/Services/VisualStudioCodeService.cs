@@ -27,34 +27,48 @@ namespace WorkspaceLauncherForVSCode.Services
 #if DEBUG
             using var logger = new TimeLogger();
 #endif
-            var workspaceMap = new ConcurrentDictionary<string, VisualStudioCodeWorkspace>();
-            await Parallel.ForEachAsync(Instances, cancellationToken, async (instance, ct) =>
+            if (Instances.Count == 1)
             {
-                var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(instance, dbWorkspaces, ct);
+                // Single instance: no need for concurrency or deduplication
+                var instance = Instances[0];
+                var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(instance, dbWorkspaces, cancellationToken);
+                var unique = new Dictionary<string, VisualStudioCodeWorkspace>();
                 foreach (var workspace in workspaces)
                 {
                     if (workspace.Path == null) continue;
-                    if (!workspaceMap.TryAdd(workspace.Path, workspace))
+                    if (!unique.ContainsKey(workspace.Path))
                     {
-                        var existing = workspaceMap[workspace.Path];
-                        if (existing.Source != workspace.Source)
+                        unique[workspace.Path] = workspace;
+                    }
+                }
+                return unique.Values.ToList();
+            }
+            else
+            {
+                // Multiple instances: use ConcurrentDictionary for thread-safe deduplication
+                var workspaceMap = new ConcurrentDictionary<string, VisualStudioCodeWorkspace>();
+                await Parallel.ForEachAsync(Instances, cancellationToken, async (instance, ct) =>
+                {
+                    var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(instance, dbWorkspaces, ct);
+                    foreach (var workspace in workspaces)
+                    {
+                        if (workspace.Path == null) continue;
+                        if (!workspaceMap.TryAdd(workspace.Path, workspace))
                         {
-                            existing.Source = VisualStudioCodeWorkspaceSource.StorageJsonVscdb;
-                            if (workspace.SourcePath.Count > 0)
+                            var existing = workspaceMap[workspace.Path];
+                            if (existing.Source != workspace.Source)
                             {
-                                existing.SourcePath.Add(workspace.SourcePath[0]);
-                            }
-                            if (workspace.Frequency > 0)
-                            {
-                                existing.Frequency = workspace.Frequency;
+                                existing.Source = VisualStudioCodeWorkspaceSource.StorageJsonVscdb;
+                                if (workspace.SourcePath.Count > 0)
+                                {
+                                    existing.SourcePath.Add(workspace.SourcePath[0]);
+                                }
                             }
                         }
                     }
-                }
-            });
-
-            var result = workspaceMap.Values.ToList();
-            return result;
+                });
+                return workspaceMap.Values.ToList();
+            }
         }
 
         public Task<List<VisualStudioCodeWorkspace>> GetVisualStudioSolutions(List<VisualStudioCodeWorkspace> dbWorkspaces, bool showPrerelease)

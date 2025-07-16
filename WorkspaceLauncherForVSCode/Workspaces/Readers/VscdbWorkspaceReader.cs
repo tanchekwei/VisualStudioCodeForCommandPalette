@@ -22,7 +22,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
 #if DEBUG
             using var logger = new TimeLogger();
 #endif
-            var workspaces = new ConcurrentBag<VisualStudioCodeWorkspace>();
+            var workspaces = new List<VisualStudioCodeWorkspace>();
             var dbPath = Path.Combine(instance.StoragePath, "state.vscdb");
 
             if (!File.Exists(dbPath))

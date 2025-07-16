@@ -37,10 +37,31 @@ public class SettingsManager : JsonSettingsManager
 
     private static readonly List<ChoiceSetSetting.Choice> _sortByChoices =
     [
-        new ChoiceSetSetting.Choice("Last Used, Usage Count", nameof(SortBy.Default)),
-        new ChoiceSetSetting.Choice("Last Used", nameof(SortBy.LastAccessed)),
-        new ChoiceSetSetting.Choice("Usage Count", nameof(SortBy.Frequency)),
-        new ChoiceSetSetting.Choice("Alphabetical by Title", nameof(SortBy.Alphabetical)),
+        new ChoiceSetSetting.Choice(
+            "Last Used, Usage Count\n" +
+            "- Sorted by last opened time and how many times an item has been opened.",
+            nameof(SortBy.Default)
+        ),
+
+        new ChoiceSetSetting.Choice(
+            "Last Used\n" +
+            "- Sorted by last opened time.\n" +
+            "- Time is recorded when you open an item via the extension.",
+            nameof(SortBy.LastAccessed)
+        ),
+
+        new ChoiceSetSetting.Choice(
+            "Usage Count\n" +
+            "- Sorted by how many times an item has been opened.\n" +
+            "- Counter increases each time you open it via the extension.",
+            nameof(SortBy.Frequency)
+        ),
+        new ChoiceSetSetting.Choice(
+            "Recent from Visual Studio Code\n" +
+            "- Only works if one Visual Studio Code instance is enabled.\n" +
+            "- Please tick only one of: Enable Visual Studio Code (User), (System), (Insiders), or (Custom).",
+            nameof(SortBy.RecentFromVSCode)
+        )
     ];
 
     private static readonly List<ChoiceSetSetting.Choice> _terminalTypeChoices =
@@ -57,44 +78,51 @@ public class SettingsManager : JsonSettingsManager
 
     private readonly ToggleSetting _showTypeTag = new(
         Namespaced(nameof(_showTypeTag)),
-        Resource.setting_tagType_option_type_label,
-        "Show the 'Type' tag (Workspace/WSL/Codespaces/Dev Container/SSH Remote/Attached Container)",
+        "Show by Type\n" +
+        "e.g., Workspace, WSL, Codespaces, Dev Container, SSH Remote, Attached Container",
+        "Tags to Show",
         true);
 
     private readonly ToggleSetting _showTargetTag = new(
         Namespaced(nameof(_showTargetTag)),
-        Resource.setting_tagType_option_target_label,
-        "Show the 'Target' tag (Visual Studio Code/Insiders)",
+        "Show by Target IDE\n" +
+        "e.g., Visual Studio 2022, VS Code, VS Code - Insiders",
+        "",
         false);
 
     private readonly ToggleSetting _enableVisualStudio = new(
         Namespaced(nameof(_enableVisualStudio)),
-        "Enable Visual Studio",
-        "Enable Visual Studio installation",
+        "Enable Visual Studio\n" +
+        "Loads solutions/projects from Visual Studio",
+        "Enable Installations",
         true);
 
     private readonly ToggleSetting _enableDefault = new(
         Namespaced(nameof(_enableDefault)),
-        "Enable Visual Studio Code",
-        "Enable the default Visual Studio Code installation",
+        "Enable Visual Studio Code (User)\n" +
+        "Loads folders/workspaces from the default Visual Studio Code installation",
+        "",
         true);
 
     private readonly ToggleSetting _enableSystem = new(
         Namespaced(nameof(_enableSystem)),
-        "Enable Visual Studio Code (System)",
-        "Enable the system-wide Visual Studio Code installation",
+        "Enable Visual Studio Code (System)\n" +
+        "Loads folders/workspaces from the system-wide Visual Studio Code installation",
+        "",
         true);
 
     private readonly ToggleSetting _enableInsider = new(
         Namespaced(nameof(_enableInsider)),
-        "Enable Visual Studio Code - Insiders",
-        "Enable the Insiders Visual Studio Code installation",
+        "Enable Visual Studio Code (Insiders)\n" +
+        "Loads folders/workspaces from the Visual Studio Code Insiders version",
+        "",
         false);
 
     private readonly ToggleSetting _enableCustom = new(
         Namespaced(nameof(_enableCustom)),
-        "Enable Visual Studio Code (Custom)",
-        "Enable custom Visual Studio Code installations found in the PATH",
+        "Enable Visual Studio Code (Custom)\n" +
+        "Loads folders/workspaces from custom Visual Studio Code installations found in your system PATH.",
+        "",
         false);
 
     private readonly ChoiceSetSetting _searchBy = new(

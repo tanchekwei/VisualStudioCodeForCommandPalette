@@ -5,6 +5,6 @@ namespace WorkspaceLauncherForVSCode.Enums
         Default,
         LastAccessed,
         Frequency,
-        Alphabetical
+        RecentFromVSCode,
     }
 }

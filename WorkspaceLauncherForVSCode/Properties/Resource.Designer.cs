@@ -245,28 +245,6 @@ namespace WorkspaceLauncherForVSCode.Properties
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Target.
-        /// </summary>
-        internal static string setting_tagType_option_target_label
-        {
-            get
-            {
-                return ResourceManager.GetString("setting_tagType_option_target_label", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Type.
-        /// </summary>
-        internal static string setting_tagType_option_type_label
-        {
-            get
-            {
-                return ResourceManager.GetString("setting_tagType_option_type_label", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Type &amp; Target.
         /// </summary>
         internal static string setting_tagType_option_typeandtarget_label
