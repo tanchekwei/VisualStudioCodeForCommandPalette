@@ -27,6 +27,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private readonly WorkspaceStorage _workspaceStorage;
     private readonly CountTracker _countTracker;
     private readonly IVSCodeWorkspaceWatcherService _vscodeWatcherService;
+    private readonly IVSWorkspaceWatcherService _vsWatcherService;
     private readonly IPinService _pinService;
 
     public List<VisualStudioCodeWorkspace> AllWorkspaces { get; } = new();
@@ -53,6 +54,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         RefreshWorkspacesCommand refreshWorkspacesCommand,
         CountTracker countTracker,
         IVSCodeWorkspaceWatcherService vscodeWatcherService,
+        IVSWorkspaceWatcherService vsWatcherService,
         IPinService pinService
     )
     {
@@ -69,8 +71,10 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _workspaceStorage = workspaceStorage;
         _countTracker = countTracker;
         _vscodeWatcherService = vscodeWatcherService;
+        _vsWatcherService = vsWatcherService;
         _pinService = pinService;
         _vscodeWatcherService.TriggerRefresh += (s, e) => RefreshWorkspacesInBackground();
+        _vsWatcherService.TriggerRefresh += (s, e) => RefreshWorkspacesInBackground();
 
         _helpCommandContextItem = new CommandContextItem(new HelpPage(settingsManager, countTracker, null));
         _refreshWorkspacesCommand = refreshWorkspacesCommand;
@@ -102,6 +106,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         if (_settingsManager.EnableWorkspaceWatcher)
         {
             _vscodeWatcherService.StartWatching();
+            _vsWatcherService.StartWatching();
         }
     }
 
@@ -247,7 +252,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         var dbWorkspaces = await _workspaceStorage.GetWorkspacesAsync();
         var workspacesTask = _vscodeService.GetWorkspacesAsync(dbWorkspaces, cancellationToken);
         var solutionsTask = Task.FromResult(new List<VisualStudioCodeWorkspace>());
-        if (_settingsManager.EnableVisualStudio && !isBackground)
+        if (_settingsManager.EnableVisualStudio)
         {
             solutionsTask = _vscodeService.GetVisualStudioSolutions(dbWorkspaces, true);
         }
@@ -305,10 +310,12 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         if (_settingsManager.EnableWorkspaceWatcher)
         {
             _vscodeWatcherService.StartWatching();
+            _vsWatcherService.StartWatching();
         }
         else
         {
             _vscodeWatcherService.StopWatching();
+            _vsWatcherService.StopWatching();
         }
         UpdateSearchText(SearchText, SearchText);
     }
@@ -366,5 +373,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _workspaceStorage.Dispose();
         _refreshSemaphore.Dispose();
         (_vscodeWatcherService as IDisposable)?.Dispose();
+        (_vsWatcherService as IDisposable)?.Dispose();
     }
 }
