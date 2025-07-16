@@ -175,52 +175,18 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     {
         if (!_refreshSemaphore.Wait(0))
         {
-            // Skip if a refresh is already in progress
             return;
         }
-#if DEBUG
-        using var logger = new TimeLogger();
-#endif
 
         try
         {
-            _cancellationTokenSource.Cancel();
-            _cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = _cancellationTokenSource.Token;
-
-            IsLoading = true;
-
-            _countTracker.Reset();
-
-            if (isUserInitiated)
-{
-                _vscodeService.LoadInstances(_settingsManager.EnabledEditions);
-            }
-
-            var dbWorkspaces = await _workspaceStorage.GetWorkspacesAsync();
-            var workspacesTask = _vscodeService.GetWorkspacesAsync(dbWorkspaces, cancellationToken);
-            Task<List<VisualStudioCodeWorkspace>>? solutionsTask = null;
-            if (_settingsManager.EnableVisualStudio)
-            {
-                solutionsTask = _vscodeService.GetVisualStudioSolutions(dbWorkspaces, true);
-            }
-            await Task.WhenAll(workspacesTask, solutionsTask ?? Task.CompletedTask);
+            var cancellationToken = InitializeRefresh();
+            var (workspaces, solutions) = await FetchWorkspacesAsync(isUserInitiated, cancellationToken);
 
             if (cancellationToken.IsCancellationRequested) return;
 
-            var workspaces = await workspacesTask;
-            var solutions = solutionsTask != null ? await solutionsTask : new List<VisualStudioCodeWorkspace>();
-
-            _countTracker.Update(CountType.VisualStudioCode, workspaces.Count);
-            _countTracker.Update(CountType.VisualStudio, solutions.Count);
-
-            workspaces.AddRange(solutions);
-
-            _countTracker.Update(CountType.Total, workspaces.Count);
-
-            await _workspaceStorage.SaveWorkspacesAsync(workspaces);
-            UpdateWorkspaceList(workspaces, cancellationToken);
-            new ToastStatusMessage($"Loaded {workspaces.Count} workspaces").Show();
+            var allWorkspaces = await ProcessAndSaveWorkspaces(workspaces, solutions);
+            FinalizeRefresh(allWorkspaces, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -228,13 +194,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         }
         finally
         {
-            if (!IsLoading)
-            {
-                // This can happen if the operation was cancelled very early.
-                // Ensure the semaphore is released regardless.
-                _refreshSemaphore.Release();
-            }
-
             if (!_cancellationTokenSource.IsCancellationRequested)
             {
                 IsLoading = false;
@@ -242,6 +201,53 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             _refreshSemaphore.Release();
         }
     }
+
+    private CancellationToken InitializeRefresh()
+    {
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource = new CancellationTokenSource();
+        IsLoading = true;
+        _countTracker.Reset();
+        return _cancellationTokenSource.Token;
+    }
+
+    private async Task<(List<VisualStudioCodeWorkspace>, List<VisualStudioCodeWorkspace>)> FetchWorkspacesAsync(bool isUserInitiated, CancellationToken cancellationToken)
+    {
+        if (isUserInitiated)
+        {
+            _vscodeService.LoadInstances(_settingsManager.EnabledEditions);
+        }
+
+        var dbWorkspaces = await _workspaceStorage.GetWorkspacesAsync();
+        var workspacesTask = _vscodeService.GetWorkspacesAsync(dbWorkspaces, cancellationToken);
+        var solutionsTask = _settingsManager.EnableVisualStudio
+            ? _vscodeService.GetVisualStudioSolutions(dbWorkspaces, true)
+            : Task.FromResult(new List<VisualStudioCodeWorkspace>());
+
+        await Task.WhenAll(workspacesTask, solutionsTask);
+
+        return (await workspacesTask, await solutionsTask);
+    }
+
+    private async Task<List<VisualStudioCodeWorkspace>> ProcessAndSaveWorkspaces(List<VisualStudioCodeWorkspace> workspaces, List<VisualStudioCodeWorkspace> solutions)
+    {
+        _countTracker.Update(CountType.VisualStudioCode, workspaces.Count);
+        _countTracker.Update(CountType.VisualStudio, solutions.Count);
+
+        workspaces.AddRange(solutions);
+
+        _countTracker.Update(CountType.Total, workspaces.Count);
+
+        await _workspaceStorage.SaveWorkspacesAsync(workspaces);
+        return workspaces;
+    }
+
+    private void FinalizeRefresh(List<VisualStudioCodeWorkspace> workspaces, CancellationToken cancellationToken)
+    {
+        UpdateWorkspaceList(workspaces, cancellationToken);
+        new ToastStatusMessage($"Loaded {workspaces.Count} workspaces").Show();
+    }
+
 
     private void UpdateWorkspaceList(List<VisualStudioCodeWorkspace> workspaces, CancellationToken cancellationToken)
     {
