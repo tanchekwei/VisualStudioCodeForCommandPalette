@@ -131,6 +131,12 @@ public class SettingsManager : JsonSettingsManager
         "",
         false);
 
+    private readonly ToggleSetting _enableWorkspaceWatcher = new(
+        Namespaced(nameof(EnableWorkspaceWatcher)),
+        "Enable Workspace Watcher",
+        "Automatically refreshes the workspace list when changes are detected in Visual Studio Code's recent list.",
+        false);
+
     private readonly ChoiceSetSetting _searchBy = new(
         Namespaced(nameof(SearchBy)),
         "Search By",
@@ -193,6 +199,7 @@ public class SettingsManager : JsonSettingsManager
 
     public bool EnableLogging => _enableLogging.Value;
     public bool EnableVisualStudio => _enableVisualStudio.Value;
+    public bool EnableWorkspaceWatcher => _enableWorkspaceWatcher.Value;
 
     public TagType TagTypes
     {
@@ -301,6 +308,7 @@ public class SettingsManager : JsonSettingsManager
         Settings.Add(_terminalType);
         Settings.Add(_vsSecondaryCommand);
         Settings.Add(_vscodeSecondaryCommand);
+        Settings.Add(_enableWorkspaceWatcher);
 #if DEBUG
         Settings.Add(_enableLogging);
 #endif

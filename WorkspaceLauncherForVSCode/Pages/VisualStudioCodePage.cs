@@ -14,6 +14,7 @@ using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Listeners;
 using WorkspaceLauncherForVSCode.Pages;
 using WorkspaceLauncherForVSCode.Properties;
+using WorkspaceLauncherForVSCode.Services;
 using WorkspaceLauncherForVSCode.Workspaces;
 
 namespace WorkspaceLauncherForVSCode;
@@ -25,6 +26,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private readonly SettingsListener _settingsListener;
     private readonly WorkspaceStorage _workspaceStorage;
     private readonly CountTracker _countTracker;
+    private readonly IWorkspaceWatcherService _workspaceWatcherService;
 
     public List<VisualStudioCodeWorkspace> AllWorkspaces { get; } = new();
     private readonly List<ListItem> _visibleItems = new();
@@ -63,6 +65,8 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _vscodeService = vscodeService;
         _workspaceStorage = workspaceStorage;
         _countTracker = countTracker;
+        _workspaceWatcherService = new WorkspaceWatcherService(this, _vscodeService, _settingsManager);
+
         _helpCommandContextItem = new CommandContextItem(new HelpPage(settingsManager, countTracker, null));
         _refreshWorkspacesCommand = refreshWorkspacesCommand;
         _refreshWorkspacesCommand.TriggerRefresh += (s, e) => StartRefresh();
@@ -89,6 +93,11 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         }];
 
         _ = RefreshWorkspacesAsync(true);
+
+        if (_settingsManager.EnableWorkspaceWatcher)
+        {
+            _workspaceWatcherService.StartWatching();
+        }
     }
 
     public void StartRefresh()
@@ -273,6 +282,14 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 
     private void OnPageSettingsChanged(object? sender, EventArgs e)
     {
+        if (_settingsManager.EnableWorkspaceWatcher)
+        {
+            _workspaceWatcherService.StartWatching();
+        }
+        else
+        {
+            _workspaceWatcherService.StopWatching();
+        }
         UpdateSearchText(SearchText, SearchText);
     }
 
@@ -328,5 +345,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _settingsListener.PageSettingsChanged -= OnPageSettingsChanged;
         _workspaceStorage.Dispose();
         _refreshSemaphore.Dispose();
+        (_workspaceWatcherService as IDisposable)?.Dispose();
     }
 }

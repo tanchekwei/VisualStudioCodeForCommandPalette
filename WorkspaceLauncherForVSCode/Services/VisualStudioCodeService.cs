@@ -22,7 +22,12 @@ namespace WorkspaceLauncherForVSCode.Services
             Instances = VisualStudioCodeInstanceProvider.GetInstances(enabledEditions);
         }
 
-        public async Task<List<VisualStudioCodeWorkspace>> GetWorkspacesAsync(List<VisualStudioCodeWorkspace> dbWorkspaces, CancellationToken cancellationToken)
+        public List<VisualStudioCodeInstance> GetInstances()
+        {
+            return Instances;
+        }
+
+        public async Task<List<VisualStudioCodeWorkspace>> GetWorkspacesAsync(IEnumerable<VisualStudioCodeWorkspace> dbWorkspaces, CancellationToken cancellationToken)
         {
 #if DEBUG
             using var logger = new TimeLogger();
@@ -31,7 +36,7 @@ namespace WorkspaceLauncherForVSCode.Services
             {
                 // Single instance: no need for concurrency or deduplication
                 var instance = Instances[0];
-                var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(instance, dbWorkspaces, cancellationToken);
+                var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(instance, dbWorkspaces.ToList(), cancellationToken);
                 var unique = new Dictionary<string, VisualStudioCodeWorkspace>();
                 foreach (var workspace in workspaces)
                 {
@@ -49,7 +54,7 @@ namespace WorkspaceLauncherForVSCode.Services
                 var workspaceMap = new ConcurrentDictionary<string, VisualStudioCodeWorkspace>();
                 await Parallel.ForEachAsync(Instances, cancellationToken, async (instance, ct) =>
                 {
-                    var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(instance, dbWorkspaces, ct);
+                    var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(instance, dbWorkspaces.ToList(), ct);
                     foreach (var workspace in workspaces)
                     {
                         if (workspace.Path == null) continue;
@@ -61,7 +66,7 @@ namespace WorkspaceLauncherForVSCode.Services
                                 existing.Source = VisualStudioCodeWorkspaceSource.StorageJsonVscdb;
                                 if (workspace.SourcePath.Count > 0)
                                 {
-                                    existing.SourcePath.Add(workspace.SourcePath[0]);
+                                    existing.SourcePath.AddRange(workspace.SourcePath);
                                 }
                             }
                         }
@@ -71,9 +76,9 @@ namespace WorkspaceLauncherForVSCode.Services
             }
         }
 
-        public Task<List<VisualStudioCodeWorkspace>> GetVisualStudioSolutions(List<VisualStudioCodeWorkspace> dbWorkspaces, bool showPrerelease)
+        public Task<List<VisualStudioCodeWorkspace>> GetVisualStudioSolutions(IEnumerable<VisualStudioCodeWorkspace> dbWorkspaces, bool showPrerelease)
         {
-            return VisualStudioProvider.GetSolutions(dbWorkspaces, showPrerelease);
+            return VisualStudioProvider.GetSolutions(dbWorkspaces.ToList(), showPrerelease);
         }
     }
 }
