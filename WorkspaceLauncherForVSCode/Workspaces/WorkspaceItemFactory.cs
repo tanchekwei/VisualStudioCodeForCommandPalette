@@ -10,6 +10,7 @@ using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
 using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Helpers;
+using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Pages;
 
 namespace WorkspaceLauncherForVSCode.Workspaces
@@ -187,6 +188,12 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 Tags = tags.ToArray(),
                 MoreCommands = moreCommands.ToArray(),
             };
+
+            if (item.Command is IHasWorkspace { Workspace.PinDateTime: not null } &&
+                !item.Tags.Contains(PinTag))
+            {
+                item.Tags = item.Tags.Append(PinTag).ToArray();
+            }
             return item;
         }
     }

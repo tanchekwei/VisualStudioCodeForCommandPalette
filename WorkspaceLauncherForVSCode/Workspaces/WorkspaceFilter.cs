@@ -11,27 +11,31 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 {
     public static class WorkspaceFilter
     {
-        public static List<ListItem> Filter(string searchText, List<ListItem> allItems, SearchBy searchBy, SortBy sortBy)
+        public static List<VisualStudioCodeWorkspace> Filter(
+            string searchText,
+            List<VisualStudioCodeWorkspace> allWorkspaces,
+            SearchBy searchBy,
+            SortBy sortBy)
         {
 #if DEBUG
             using var logger = new TimeLogger();
 #endif
-            IEnumerable<ListItem> filteredItems = allItems;
+            IEnumerable<VisualStudioCodeWorkspace> filteredItems = allWorkspaces;
 
             if (!string.IsNullOrWhiteSpace(searchText))
             {
                 var matcher = StringMatcher.Instance;
                 matcher.UserSettingSearchPrecision = SearchPrecisionScore.Regular;
 
-                filteredItems = allItems
+                filteredItems = allWorkspaces
                     .Select(item =>
                     {
                         var titleScore = (searchBy is SearchBy.Title or SearchBy.Both)
-                            ? matcher.FuzzyMatch(searchText, item.Title)
+                            ? matcher.FuzzyMatch(searchText, item.Name ?? string.Empty)
                             : new MatchResult(false, 0);
 
                         var subtitleScore = (searchBy is SearchBy.Path or SearchBy.Both)
-                            ? matcher.FuzzyMatch(searchText, item.Subtitle ?? string.Empty)
+                            ? matcher.FuzzyMatch(searchText, item.WindowsPath ?? string.Empty)
                             : new MatchResult(false, 0);
 
                         var bestMatch = titleScore.Score >= subtitleScore.Score ? titleScore : subtitleScore;
@@ -42,53 +46,40 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     .Select(x => x.item);
             }
 
-            var pinned = new List<ListItem>();
-            var unpinned = new List<(ListItem Item, VisualStudioCodeWorkspace? Workspace)>();
+            var pinned = new List<VisualStudioCodeWorkspace>();
+            var unpinned = new List<VisualStudioCodeWorkspace>();
 
             foreach (var item in filteredItems)
             {
-                if (item.Command is IHasWorkspace { Workspace: var ws })
+                if (item.PinDateTime != null)
                 {
-                    if (ws?.PinDateTime is not null)
-                        pinned.Add(item);
-                    else
-                        unpinned.Add((item, ws));
+                    pinned.Add(item);
                 }
                 else
                 {
-                    unpinned.Add((item, null));
+                    unpinned.Add(item);
                 }
             }
 
             var sortedUnpinned = sortBy switch
             {
-                SortBy.LastAccessed => unpinned.OrderByDescending(x => x.Workspace?.LastAccessed),
-                SortBy.Frequency => unpinned.OrderByDescending(x => x.Workspace?.Frequency),
+                SortBy.LastAccessed => unpinned.OrderByDescending(x => x.LastAccessed),
+                SortBy.Frequency => unpinned.OrderByDescending(x => x.Frequency),
                 SortBy.RecentFromVSCode => unpinned.AsEnumerable(),
+                SortBy.RecentFromVS => unpinned.OrderByDescending(x => x.VSLastAccessed),
                 _ => unpinned
-                    .OrderByDescending(x => x.Workspace?.LastAccessed)
-                    .ThenByDescending(x => x.Workspace?.Frequency),
+                    .OrderByDescending(x => x.LastAccessed)
+                    .ThenByDescending(x => x.Frequency),
             };
 
-            var finalItems = new List<ListItem>(pinned.Count + unpinned.Count);
+            var finalItems = new List<VisualStudioCodeWorkspace>(pinned.Count + unpinned.Count);
 
             if (pinned.Count > 0)
             {
-                finalItems.AddRange(
-                    pinned.OrderBy(x => ((IHasWorkspace?)x.Command)?.Workspace?.PinDateTime)
-                );
+                finalItems.AddRange(pinned.OrderBy(x => x.PinDateTime));
             }
 
-            finalItems.AddRange(sortedUnpinned.Select(x => x.Item));
-
-            foreach (var item in finalItems)
-            {
-                if (item.Command is IHasWorkspace { Workspace.PinDateTime: not null } &&
-                    !item.Tags.Contains(WorkspaceItemFactory.PinTag))
-                {
-                    item.Tags = item.Tags.Append(WorkspaceItemFactory.PinTag).ToArray();
-                }
-            }
+            finalItems.AddRange(sortedUnpinned);
 
             return finalItems;
         }
