@@ -1,17 +1,20 @@
-// Modifications copyright (c) 2025 tanchekwei 
+// Modifications copyright (c) 2025 tanchekwei
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
 
-namespace WorkspaceLauncherForVSCode
+namespace WorkspaceLauncherForVSCode;
+
+public interface IVisualStudioCodeService
 {
-    public interface IVisualStudioCodeService
-    {
-        List<VisualStudioCodeInstance> Instances { get; }
-        void LoadInstances(VisualStudioCodeEdition enabledEditions);
-        Task<List<VisualStudioCodeWorkspace>> GetWorkspacesAsync(List<VisualStudioCodeWorkspace> dbWorkspaces, CancellationToken cancellationToken);
-        Task<List<VisualStudioCodeWorkspace>> GetVisualStudioSolutions(List<VisualStudioCodeWorkspace> dbWorkspaces, bool showPrerelease);
-    }
+    void LoadInstances(VisualStudioCodeEdition enabledEditions);
+
+    List<VisualStudioCodeInstance> GetInstances();
+
+    Task<List<VisualStudioCodeWorkspace>> GetWorkspacesAsync(IEnumerable<VisualStudioCodeWorkspace> dbWorkspaces, CancellationToken cancellationToken);
+
+    Task<List<VisualStudioCodeWorkspace>> GetVisualStudioSolutions(IEnumerable<VisualStudioCodeWorkspace> dbWorkspaces, bool includeRegistry);
 }
