@@ -11,12 +11,13 @@ using WorkspaceLauncherForVSCode.Workspaces.Readers;
 
 namespace WorkspaceLauncherForVSCode.Services
 {
-    public class WorkspaceWatcherService : IWorkspaceWatcherService, IDisposable
+    public partial class WorkspaceWatcherService : IWorkspaceWatcherService, IDisposable
     {
         private readonly Timer _timer;
         private readonly IVisualStudioCodeService _vscodeService;
         private readonly SettingsManager _settingsManager;
         private List<VisualStudioCodeWorkspace> _lastKnownWorkspaces = new();
+
         public event EventHandler? TriggerRefresh;
 
         public WorkspaceWatcherService( IVisualStudioCodeService vscodeService, SettingsManager settingsManager)
@@ -49,11 +50,8 @@ namespace WorkspaceLauncherForVSCode.Services
 
             foreach (var instance in instances)
             {
-                // if (_settingsManager.EnabledEditions.HasFlag(instance.Edition))
-                // {
-                    var workspaces = await VscdbWorkspaceReader.GetWorkspacesAsync(instance, CancellationToken.None);
-                    currentWorkspaces.AddRange(workspaces);
-                // }
+                var workspaces = await VscdbWorkspaceReader.GetWorkspacesAsync(instance, CancellationToken.None);
+                currentWorkspaces.AddRange(workspaces);
             }
 
             if (!_lastKnownWorkspaces.SequenceEqual(currentWorkspaces))
@@ -66,6 +64,7 @@ namespace WorkspaceLauncherForVSCode.Services
         public void Dispose()
         {
             _timer?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

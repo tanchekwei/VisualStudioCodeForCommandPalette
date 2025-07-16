@@ -22,7 +22,7 @@ namespace WorkspaceLauncherForVSCode.Services
 
         public async Task TogglePinStatusAsync(VisualStudioCodeWorkspace workspace)
         {
-            if (workspace == null)
+            if (workspace?.Path is null)
             {
                 return;
             }
