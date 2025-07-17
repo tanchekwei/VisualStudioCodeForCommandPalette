@@ -49,7 +49,7 @@ namespace WorkspaceLauncherForVSCode.Pages
                         }
                         else
                         {
-                            _countTracker.Increment(workspace.WorkspaceType);
+                            _countTracker.Increment(workspace!.WorkspaceType);
                         }
                         break;
                     case WorkspaceType.Solution:

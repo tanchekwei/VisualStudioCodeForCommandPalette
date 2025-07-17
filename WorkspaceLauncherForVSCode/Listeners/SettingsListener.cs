@@ -65,7 +65,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
             if (currentEnableWorkspaceWatcher != _prevEnableWorkspaceWatcher ||
                 currentSortBy != _previousSortBy)
             {
-                SortSettingsChanged.Invoke(this, EventArgs.Empty);
+                SortSettingsChanged?.Invoke(this, EventArgs.Empty);
                 _prevEnableWorkspaceWatcher = currentEnableWorkspaceWatcher;
                 _previousSortBy = currentSortBy;
             }
