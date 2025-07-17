@@ -21,6 +21,7 @@ namespace WorkspaceLauncherForVSCode.Services
         private SqliteConnection? _cachedConnection;
         private SqliteCommand? _cachedCommand;
         private string? _cachedDbPath;
+        private volatile bool _isChecking;
 
         public event EventHandler? TriggerRefresh;
 
@@ -73,21 +74,34 @@ namespace WorkspaceLauncherForVSCode.Services
 
         private async Task CheckForChanges()
         {
-#if DEBUG
-                using var logger = new TimeLogger();
-#endif
-            var currentVersion = await GetCurrentVersionAsync();
-
-            if (_lastKnownVersion == 0)
+            if (_isChecking)
             {
-                _lastKnownVersion = currentVersion;
                 return;
             }
 
-            if (currentVersion > _lastKnownVersion)
+            try
             {
-                _lastKnownVersion = currentVersion;
-                TriggerRefresh?.Invoke(this, EventArgs.Empty);
+                _isChecking = true;
+#if DEBUG
+                using var logger = new TimeLogger();
+#endif
+                var currentVersion = await GetCurrentVersionAsync();
+
+                if (_lastKnownVersion == 0)
+                {
+                    _lastKnownVersion = currentVersion;
+                    return;
+                }
+
+                if (currentVersion > _lastKnownVersion)
+                {
+                    _lastKnownVersion = currentVersion;
+                    TriggerRefresh?.Invoke(this, EventArgs.Empty);
+                }
+            }
+            finally
+            {
+                _isChecking = false;
             }
         }
 
