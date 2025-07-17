@@ -21,8 +21,6 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
     public VisualStudioInstance? VSInstance { get; set; }
     public string? WindowsPath { get; set; }
     public WorkspaceType WorkspaceType { get; set; }
-    public VisualStudioCodeWorkspaceSource Source { get; set; }
-    public List<string> SourcePath { get; set; } = new();
     public string WorkspaceName { get; set; } = "";
     public VisualStudioCodeRemoteUri? VisualStudioCodeRemoteUri { get; set; }
     public string WorkspaceTypeString { get; set; } = "";
@@ -37,7 +35,7 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
     /// </summary>
     /// <param name="instance">The Visual Studio Code instance associated with the workspace.</param>
     /// <param name="path">The path to the workspace.</param>
-    internal VisualStudioCodeWorkspace(VisualStudioCodeInstance instance, string path, WorkspaceType visualStudioCodeWorkspaceType, VisualStudioCodeWorkspaceSource source, string sourcePath)
+    internal VisualStudioCodeWorkspace(VisualStudioCodeInstance instance, string path, WorkspaceType visualStudioCodeWorkspaceType)
     {
         Path = path;
         if (VisualStudioCodeRemoteUri.IsVisualStudioCodeRemoteUri(path))
@@ -51,8 +49,6 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
         }
         VSCodeInstance = instance;
         WorkspaceType = visualStudioCodeWorkspaceType;
-        Source = source;
-        SourcePath.Add(sourcePath);
 
         SetName();
         SetWorkspaceType();

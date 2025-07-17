@@ -63,18 +63,7 @@ namespace WorkspaceLauncherForVSCode.Services
                     foreach (var workspace in workspaces)
                     {
                         if (workspace.Path == null) continue;
-                        if (!workspaceMap.TryAdd(workspace.Path, workspace))
-                        {
-                            var existing = workspaceMap[workspace.Path];
-                            if (existing.Source != workspace.Source)
-                            {
-                                existing.Source = VisualStudioCodeWorkspaceSource.StorageJsonVscdb;
-                                if (workspace.SourcePath.Count > 0)
-                                {
-                                    existing.SourcePath.AddRange(workspace.SourcePath);
-                                }
-                            }
-                        }
+                        workspaceMap.TryAdd(workspace.Path, workspace);
                     }
                 });
                 return workspaceMap.Values.ToList();

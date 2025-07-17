@@ -48,11 +48,11 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                                 VisualStudioCodeWorkspace? workspace = null;
                                 if (!string.IsNullOrEmpty(entry.FolderUri))
                                 {
-                                    workspace = new VisualStudioCodeWorkspace(instance, entry.FolderUri, WorkspaceType.Folder, VisualStudioCodeWorkspaceSource.Vscdb, dbPath);
+                                    workspace = new VisualStudioCodeWorkspace(instance, entry.FolderUri, WorkspaceType.Folder);
                                 }
                                 else if (entry.Workspace != null && !string.IsNullOrEmpty(entry.Workspace.ConfigPath))
                                 {
-                                    workspace = new VisualStudioCodeWorkspace(instance, entry.Workspace.ConfigPath, WorkspaceType.Workspace, VisualStudioCodeWorkspaceSource.Vscdb, dbPath);
+                                    workspace = new VisualStudioCodeWorkspace(instance, entry.Workspace.ConfigPath, WorkspaceType.Workspace);
                                 }
 
                                 if (workspace != null)

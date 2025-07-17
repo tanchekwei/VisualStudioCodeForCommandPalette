@@ -41,7 +41,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                         {
                             if (!string.IsNullOrEmpty(workspace.ConfigURIPath))
                             {
-                                workspaces.Add(new VisualStudioCodeWorkspace(instance, workspace.ConfigURIPath, WorkspaceType.Workspace, VisualStudioCodeWorkspaceSource.StorageJson, storageFilePath));
+                                workspaces.Add(new VisualStudioCodeWorkspace(instance, workspace.ConfigURIPath, WorkspaceType.Workspace));
                             }
                         }
                     }
@@ -52,7 +52,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                         {
                             if (!string.IsNullOrEmpty(folder.FolderUri))
                             {
-                                workspaces.Add(new VisualStudioCodeWorkspace(instance, folder.FolderUri, WorkspaceType.Folder, VisualStudioCodeWorkspaceSource.StorageJson, storageFilePath));
+                                workspaces.Add(new VisualStudioCodeWorkspace(instance, folder.FolderUri, WorkspaceType.Folder));
                             }
                         }
                     }
