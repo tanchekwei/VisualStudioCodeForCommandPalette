@@ -73,7 +73,8 @@ namespace WorkspaceLauncherForVSCode.Pages
         };
 
         public static ListItem SettingsItem { get; private set; } = null!;
-        public static CommandContextItem CountDetail { get; private set; } = null!;
+        public static CommandContextItem VisualStudioCodeDetailPage { get; private set; } = null!;
+        public static CommandContextItem VisualStudioDetailPage { get; private set; } = null!;
         public static List<ListItem> CountItems { get; private set; } = null!;
         public static void Initialize(Dependencies deps)
         {
@@ -82,20 +83,21 @@ namespace WorkspaceLauncherForVSCode.Pages
                 Title = "Setting",
                 Icon = Classes.Icon.Setting
             };
-            CountDetail = new(new VisualStudioCodeCountDetailPage(deps));
+            VisualStudioCodeDetailPage = new(new VisualStudioCodeDetailPage(deps));
+            VisualStudioDetailPage = new(new VisualStudioDetailPage(deps));
             CountItems = new()
             {
-                new ListItem
+                new ListItem(VisualStudioDetailPage)
                 {
                     Subtitle = "Visual Studio",
                     Icon = Classes.Icon.VisualStudio,
                 },
-                new ListItem(CountDetail)
+                new ListItem(VisualStudioCodeDetailPage)
                 {
                     Subtitle = "Visual Studio Code",
                     Icon = Classes.Icon.VisualStudioCode,
                 },
-                new ListItem
+                new ListItem()
                 {
                     Subtitle = "Total",
                     Icon = Classes.Icon.VisualStudioAndVisualStudioCode,

@@ -1,24 +1,31 @@
 // Copyright (c) 2025 tanchekwei
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
+using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
+using WorkspaceLauncherForVSCode.Services;
+using WorkspaceLauncherForVSCode.Services.VisualStudio;
 
 namespace WorkspaceLauncherForVSCode.Pages
 {
-    public sealed partial class VisualStudioCodeCountDetailPage : ListPage
+    public sealed partial class VisualStudioCodeDetailPage : ListPage
     {
         private readonly CountTracker _countTracker;
         private readonly VisualStudioCodePage _page;
-        public VisualStudioCodeCountDetailPage(Dependencies deps)
+        private readonly IVisualStudioCodeService _visualStudioCodeService;
+        private readonly VisualStudioService _visualStudioService;
+        public VisualStudioCodeDetailPage(Dependencies deps)
         {
-            Name = "Visual Studio Code Count Detail";
+            Name = "Visual Studio Code Detail";
             Icon = Classes.Icon.Help;
-            Id = "VisualStudioCodeCountDetailPage";
+            Id = "VisualStudioCodeDetailPage";
             _countTracker = deps.Get<CountTracker>();
             _page = deps.Get<VisualStudioCodePage>();
+            _visualStudioCodeService = deps.Get<IVisualStudioCodeService>();
+            _visualStudioService = deps.Get<VisualStudioService>();
         }
 
         public override IListItem[] GetItems()
@@ -62,7 +69,21 @@ namespace WorkspaceLauncherForVSCode.Pages
             StaticHelpItems.CountDetailItems[5].Title = _countTracker[VisualStudioCodeRemoteType.AttachedContainer].ToString(CultureInfo.InvariantCulture);
             StaticHelpItems.CountDetailItems[6].Title = _countTracker[VisualStudioCodeRemoteType.SSHRemote].ToString(CultureInfo.InvariantCulture);
             StaticHelpItems.CountDetailItems[7].Title = _countTracker[CountType.VisualStudioCode].ToString(CultureInfo.InvariantCulture);
-            return StaticHelpItems.CountDetailItems.ToArray();
+
+            List<ListItem> instancesDetails = new();
+            foreach (var instance in _visualStudioCodeService.GetInstances())
+            {
+                instancesDetails.Add(new()
+                {
+                    Title = instance.ExecutablePath,
+                    Subtitle = "Instance Path",
+                    Icon = Classes.Icon.VisualStudioCode,
+                });
+            }
+            return [
+                ..instancesDetails,
+                ..StaticHelpItems.CountDetailItems.ToArray(),
+            ];
         }
     }
 }
