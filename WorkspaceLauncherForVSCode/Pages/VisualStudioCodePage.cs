@@ -73,6 +73,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _vscodeWatcherService = vscodeWatcherService;
         _vsWatcherService = vsWatcherService;
         _pinService = pinService;
+        _pinService.RefreshList += (s, e) => RefreshList();
         _vscodeWatcherService.TriggerRefresh += (s, e) => RefreshWorkspacesInBackground();
         _vsWatcherService.TriggerRefresh += (s, e) => RefreshWorkspacesInBackground();
 
