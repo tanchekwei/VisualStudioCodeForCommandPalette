@@ -31,6 +31,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private readonly IPinService _pinService;
 
     public List<VisualStudioCodeWorkspace> AllWorkspaces { get; } = new();
+    public SettingsManager SettingsManager { get; } = new();
     private readonly List<ListItem> _visibleItems = new();
     private List<VisualStudioCodeWorkspace> _cachedFilteredWorkspaces = new();
 
@@ -67,6 +68,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         Id = "VisualStudioCodePage";
 
         _settingsManager = settingsManager;
+        SettingsManager = _settingsManager;
         _vscodeService = vscodeService;
         _workspaceStorage = workspaceStorage;
         _countTracker = countTracker;

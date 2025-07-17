@@ -79,7 +79,7 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
                 if (solutionPath == Workspace.WindowsPath)
                 {
                     window.SwitchToWindow();
-                    return CommandResult.Dismiss();
+                    return PageCommandResultHandler.HandleCommandResult(page);
                 }
             }
         }
@@ -97,6 +97,6 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
             OpenInShellHelper.OpenInShell(Workspace.VSInstance.InstancePath, Workspace.Path, runAs: _elevated ? OpenInShellHelper.ShellRunAsType.Administrator : OpenInShellHelper.ShellRunAsType.None);
         }
 
-        return CommandResult.Dismiss();
+        return PageCommandResultHandler.HandleCommandResult(page);
     }
 }
