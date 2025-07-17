@@ -1,6 +1,7 @@
 // Modifications copyright (c) 2025 tanchekwei
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
+using System.Data;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,9 @@ namespace WorkspaceLauncherForVSCode.Services
         private readonly SettingsManager _settingsManager;
         private int _lastKnownVersion;
         private bool _isWatching;
+        private SqliteConnection? _cachedConnection;
+        private SqliteCommand? _cachedCommand;
+        private string? _cachedDbPath;
 
         public event EventHandler? TriggerRefresh;
 
@@ -41,10 +45,10 @@ namespace WorkspaceLauncherForVSCode.Services
                 if (instances.Count > 0)
                 {
                     var instance = instances[0];
-                    var dbPath = Path.Combine(instance.StoragePath, "state.vscdb");
-                    if (File.Exists(dbPath))
+                    _cachedDbPath = Path.Combine(instance.StoragePath, "state.vscdb");
+                    if (File.Exists(_cachedDbPath))
                     {
-                        VscdbRecentListChangeTrackerInitializer.Initialize(dbPath);
+                        VscdbRecentListChangeTrackerInitializer.Initialize(_cachedDbPath);
                     }
                 }
 
@@ -64,6 +68,7 @@ namespace WorkspaceLauncherForVSCode.Services
         {
             _timer?.Change(Timeout.Infinite, Timeout.Infinite);
             _isWatching = false;
+            CloseConnection();
         }
 
         private async Task CheckForChanges()
@@ -88,41 +93,66 @@ namespace WorkspaceLauncherForVSCode.Services
 
         private async Task<int> GetCurrentVersionAsync()
         {
-            var totalVersion = 0;
-            var instances = _vscodeService.GetInstances();
-            if (instances.Count > 0)
+            if (string.IsNullOrEmpty(_cachedDbPath) || !File.Exists(_cachedDbPath))
             {
-                var instance = instances[0];
-                var dbPath = Path.Combine(instance.StoragePath, "state.vscdb");
-                if (!File.Exists(dbPath))
+                return 0;
+            }
+
+            try
+            {
+                await EnsureConnectionAndCommandAsync(_cachedDbPath);
+
+                if (_cachedCommand == null)
                 {
                     return 0;
                 }
 
-                try
+                var result = await _cachedCommand.ExecuteScalarAsync();
+                if (result is long l)
                 {
-                    await using var connection = new SqliteConnection($"Data Source={dbPath};Mode=ReadOnly;");
-                    await connection.OpenAsync();
-
-                    var command = connection.CreateCommand();
-                    command.CommandText = "SELECT version FROM CmdPalVisualStudioCodeHistoryRecentlyOpenedPathsListTracker";
-
-                    var result = await command.ExecuteScalarAsync();
-                    if (result != null)
-                    {
-                        totalVersion += Convert.ToInt32(result);
-                    }
-                }
-                catch (Exception)
-                {
+                    return (int)l;
                 }
             }
-            return totalVersion;
+            catch (Exception)
+            {
+                CloseConnection();
+            }
+
+            return 0;
+        }
+
+        private async Task EnsureConnectionAndCommandAsync(string dbPath)
+        {
+            if (_cachedConnection == null || _cachedConnection.State != ConnectionState.Open)
+            {
+                CloseConnection(); 
+
+                _cachedConnection = new SqliteConnection($"Data Source={dbPath};Mode=ReadOnly;Cache=Shared;");
+                await _cachedConnection.OpenAsync();
+
+                var pragmaCmd = _cachedConnection.CreateCommand();
+                pragmaCmd.CommandText = "PRAGMA synchronous = OFF; PRAGMA cache_size = 10;";
+                await pragmaCmd.ExecuteNonQueryAsync();
+
+                _cachedCommand = _cachedConnection.CreateCommand();
+                _cachedCommand.CommandText = "SELECT version FROM CmdPalVisualStudioCodeHistoryRecentlyOpenedPathsListTracker";
+            }
+        }
+
+        private void CloseConnection()
+        {
+            _cachedCommand?.Dispose();
+            _cachedCommand = null;
+
+            _cachedConnection?.Close();
+            _cachedConnection?.Dispose();
+            _cachedConnection = null;
         }
 
         public void Dispose()
         {
             _timer?.Dispose();
+            CloseConnection();
             GC.SuppressFinalize(this);
         }
     }
