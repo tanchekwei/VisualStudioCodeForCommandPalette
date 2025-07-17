@@ -10,7 +10,7 @@ namespace WorkspaceLauncherForVSCode.Pages
     public static class StaticHelpItems
     {
         public static readonly ListItem OpenSettingsFolder = new(
-            new OpenInExplorerCommand(Utilities.BaseSettingsPath(Constant.AppName), null, "Open extension settings / logs folder")
+            new OpenInExplorerCommand(Constant.SettingsFolderPath, null, "Open extension settings / logs folder")
         );
 
         public static readonly ListItem ViewSource = new(
