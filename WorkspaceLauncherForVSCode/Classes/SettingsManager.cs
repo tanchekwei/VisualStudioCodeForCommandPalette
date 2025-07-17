@@ -58,14 +58,16 @@ public class SettingsManager : JsonSettingsManager
         ),
         new ChoiceSetSetting.Choice(
             "Recent from Visual Studio\n" +
-            "Sorts using Visual Studio's recent solution list from its configuration files.",
+            "- Sorts workspaces based on Visual Studio's recent solution list.\n" +
+            "- Uses LastAccessed timestamps from ApplicationPrivateSettings.xml.",
             nameof(SortBy.RecentFromVS)
         ),
         new ChoiceSetSetting.Choice(
             "Recent from Visual Studio Code\n" +
-            "Sorts using the same order as Visual Studio Code's recent list.\n" +
-            "- Only works if one Visual Studio Code instance is enabled.\n" +
-            "- Please tick only one of: Enable Visual Studio Code (User), (System), (Insiders), or (Custom).",
+            "- Sorts workspaces to match the order in VS Code's 'File > Open Recent' list.\n" +
+            "- Monitors VS Code's internal state.vscdb for real-time updates.\n" +
+            "- Only works when a single VS Code instance is enabled.\n" +
+            "- Please enable only one of: User, System, Insiders, or Custom instance.",
             nameof(SortBy.RecentFromVSCode)
         ),
     ];
