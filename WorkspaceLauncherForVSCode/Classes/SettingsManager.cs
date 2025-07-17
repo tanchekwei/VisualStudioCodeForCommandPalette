@@ -164,7 +164,7 @@ public class SettingsManager : JsonSettingsManager
     private readonly ChoiceSetSetting _sortBy = new(
         Namespaced(nameof(SortBy)),
         "Sort By",
-        "Determines the sorting order of workspaces.",
+        "Determines how items are sorted when no search text is entered.",
         _sortByChoices);
 
     private readonly ChoiceSetSetting _terminalType = new(

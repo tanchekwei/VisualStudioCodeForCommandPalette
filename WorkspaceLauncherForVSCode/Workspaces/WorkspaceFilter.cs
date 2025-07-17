@@ -21,8 +21,9 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             using var logger = new TimeLogger();
 #endif
             IEnumerable<VisualStudioCodeWorkspace> filteredItems = allWorkspaces;
+            var isSearching = !string.IsNullOrWhiteSpace(searchText);
 
-            if (!string.IsNullOrWhiteSpace(searchText))
+            if (isSearching)
             {
                 var matcher = StringMatcher.Instance;
                 matcher.UserSettingSearchPrecision = SearchPrecisionScore.Regular;
@@ -61,16 +62,26 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 }
             }
 
-            var sortedUnpinned = sortBy switch
+            IEnumerable<VisualStudioCodeWorkspace>? sortedUnpinned;
+            if (isSearching)
             {
-                SortBy.LastAccessed => unpinned.OrderByDescending(x => x.LastAccessed),
-                SortBy.Frequency => unpinned.OrderByDescending(x => x.Frequency),
-                SortBy.RecentFromVSCode => unpinned.AsEnumerable(),
-                SortBy.RecentFromVS => unpinned.OrderByDescending(x => x.VSLastAccessed),
-                _ => unpinned
-                    .OrderByDescending(x => x.LastAccessed)
-                    .ThenByDescending(x => x.Frequency),
-            };
+                sortedUnpinned = unpinned
+                        .OrderByDescending(x => x.LastAccessed)
+                        .ThenByDescending(x => x.Frequency);
+            }
+            else
+            {
+                sortedUnpinned = sortBy switch
+                {
+                    SortBy.LastAccessed => unpinned.OrderByDescending(x => x.LastAccessed),
+                    SortBy.Frequency => unpinned.OrderByDescending(x => x.Frequency),
+                    SortBy.RecentFromVSCode => unpinned.AsEnumerable(),
+                    SortBy.RecentFromVS => unpinned.OrderByDescending(x => x.VSLastAccessed),
+                    _ => unpinned
+                        .OrderByDescending(x => x.LastAccessed)
+                        .ThenByDescending(x => x.Frequency),
+                };
+            }
 
             var finalItems = new List<VisualStudioCodeWorkspace>(pinned.Count + unpinned.Count);
 
