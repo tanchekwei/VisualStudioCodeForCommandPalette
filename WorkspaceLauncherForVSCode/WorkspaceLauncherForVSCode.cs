@@ -43,12 +43,13 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
         services.AddSingleton<IPinService, PinService>();
         services.AddSingleton<IVSCodeWorkspaceWatcherService, VSCodeWorkspaceWatcherService>();
         services.AddSingleton<IVSWorkspaceWatcherService, VSWorkspaceWatcherService>();
+        services.AddSingleton<Dependencies>();
         services.AddSingleton<WorkspaceLauncherForVSCodeCommandsProvider>();
 
         // Build the provider
         var provider = services.BuildServiceProvider();
 
-        StaticHelpItems.Initialize(provider.GetRequiredService<SettingsManager>(), provider.GetRequiredService<CountTracker>());
+        StaticHelpItems.Initialize(provider.GetRequiredService<Dependencies>());
 
         _provider = provider.GetRequiredService<WorkspaceLauncherForVSCodeCommandsProvider>();
     }

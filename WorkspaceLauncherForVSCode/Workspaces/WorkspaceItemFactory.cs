@@ -109,7 +109,6 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     }
                     if (workspace.VisualStudioCodeRemoteUri is null)
                     {
-                        countTracker.Update((WorkspaceType)workspace.WorkspaceType, countTracker[(WorkspaceType)workspace.WorkspaceType] + 1);
                         if (settingsManager.VSCodeSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
                         {
                             moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(workspace, page, elevated: true)));
@@ -129,10 +128,6 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     }
                     else
                     {
-                        if (workspace.VisualStudioCodeRemoteUri.Type.HasValue)
-                        {
-                            countTracker.Update(workspace.VisualStudioCodeRemoteUri.Type.Value, countTracker[workspace.VisualStudioCodeRemoteUri.Type.Value] + 1);
-                        }
                         switch (workspace.VisualStudioCodeRemoteUri.Type)
                         {
                             case VisualStudioCodeRemoteType.Codespaces:

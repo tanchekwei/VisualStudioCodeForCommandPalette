@@ -75,14 +75,14 @@ namespace WorkspaceLauncherForVSCode.Pages
         public static ListItem SettingsItem { get; private set; } = null!;
         public static CommandContextItem CountDetail { get; private set; } = null!;
         public static List<ListItem> CountItems { get; private set; } = null!;
-        public static void Initialize(SettingsManager settingsManager, CountTracker countTracker)
+        public static void Initialize(Dependencies deps)
         {
-            SettingsItem = new ListItem(settingsManager.Settings.SettingsPage)
+            SettingsItem = new ListItem(deps.Get<SettingsManager>().Settings.SettingsPage)
             {
                 Title = "Setting",
                 Icon = Classes.Icon.Setting
             };
-            CountDetail = new(new VisualStudioCodeCountDetailPage(countTracker));
+            CountDetail = new(new VisualStudioCodeCountDetailPage(deps));
             CountItems = new()
             {
                 new ListItem

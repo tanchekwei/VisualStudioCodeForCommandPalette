@@ -11,16 +11,49 @@ namespace WorkspaceLauncherForVSCode.Pages
     public sealed partial class VisualStudioCodeCountDetailPage : ListPage
     {
         private readonly CountTracker _countTracker;
-        public VisualStudioCodeCountDetailPage(CountTracker countTracker)
+        private readonly VisualStudioCodePage _page;
+        public VisualStudioCodeCountDetailPage(Dependencies deps)
         {
             Name = "Visual Studio Code Count Detail";
             Icon = Classes.Icon.Help;
             Id = "VisualStudioCodeCountDetailPage";
-            _countTracker = countTracker;
+            _countTracker = deps.Get<CountTracker>();
+            _page = deps.Get<VisualStudioCodePage>();
         }
 
         public override IListItem[] GetItems()
         {
+            _countTracker.Reset();
+            foreach (var workspace in _page.AllWorkspaces)
+            {
+                if (workspace is null)
+                {
+                    continue;
+                }
+                _countTracker.Increment(CountType.Total);
+                switch (workspace.WorkspaceType)
+                {
+                    case WorkspaceType.Workspace:
+                    case WorkspaceType.Folder:
+                        _countTracker.Increment(CountType.VisualStudioCode);
+                        if (workspace?.VisualStudioCodeRemoteUri?.Type != null)
+                        {
+                            _countTracker.Increment((VisualStudioCodeRemoteType)workspace.VisualStudioCodeRemoteUri.Type);
+                        }
+                        else
+                        {
+                            _countTracker.Increment(workspace.WorkspaceType);
+                        }
+                        break;
+                    case WorkspaceType.Solution:
+                        _countTracker.Increment(WorkspaceType.Solution);
+                        _countTracker.Increment(CountType.VisualStudio);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             StaticHelpItems.CountDetailItems[0].Title = _countTracker[WorkspaceType.Folder].ToString(CultureInfo.InvariantCulture);
             StaticHelpItems.CountDetailItems[1].Title = _countTracker[WorkspaceType.Workspace].ToString(CultureInfo.InvariantCulture);
             StaticHelpItems.CountDetailItems[2].Title = _countTracker[VisualStudioCodeRemoteType.Codespaces].ToString(CultureInfo.InvariantCulture);

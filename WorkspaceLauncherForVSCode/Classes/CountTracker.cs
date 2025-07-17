@@ -21,20 +21,21 @@ public class CountTracker
     }
   }
 
-  public void Update(VisualStudioCodeRemoteType remoteType, int value)
+  public void Increment(CountType type)
   {
-    if (!_vscodeRemoteCounts.TryGetValue(remoteType, out var oldValue) || oldValue != value)
-    {
-      _vscodeRemoteCounts[remoteType] = value;
-    }
+    _counts.TryGetValue(type, out var value); _counts[type] = value + 1;
   }
 
-  public void Update(WorkspaceType localType, int value)
+  public void Increment(VisualStudioCodeRemoteType remoteType)
   {
-    if (!_vscodeLocalCounts.TryGetValue(localType, out var oldValue) || oldValue != value)
-    {
-      _vscodeLocalCounts[localType] = value;
-    }
+    _vscodeRemoteCounts.TryGetValue(remoteType, out var value);
+    _vscodeRemoteCounts[remoteType] = value + 1;
+
+  }
+
+  public void Increment(WorkspaceType localType)
+  {
+    _vscodeLocalCounts.TryGetValue(localType, out var value); _vscodeLocalCounts[localType] = value + 1;
   }
 
   public void Reset()
