@@ -15,34 +15,42 @@ namespace WorkspaceLauncherForVSCode.Services
         public static Task<List<VisualStudioCodeWorkspace>> GetSolutions(
             VisualStudioService visualStudioService, List<VisualStudioCodeWorkspace> dbWorkspaces, bool showPrerelease)
         {
-#if DEBUG
-            using var logger = new TimeLogger();
-#endif
-            visualStudioService.InitInstances(Array.Empty<string>());
-            var results = visualStudioService.GetResults(showPrerelease);
-            var workspaceMap = dbWorkspaces.Where(w => w.Path != null).ToDictionary(w => w.Path!, w => w);
-
-            var list = results.Select(r =>
+            try
             {
-                var vs = new VisualStudioCodeWorkspace
+#if DEBUG
+                using var logger = new TimeLogger();
+#endif
+                visualStudioService.InitInstances(Array.Empty<string>());
+                var results = visualStudioService.GetResults(showPrerelease);
+                var workspaceMap = dbWorkspaces.Where(w => w.Path != null).ToDictionary(w => w.Path!, w => w);
+
+                var list = results.Select(r =>
                 {
-                    Name = r.Name,
-                    Path = r.FullPath,
-                    WindowsPath = r.FullPath,
-                    WorkspaceType = WorkspaceType.Solution,
-                    VSInstance = r.Instance,
-                    VSLastAccessed = r.LastAccessed,
-                };
-                vs.SetWorkspaceType();
-                if (r.FullPath != null && workspaceMap.TryGetValue(r.FullPath, out var workspace))
-                {
-                    vs.Frequency = workspace.Frequency;
-                    vs.LastAccessed = workspace.LastAccessed;
-                    vs.PinDateTime = workspace.PinDateTime;
-                }
-                return vs;
-            }).ToList();
-            return Task.FromResult(list);
+                    var vs = new VisualStudioCodeWorkspace
+                    {
+                        Name = r.Name,
+                        Path = r.FullPath,
+                        WindowsPath = r.FullPath,
+                        WorkspaceType = WorkspaceType.Solution,
+                        VSInstance = r.Instance,
+                        VSLastAccessed = r.LastAccessed,
+                    };
+                    vs.SetWorkspaceType();
+                    if (r.FullPath != null && workspaceMap.TryGetValue(r.FullPath, out var workspace))
+                    {
+                        vs.Frequency = workspace.Frequency;
+                        vs.LastAccessed = workspace.LastAccessed;
+                        vs.PinDateTime = workspace.PinDateTime;
+                    }
+                    return vs;
+                }).ToList();
+                return Task.FromResult(list);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                return Task.FromResult(new List<VisualStudioCodeWorkspace>());
+            }
         }
     }
 }

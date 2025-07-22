@@ -30,126 +30,147 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
 
         public void InitInstances(string[] excludedVersions)
         {
+            try
+            {
 #if DEBUG
-            using var logger = new TimeLogger();
+                using var logger = new TimeLogger();
 #endif
-            if (_instances != null)
-            {
-                return;
-            }
-            var paths = new string?[] { null, VsWhereDir };
-            var exceptions = new List<(string? Path, Exception Exception)>(paths.Length);
-            _instances = new();
-
-            foreach (var path in paths)
-            {
-                try
+                if (_instances != null)
                 {
-                    var vsWherePath = VsWhereBin;
+                    return;
+                }
+                var paths = new string?[] { null, VsWhereDir };
+                var exceptions = new List<(string? Path, Exception Exception)>(paths.Length);
+                _instances = new();
 
-                    if (path != null)
+                foreach (var path in paths)
+                {
+                    try
                     {
-                        vsWherePath = Path.Combine(path, VsWhereBin);
-                    }
+                        var vsWherePath = path != null
+                            ? Path.Combine(path, VsWhereBin)
+                            : VsWhereBin;
 
-                    vsWherePath = Environment.ExpandEnvironmentVariables(vsWherePath);
+                        vsWherePath = Environment.ExpandEnvironmentVariables(vsWherePath);
 
-                    var startInfo = new ProcessStartInfo(vsWherePath, "-all -prerelease -format json")
-                    {
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        CreateNoWindow = true,
-                    };
+                        if (!File.Exists(vsWherePath))
+                        {
+                            throw new FileNotFoundException($"vswhere.exe not found at path: {vsWherePath}");
+                        }
 
-                    using var process = Process.Start(startInfo);
-                    if (process == null)
-                    {
-                        continue;
-                    }
+                        var startInfo = new ProcessStartInfo(vsWherePath, "-all -prerelease -format json")
+                        {
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            CreateNoWindow = true,
+                        };
 
-                    var output = process.StandardOutput.ReadToEnd();
-                    process.WaitForExit(TimeSpan.FromSeconds(5));
-                    if (string.IsNullOrWhiteSpace(output))
-                    {
-                        continue;
-                    }
-
-                    var instancesJson = JsonSerializer.Deserialize(output, VisualStudioInstanceSerializerContext.Default.ListVisualStudioInstance);
-                    if (instancesJson == null)
-                    {
-                        continue;
-                    }
-
-                    foreach (var instance in instancesJson)
-                    {
-                        var applicationPrivateSettingsPath = GetApplicationPrivateSettingsPathByInstanceId(instance.InstanceId);
-                        if (string.IsNullOrWhiteSpace(applicationPrivateSettingsPath))
+                        using var process = Process.Start(startInfo);
+                        if (process == null)
                         {
                             continue;
                         }
 
-                        if (excludedVersions.Contains(instance.Catalog.ProductLineVersion))
+                        var output = process.StandardOutput.ReadToEnd();
+                        process.WaitForExit(TimeSpan.FromSeconds(5));
+                        if (string.IsNullOrWhiteSpace(output))
                         {
                             continue;
                         }
 
-                        _instances.Add(new VsCodeModels.VisualStudioInstance(instance, applicationPrivateSettingsPath));
-                    }
+                        var instancesJson = JsonSerializer.Deserialize(output, VisualStudioInstanceSerializerContext.Default.ListVisualStudioInstance);
+                        if (instancesJson == null)
+                        {
+                            continue;
+                        }
 
-                    break;
+                        foreach (var instance in instancesJson)
+                        {
+                            var applicationPrivateSettingsPath = GetApplicationPrivateSettingsPathByInstanceId(instance.InstanceId);
+                            if (string.IsNullOrWhiteSpace(applicationPrivateSettingsPath))
+                            {
+                                continue;
+                            }
+
+                            if (excludedVersions.Contains(instance.Catalog.ProductLineVersion))
+                            {
+                                continue;
+                            }
+
+                            _instances.Add(new VsCodeModels.VisualStudioInstance(instance, applicationPrivateSettingsPath));
+                        }
+
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        exceptions.Add((path, ex));
+                    }
                 }
-                catch (Exception ex)
+
+                if (_instances?.Count == 0)
                 {
-                    exceptions.Add((path, ex));
+                    foreach (var ex in exceptions)
+                    {
+                        ErrorLogger.LogError(ex.Exception);
+                    }
                 }
             }
-
-            // Log errors only if no instances are initialized
-            if (_instances?.Count == 0)
+            catch (Exception ex)
             {
-                foreach (var ex in exceptions)
-                {
-                    //_logger.LogError(ex.Exception, $"Failed to execute vswhere.exe from {ex.Path ?? "PATH"}", typeof(VisualStudioService));
-                }
+                ErrorLogger.LogError(ex);
             }
         }
 
         public IEnumerable<VsCodeModels.CodeContainer> GetResults(bool showPrerelease)
         {
-            if (_instances == null)
+            try
             {
+                if (_instances == null)
+                {
+                    return Enumerable.Empty<VsCodeModels.CodeContainer>();
+                }
+
+                var query = _instances.AsEnumerable();
+
+                if (!showPrerelease)
+                {
+                    query = query.Where(i => !i.IsPrerelease);
+                }
+
+                return query.SelectMany(i => i.GetCodeContainers()).OrderBy(c => c.Name).ThenBy(c => c.Instance.IsPrerelease);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
                 return Enumerable.Empty<VsCodeModels.CodeContainer>();
             }
-
-            var query = _instances.AsEnumerable();
-
-            if (!showPrerelease)
-            {
-                query = query.Where(i => !i.IsPrerelease);
-            }
-
-            return query.SelectMany(i => i.GetCodeContainers()).OrderBy(c => c.Name).ThenBy(c => c.Instance.IsPrerelease);
         }
 
         private static string? GetApplicationPrivateSettingsPathByInstanceId(string instanceId)
         {
-            var dataPath = Environment.ExpandEnvironmentVariables(VisualStudioDataDir);
-            var directory = Directory.EnumerateDirectories(dataPath, $"*{instanceId}", SearchOption.TopDirectoryOnly)
-                .Select(d => new DirectoryInfo(d))
-                .Where(d => !d.Name.StartsWith("SettingsBackup_", StringComparison.Ordinal))
-                .ToArray();
-
-            if (directory.Length == 1)
+            try
             {
-                var applicationPrivateSettingspath = Path.Combine(directory[0].FullName, "ApplicationPrivateSettings.xml");
+                var dataPath = Environment.ExpandEnvironmentVariables(VisualStudioDataDir);
+                var directory = Directory.EnumerateDirectories(dataPath, $"*{instanceId}", SearchOption.TopDirectoryOnly)
+                    .Select(d => new DirectoryInfo(d))
+                    .Where(d => !d.Name.StartsWith("SettingsBackup_", StringComparison.Ordinal))
+                    .ToArray();
 
-                if (File.Exists(applicationPrivateSettingspath))
+                if (directory.Length == 1)
                 {
-                    return applicationPrivateSettingspath;
+                    var applicationPrivateSettingspath = Path.Combine(directory[0].FullName, "ApplicationPrivateSettings.xml");
+
+                    if (File.Exists(applicationPrivateSettingspath))
+                    {
+                        return applicationPrivateSettingspath;
+                    }
                 }
             }
-
-            //_logger.LogError($"Failed to find ApplicationPrivateSettings.xml for instance {instanceId}", typeof(VisualStudioService));
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
 
             return null;
         }

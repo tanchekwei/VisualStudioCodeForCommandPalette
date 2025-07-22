@@ -1,8 +1,10 @@
 ﻿// Modifications copyright (c) 2025 tanchekwei 
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
+using System;
 using System.Text.Json.Serialization;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Enums;
+using WorkspaceLauncherForVSCode.Classes;
 
 namespace WorkspaceLauncherForVSCode;
 
@@ -30,11 +32,18 @@ public class VisualStudioCodeInstance
     /// <param name="type">The type of Visual Studio Code (default or insider).</param>
     internal VisualStudioCodeInstance(string name, string executablePath, string storagePath, VisualStudioCodeInstallationType installationType, VisualStudioCodeType type)
     {
-        this.Name = name;
-        this.ExecutablePath = executablePath;
-        this.StoragePath = storagePath;
-        this.InstallationType = installationType;
-        this.VisualStudioCodeType = type;
+        try
+        {
+            this.Name = name;
+            this.ExecutablePath = executablePath;
+            this.StoragePath = storagePath;
+            this.InstallationType = installationType;
+            this.VisualStudioCodeType = type;
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+        }
     }
 
     /// <summary>
@@ -43,6 +52,14 @@ public class VisualStudioCodeInstance
     /// <returns>An icon representing the Visual Studio Code instance.</returns>
     private static IconInfo GetIcon()
     {
-        return Classes.Icon.VisualStudioCode;
+        try
+        {
+            return Classes.Icon.VisualStudioCode;
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return null!;
+        }
     }
 }

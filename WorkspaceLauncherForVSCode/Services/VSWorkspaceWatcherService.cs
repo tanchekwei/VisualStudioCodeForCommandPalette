@@ -31,71 +31,106 @@ namespace WorkspaceLauncherForVSCode.Services
 
         public void StartWatching()
         {
-            if (_isWatching)
+            try
             {
-                return;
-            }
-#if DEBUG
-            using var logger = new TimeLogger();
-#endif
-            if (_settingsManager.EnableWorkspaceWatcher && _settingsManager.SortBy == Enums.SortBy.RecentFromVS)
-            {
-                _visualStudioService.InitInstances(Array.Empty<string>());
-                var instances = _visualStudioService.Instances;
-                if (instances is null)
+                if (_isWatching)
                 {
                     return;
                 }
-                foreach (var instance in instances)
+#if DEBUG
+                using var logger = new TimeLogger();
+#endif
+                if (_settingsManager.EnableWorkspaceWatcher && _settingsManager.SortBy == Enums.SortBy.RecentFromVS)
                 {
-                    if (instance.ApplicationPrivateSettingsPath is not null && File.Exists(instance.ApplicationPrivateSettingsPath))
+                    _visualStudioService.InitInstances(Array.Empty<string>());
+                    var instances = _visualStudioService.Instances;
+                    if (instances is null)
                     {
-                        var watcher = new FileSystemWatcher
-                        {
-                            Path = Path.GetDirectoryName(instance.ApplicationPrivateSettingsPath)!,
-                            Filter = Path.GetFileName(instance.ApplicationPrivateSettingsPath),
-                            NotifyFilter = NotifyFilters.LastWrite,
-                            EnableRaisingEvents = true
-                        };
-                        watcher.Changed += OnChanged;
-                        _watchers.Add(watcher);
+                        return;
                     }
+                    foreach (var instance in instances)
+                    {
+                        if (instance.ApplicationPrivateSettingsPath is not null && File.Exists(instance.ApplicationPrivateSettingsPath))
+                        {
+                            var watcher = new FileSystemWatcher
+                            {
+                                Path = Path.GetDirectoryName(instance.ApplicationPrivateSettingsPath)!,
+                                Filter = Path.GetFileName(instance.ApplicationPrivateSettingsPath),
+                                NotifyFilter = NotifyFilters.LastWrite,
+                                EnableRaisingEvents = true
+                            };
+                            watcher.Changed += OnChanged;
+                            _watchers.Add(watcher);
+                        }
+                    }
+                    _isWatching = true;
                 }
-                _isWatching = true;
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
             }
         }
 
         public void StopWatching()
         {
-            foreach (var watcher in _watchers)
+            try
             {
-                watcher.EnableRaisingEvents = false;
-                watcher.Changed -= OnChanged;
-                watcher.Dispose();
+                foreach (var watcher in _watchers)
+                {
+                    watcher.EnableRaisingEvents = false;
+                    watcher.Changed -= OnChanged;
+                    watcher.Dispose();
+                }
+                _watchers.Clear();
+                _debounceTimer?.Dispose();
+                _isWatching = false;
             }
-            _watchers.Clear();
-            _debounceTimer?.Dispose();
-            _isWatching = false;
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
 
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
-            _debounceTimer?.Dispose();
-            _debounceTimer = new Timer(TriggerRefreshCallback, null, DEBOUNCE_MILLISECONDS, Timeout.Infinite);
+            try
+            {
+                _debounceTimer?.Dispose();
+                _debounceTimer = new Timer(TriggerRefreshCallback, null, DEBOUNCE_MILLISECONDS, Timeout.Infinite);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
 
         private void TriggerRefreshCallback(object? state)
         {
+            try
+            {
 #if DEBUG
-            using var logger = new TimeLogger();
+                using var logger = new TimeLogger();
 #endif
-            TriggerRefresh?.Invoke(this, EventArgs.Empty);
+                TriggerRefresh?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
 
         public void Dispose()
         {
-            StopWatching();
-            GC.SuppressFinalize(this);
+            try
+            {
+                StopWatching();
+                GC.SuppressFinalize(this);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Net;
+using WorkspaceLauncherForVSCode.Classes;
 
 namespace WorkspaceLauncherForVSCode.Helpers
 {
@@ -9,49 +10,68 @@ namespace WorkspaceLauncherForVSCode.Helpers
     {
         public static bool TryGetWindowsPathFromWslUri(string wslUri, out string? windowsPath)
         {
-            windowsPath = null;
-
-            if (TryGetWslPath(wslUri, out var distro, out var wslPath))
+            try
             {
-                windowsPath = $"\\\\wsl$\\{distro}{wslPath.Replace('/', '\\')}";
-                return true;
-            }
+                windowsPath = null;
 
-            return false;
+                if (TryGetWslPath(wslUri, out var distro, out var wslPath))
+                {
+                    windowsPath = $"\\\\wsl$\\{distro}{wslPath.Replace('/', '\\')}";
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                windowsPath = null;
+                return false;
+            }
         }
 
         private static bool TryGetWslPath(string uri, out string distro, out string wslPath)
         {
-            distro = string.Empty;
-            wslPath = string.Empty;
-
-            if (uri.StartsWith("vscode-remote://", StringComparison.OrdinalIgnoreCase))
+            try
             {
-                var pathPart = uri.Substring("vscode-remote://".Length);
-                var authorityEndIndex = pathPart.IndexOf('/');
-                if (authorityEndIndex <= 0) return false;
+                distro = string.Empty;
+                wslPath = string.Empty;
 
-                var encodedAuthority = pathPart.Substring(0, authorityEndIndex);
-                wslPath = pathPart.Substring(authorityEndIndex);
-                var authority = WebUtility.UrlDecode(encodedAuthority);
+                if (uri.StartsWith("vscode-remote://", StringComparison.OrdinalIgnoreCase))
+                {
+                    var pathPart = uri.Substring("vscode-remote://".Length);
+                    var authorityEndIndex = pathPart.IndexOf('/');
+                    if (authorityEndIndex <= 0) return false;
 
-                if (!authority.StartsWith("wsl+", StringComparison.Ordinal)) return false;
+                    var encodedAuthority = pathPart.Substring(0, authorityEndIndex);
+                    wslPath = pathPart.Substring(authorityEndIndex);
+                    var authority = WebUtility.UrlDecode(encodedAuthority);
 
-                distro = authority.Substring("wsl+".Length);
-                return true;
+                    if (!authority.StartsWith("wsl+", StringComparison.Ordinal)) return false;
+
+                    distro = authority.Substring("wsl+".Length);
+                    return true;
+                }
+                else if (uri.StartsWith("file://wsl.localhost/", StringComparison.OrdinalIgnoreCase))
+                {
+                    var pathPart = uri.Substring("file://wsl.localhost/".Length);
+                    var firstSlashIndex = pathPart.IndexOf('/');
+                    if (firstSlashIndex == -1) return false;
+
+                    distro = pathPart.Substring(0, firstSlashIndex);
+                    wslPath = pathPart.Substring(firstSlashIndex);
+                    return true;
+                }
+
+                return false;
             }
-            else if (uri.StartsWith("file://wsl.localhost/", StringComparison.OrdinalIgnoreCase))
+            catch (Exception ex)
             {
-                var pathPart = uri.Substring("file://wsl.localhost/".Length);
-                var firstSlashIndex = pathPart.IndexOf('/');
-                if (firstSlashIndex == -1) return false;
-
-                distro = pathPart.Substring(0, firstSlashIndex);
-                wslPath = pathPart.Substring(firstSlashIndex);
-                return true;
+                ErrorLogger.LogError(ex);
+                distro = string.Empty;
+                wslPath = string.Empty;
+                return false;
             }
-
-            return false;
         }
     }
 }

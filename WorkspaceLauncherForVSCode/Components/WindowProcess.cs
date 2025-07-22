@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 using System;
 using System.Diagnostics;
+using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Helpers;
 
 namespace WorkspaceLauncherForVSCode.Components
@@ -15,9 +16,16 @@ namespace WorkspaceLauncherForVSCode.Components
         internal Process? Process => process;
         internal WindowProcess(IntPtr hwnd)
         {
-            _ = NativeMethods.GetWindowThreadProcessId(hwnd, out var pid);
-            processId = pid;
-            process = Process.GetProcessById((int)processId);
+            try
+            {
+                _ = NativeMethods.GetWindowThreadProcessId(hwnd, out var pid);
+                processId = pid;
+                process = Process.GetProcessById((int)processId);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 // Copyright (c) 2025 tanchekwei
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
+using System;
 using System.Collections.Generic;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
@@ -78,31 +79,38 @@ namespace WorkspaceLauncherForVSCode.Pages
         public static List<ListItem> CountItems { get; private set; } = null!;
         public static void Initialize(Dependencies deps)
         {
-            SettingsItem = new ListItem(deps.Get<SettingsManager>().Settings.SettingsPage)
+            try
             {
-                Title = "Setting",
-                Icon = Classes.Icon.Setting
-            };
-            VisualStudioCodeDetailPage = new(new VisualStudioCodeDetailPage(deps));
-            VisualStudioDetailPage = new(new VisualStudioDetailPage(deps));
-            CountItems = new()
+                SettingsItem = new ListItem(deps.Get<SettingsManager>().Settings.SettingsPage)
+                {
+                    Title = "Setting",
+                    Icon = Classes.Icon.Setting
+                };
+                VisualStudioCodeDetailPage = new(new VisualStudioCodeDetailPage(deps));
+                VisualStudioDetailPage = new(new VisualStudioDetailPage(deps));
+                CountItems = new()
+                {
+                    new ListItem(VisualStudioDetailPage)
+                    {
+                        Subtitle = "Visual Studio",
+                        Icon = Classes.Icon.VisualStudio,
+                    },
+                    new ListItem(VisualStudioCodeDetailPage)
+                    {
+                        Subtitle = "Visual Studio Code",
+                        Icon = Classes.Icon.VisualStudioCode,
+                    },
+                    new ListItem()
+                    {
+                        Subtitle = "Total",
+                        Icon = Classes.Icon.VisualStudioAndVisualStudioCode,
+                    }
+                };
+            }
+            catch (Exception ex)
             {
-                new ListItem(VisualStudioDetailPage)
-                {
-                    Subtitle = "Visual Studio",
-                    Icon = Classes.Icon.VisualStudio,
-                },
-                new ListItem(VisualStudioCodeDetailPage)
-                {
-                    Subtitle = "Visual Studio Code",
-                    Icon = Classes.Icon.VisualStudioCode,
-                },
-                new ListItem()
-                {
-                    Subtitle = "Total",
-                    Icon = Classes.Icon.VisualStudioAndVisualStudioCode,
-                }
-            };
+                ErrorLogger.LogError(ex);
+            }
         }
     }
 }

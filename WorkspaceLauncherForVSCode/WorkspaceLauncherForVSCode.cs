@@ -1,4 +1,4 @@
-// Modifications copyright (c) 2025 tanchekwei 
+// Modifications copyright (c) 2025 tanchekwei
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Runtime.InteropServices;
@@ -28,43 +28,69 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
 
     public WorkspaceLauncherForVSCode(ManualResetEvent extensionDisposedEvent)
     {
-        this._extensionDisposedEvent = extensionDisposedEvent;
-        var services = new ServiceCollection();
+        try
+        {
+            this._extensionDisposedEvent = extensionDisposedEvent;
+            var services = new ServiceCollection();
 
-        // Register dependencies
-        services.AddSingleton<SettingsManager>();
-        services.AddSingleton<IVisualStudioCodeService, VisualStudioCodeService>();
-        services.AddSingleton<VisualStudioService>();
-        services.AddSingleton<SettingsListener>();
-        services.AddSingleton<VisualStudioCodePage>();
-        services.AddSingleton<WorkspaceStorage>();
-        services.AddSingleton<RefreshWorkspacesCommand>();
-        services.AddSingleton<CountTracker>();
-        services.AddSingleton<IPinService, PinService>();
-        services.AddSingleton<IVSCodeWorkspaceWatcherService, VSCodeWorkspaceWatcherService>();
-        services.AddSingleton<IVSWorkspaceWatcherService, VSWorkspaceWatcherService>();
-        services.AddSingleton<Dependencies>();
-        services.AddSingleton<WorkspaceLauncherForVSCodeCommandsProvider>();
+            // Register dependencies
+            services.AddSingleton<SettingsManager>();
+            services.AddSingleton<IVisualStudioCodeService, VisualStudioCodeService>();
+            services.AddSingleton<VisualStudioService>();
+            services.AddSingleton<SettingsListener>();
+            services.AddSingleton<VisualStudioCodePage>();
+            services.AddSingleton<WorkspaceStorage>();
+            services.AddSingleton<RefreshWorkspacesCommand>();
+            services.AddSingleton<CountTracker>();
+            services.AddSingleton<IPinService, PinService>();
+            services.AddSingleton<IVSCodeWorkspaceWatcherService, VSCodeWorkspaceWatcherService>();
+            services.AddSingleton<IVSWorkspaceWatcherService, VSWorkspaceWatcherService>();
+            services.AddSingleton<Dependencies>();
+            services.AddSingleton<WorkspaceLauncherForVSCodeCommandsProvider>();
 
-        // Build the provider
-        var provider = services.BuildServiceProvider();
+            // Build the provider
+            var provider = services.BuildServiceProvider();
 
-        StaticHelpItems.Initialize(provider.GetRequiredService<Dependencies>());
+            StaticHelpItems.Initialize(provider.GetRequiredService<Dependencies>());
 
-        _provider = provider.GetRequiredService<WorkspaceLauncherForVSCodeCommandsProvider>();
+            _provider = provider.GetRequiredService<WorkspaceLauncherForVSCodeCommandsProvider>();
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            throw;
+        }
     }
 
     public object? GetProvider(ProviderType providerType)
     {
-#if DEBUG
-        using var logger = new TimeLogger();
-#endif
-        return providerType switch
+        try
         {
-            ProviderType.Commands => _provider,
-            _ => null,
-        };
+#if DEBUG
+            using var logger = new TimeLogger();
+#endif
+            return providerType switch
+            {
+                ProviderType.Commands => _provider,
+                _ => null,
+            };
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return null;
+        }
     }
 
-    public void Dispose() => this._extensionDisposedEvent.Set();
+    public void Dispose()
+    {
+        try
+        {
+            this._extensionDisposedEvent.Set();
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+        }
+    }
 }

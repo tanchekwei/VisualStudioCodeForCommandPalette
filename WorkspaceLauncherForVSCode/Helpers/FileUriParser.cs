@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using WorkspaceLauncherForVSCode.Classes;
 
 namespace WorkspaceLauncherForVSCode.Helpers
 {
@@ -12,32 +13,50 @@ namespace WorkspaceLauncherForVSCode.Helpers
             string inputPath,
             [NotNullWhen(true)] out string? windowsPath)
         {
-            windowsPath = null;
-            if (string.IsNullOrWhiteSpace(inputPath))
+            try
             {
+                windowsPath = null;
+                if (string.IsNullOrWhiteSpace(inputPath))
+                {
+                    return false;
+                }
+
+                // if (inputPath.StartsWith(Constant.VscodeRemoteScheme, StringComparison.OrdinalIgnoreCase))
+                // {
+                //     return TryParseRemoteUri(inputPath, out windowsPath);
+                // }
+
+                return TryParseFileUri(inputPath, out windowsPath);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                windowsPath = null;
                 return false;
             }
-
-            // if (inputPath.StartsWith(Constant.VscodeRemoteScheme, StringComparison.OrdinalIgnoreCase))
-            // {
-            //     return TryParseRemoteUri(inputPath, out windowsPath);
-            // }
-
-            return TryParseFileUri(inputPath, out windowsPath);
         }
 
         private static bool TryParseFileUri(string path, [NotNullWhen(true)] out string? windowsPath)
         {
-            path = path.Replace("%3A", ":", StringComparison.OrdinalIgnoreCase);
-
-            if (Uri.TryCreate(path, UriKind.Absolute, out var uri) && uri.IsFile)
+            try
             {
-                windowsPath = CapitalizeDriveLetter(uri.LocalPath.TrimStart('/'));
+                path = path.Replace("%3A", ":", StringComparison.OrdinalIgnoreCase);
+
+                if (Uri.TryCreate(path, UriKind.Absolute, out var uri) && uri.IsFile)
+                {
+                    windowsPath = CapitalizeDriveLetter(uri.LocalPath.TrimStart('/'));
+                    return true;
+                }
+
+                windowsPath = path;
                 return true;
             }
-
-            windowsPath = path;
-            return true;
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                windowsPath = null;
+                return false;
+            }
         }
 
         // private static bool TryParseRemoteUri(
@@ -93,8 +112,9 @@ namespace WorkspaceLauncherForVSCode.Helpers
                 }
                 return Encoding.UTF8.GetString(bytes);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                ErrorLogger.LogError(ex);
                 return null;
             }
         }
@@ -102,11 +122,19 @@ namespace WorkspaceLauncherForVSCode.Helpers
 
         public static string CapitalizeDriveLetter(string path)
         {
-            if (path.Length >= 2 && char.IsLetter(path[0]) && path[1] == ':')
+            try
             {
-                return char.ToUpperInvariant(path[0]) + path.Substring(1);
+                if (path.Length >= 2 && char.IsLetter(path[0]) && path[1] == ':')
+                {
+                    return char.ToUpperInvariant(path[0]) + path.Substring(1);
+                }
+                return path;
             }
-            return path;
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                return path;
+            }
         }
     }
 }

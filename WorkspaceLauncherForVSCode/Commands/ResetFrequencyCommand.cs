@@ -13,15 +13,32 @@ public sealed partial class ResetFrequencyCommand : InvokableCommand
     private readonly RefreshWorkspacesCommand _refreshWorkspacesCommand;
     public ResetFrequencyCommand(WorkspaceStorage workspaceStorage, RefreshWorkspacesCommand refreshWorkspacesCommand)
     {
-        Icon = Classes.Icon.EraseTool;
-        _workspaceStorage = workspaceStorage;
-        _refreshWorkspacesCommand = refreshWorkspacesCommand;
+        try
+        {
+            Icon = Classes.Icon.EraseTool;
+            _workspaceStorage = workspaceStorage;
+            _refreshWorkspacesCommand = refreshWorkspacesCommand;
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            throw;
+        }
     }
 
     public override CommandResult Invoke()
     {
-        _workspaceStorage.ResetAllFrequenciesAsync().GetAwaiter().GetResult();
-        new ToastStatusMessage($"All item frequencies reset successfully").Show();
-        return _refreshWorkspacesCommand.Invoke();
+        try
+        {
+            _workspaceStorage.ResetAllFrequenciesAsync().GetAwaiter().GetResult();
+            new ToastStatusMessage($"All item frequencies reset successfully").Show();
+            return _refreshWorkspacesCommand.Invoke();
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            new ToastStatusMessage($"Error resetting frequencies").Show();
+            return CommandResult.KeepOpen();
+        }
     }
 }

@@ -40,8 +40,8 @@ namespace WorkspaceLauncherForVSCode.Services
             if (Instances.Count == 1)
             {
                 // Single instance: no need for concurrency or deduplication
-                var instance = Instances[0];
-                var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(instance, dbWorkspaces.ToList(), cancellationToken);
+                var firstInstance = Instances[0];
+                var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(firstInstance, dbWorkspaces.ToList(), cancellationToken);
                 var unique = new Dictionary<string, VisualStudioCodeWorkspace>();
                 foreach (var workspace in workspaces)
                 {

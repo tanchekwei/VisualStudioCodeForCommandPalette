@@ -1,5 +1,6 @@
 // Copyright (c) 2025 tanchekwei
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.CommandPalette.Extensions;
@@ -17,34 +18,55 @@ namespace WorkspaceLauncherForVSCode.Pages
         private readonly VisualStudioService _visualStudioService;
         public VisualStudioDetailPage(Dependencies deps)
         {
-            Name = "Visual Studio Detail";
-            Icon = Classes.Icon.Help;
-            Id = "VisualStudioDetailPage";
-            _countTracker = deps.Get<CountTracker>();
-            _visualStudioService = deps.Get<VisualStudioService>();
+            try
+            {
+                Name = "Visual Studio Detail";
+                Icon = Classes.Icon.Help;
+                Id = "VisualStudioDetailPage";
+                _countTracker = deps.Get<CountTracker>();
+                _visualStudioService = deps.Get<VisualStudioService>();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                _countTracker = null!;
+                _visualStudioService = null!;
+                throw;
+            }
         }
 
         public override IListItem[] GetItems()
         {
-            List<ListItem> instancesDetails = new();
-            foreach (var instance in _visualStudioService.Instances!)
+            try
             {
-                instancesDetails.Add(new()
+                List<ListItem> instancesDetails = new();
+                if (_visualStudioService.Instances != null)
                 {
-                    Title = instance.InstancePath,
-                    Subtitle = "Instance Path",
-                    Icon = Classes.Icon.VisualStudio,
-                });
-            }
-            return [
-                ..instancesDetails,
-                new ListItem
-                {
-                    Title = _countTracker[CountType.VisualStudio].ToString(CultureInfo.InvariantCulture),
-                    Subtitle = "Total",
-                    Icon = Classes.Icon.VisualStudio,
+                    foreach (var instance in _visualStudioService.Instances)
+                    {
+                        instancesDetails.Add(new()
+                        {
+                            Title = instance.InstancePath,
+                            Subtitle = "Instance Path",
+                            Icon = Classes.Icon.VisualStudio,
+                        });
+                    }
                 }
-            ];
+                return [
+                    .. instancesDetails,
+                    new ListItem
+                    {
+                        Title = _countTracker[CountType.VisualStudio].ToString(CultureInfo.InvariantCulture),
+                        Subtitle = "Total",
+                        Icon = Classes.Icon.VisualStudio,
+                    }
+                ];
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                return Array.Empty<IListItem>();
+            }
         }
     }
 }

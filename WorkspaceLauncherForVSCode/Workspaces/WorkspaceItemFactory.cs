@@ -33,85 +33,38 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             CommandContextItem refreshCommandContextItem,
             IPinService pinService)
         {
-#if DEBUG
-            using var logger = new TimeLogger();
-#endif
-            ICommand command;
-            IconInfo icon;
-            Details details;
-            var tags = new List<Tag>();
-            List<CommandContextItem> moreCommands = new();
-
-            switch (workspace.WorkspaceType)
+            try
             {
-                case WorkspaceType.Solution:
-                    command = new OpenSolutionCommand(workspace, page);
-                    icon = Classes.Icon.VisualStudio;
-                    workspace.WindowsPath = workspace.Path;
-                    details = new Details
-                    {
-                        Title = workspace.Name ?? string.Empty,
-                        HeroImage = icon,
-                    };
-                    if (settingsManager.TagTypes.HasFlag(TagType.Target))
-                    {
-                        if (workspace.VSInstance?.Name is string name)
+#if DEBUG
+                using var logger = new TimeLogger();
+#endif
+                ICommand command;
+                IconInfo icon;
+                Details details;
+                var tags = new List<Tag>();
+                List<CommandContextItem> moreCommands = new();
+
+                switch (workspace.WorkspaceType)
+                {
+                    case WorkspaceType.Solution:
+                        command = new OpenSolutionCommand(workspace, page);
+                        icon = Classes.Icon.VisualStudio;
+                        workspace.WindowsPath = workspace.Path;
+                        details = new Details
                         {
-                            tags.Add(new Tag(name));
+                            Title = workspace.Name ?? string.Empty,
+                            HeroImage = icon,
+                        };
+                        if (settingsManager.TagTypes.HasFlag(TagType.Target))
+                        {
+                            if (workspace.VSInstance?.Name is string name)
+                            {
+                                tags.Add(new Tag(name));
+                            }
                         }
-                    }
-                    if (settingsManager.VSSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
-                    {
-                        moreCommands.Add(new CommandContextItem(new OpenSolutionCommand(workspace, page, elevated: true)));
-                        if (!string.IsNullOrEmpty(workspace.WindowsPath))
+                        if (settingsManager.VSSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
                         {
-                            moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
-                        }
-                    }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(workspace.WindowsPath))
-                        {
-                            moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
-                        }
-                        moreCommands.Add(new CommandContextItem(new OpenSolutionCommand(workspace, page, elevated: true)));
-                    }
-                    break;
-                default:
-                    command = new OpenVisualStudioCodeCommand(workspace, page);
-                    icon = Classes.Icon.VisualStudioCode;
-                    details = new Details
-                    {
-                        Title = workspace.GetWorkspaceName(),
-                        HeroImage = icon,
-                    };
-                    if (settingsManager.TagTypes.HasFlag(TagType.Type))
-                    {
-                        if (workspace.VisualStudioCodeRemoteUri != null)
-                        {
-                            tags.Add(new Tag(workspace.VisualStudioCodeRemoteUri.Type.ToDisplayName()));
-                        }
-                        else if (workspace.VisualStudioCodeRemoteUri?.TypeStr != null)
-                        {
-                            tags.Add(new Tag(workspace.VisualStudioCodeRemoteUri.TypeStr));
-                        }
-                        else if (workspace.WorkspaceType == WorkspaceType.Workspace)
-                        {
-                            tags.Add(new Tag(nameof(WorkspaceType.Workspace)));
-                        }
-                    }
-                    if (settingsManager.TagTypes.HasFlag(TagType.Target))
-                    {
-                        if (workspace.VSCodeInstance?.Name is string name)
-                        {
-                            tags.Add(new Tag(name));
-                        }
-                    }
-                    if (workspace.VisualStudioCodeRemoteUri is null)
-                    {
-                        if (settingsManager.VSCodeSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
-                        {
-                            moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(workspace, page, elevated: true)));
+                            moreCommands.Add(new CommandContextItem(new OpenSolutionCommand(workspace, page, elevated: true)));
                             if (!string.IsNullOrEmpty(workspace.WindowsPath))
                             {
                                 moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
@@ -123,75 +76,130 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                             {
                                 moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
                             }
-                            moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(workspace, page, elevated: true)));
+                            moreCommands.Add(new CommandContextItem(new OpenSolutionCommand(workspace, page, elevated: true)));
                         }
-                    }
-                    else
-                    {
-                        switch (workspace.VisualStudioCodeRemoteUri.Type)
+                        break;
+                    default:
+                        command = new OpenVisualStudioCodeCommand(workspace, page);
+                        icon = Classes.Icon.VisualStudioCode;
+                        details = new Details
                         {
-                            case VisualStudioCodeRemoteType.Codespaces:
-                                if (!string.IsNullOrEmpty(workspace.WindowsPath))
-                                {
-                                    moreCommands.Add(new CommandContextItem(new Commands.OpenUrlCommand(workspace.WindowsPath, "Open in Browser", Classes.Icon.GitHub)));
-                                }
-                                break;
-                            case VisualStudioCodeRemoteType.WSL:
-                            case VisualStudioCodeRemoteType.DevContainer:
+                            Title = workspace.GetWorkspaceName(),
+                            HeroImage = icon,
+                        };
+                        if (settingsManager.TagTypes.HasFlag(TagType.Type))
+                        {
+                            if (workspace.VisualStudioCodeRemoteUri != null)
+                            {
+                                tags.Add(new Tag(workspace.VisualStudioCodeRemoteUri.Type.ToDisplayName()));
+                            }
+                            else if (workspace.VisualStudioCodeRemoteUri?.TypeStr != null)
+                            {
+                                tags.Add(new Tag(workspace.VisualStudioCodeRemoteUri.TypeStr));
+                            }
+                            else if (workspace.WorkspaceType == WorkspaceType.Workspace)
+                            {
+                                tags.Add(new Tag(nameof(WorkspaceType.Workspace)));
+                            }
+                        }
+                        if (settingsManager.TagTypes.HasFlag(TagType.Target))
+                        {
+                            if (workspace.VSCodeInstance?.Name is string name)
+                            {
+                                tags.Add(new Tag(name));
+                            }
+                        }
+                        if (workspace.VisualStudioCodeRemoteUri is null)
+                        {
+                            if (settingsManager.VSCodeSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
+                            {
+                                moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(workspace, page, elevated: true)));
                                 if (!string.IsNullOrEmpty(workspace.WindowsPath))
                                 {
                                     moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
                                 }
-                                break;
-                            default:
-                                break;
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(workspace.WindowsPath))
+                                {
+                                    moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
+                                }
+                                moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(workspace, page, elevated: true)));
+                            }
                         }
-                    }
-                    break;
-            }
+                        else
+                        {
+                            switch (workspace.VisualStudioCodeRemoteUri.Type)
+                            {
+                                case VisualStudioCodeRemoteType.Codespaces:
+                                    if (!string.IsNullOrEmpty(workspace.WindowsPath))
+                                    {
+                                        moreCommands.Add(new CommandContextItem(new Commands.OpenUrlCommand(workspace.WindowsPath, "Open in Browser", Classes.Icon.GitHub)));
+                                    }
+                                    break;
+                                case VisualStudioCodeRemoteType.WSL:
+                                case VisualStudioCodeRemoteType.DevContainer:
+                                    if (!string.IsNullOrEmpty(workspace.WindowsPath))
+                                    {
+                                        moreCommands.Add(new CommandContextItem(new OpenInExplorerCommand(workspace.WindowsPath, workspace)));
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        break;
+                }
 
-            if (moreCommands.Any(c => c.Command is OpenInExplorerCommand))
-            {
-                moreCommands.Add(new CommandContextItem(new OpenInTerminalCommand(workspace, settingsManager)));
-            }
+                if (moreCommands.Any(c => c.Command is OpenInExplorerCommand))
+                {
+                    moreCommands.Add(new CommandContextItem(new OpenInTerminalCommand(workspace, settingsManager)));
+                }
 
-            moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, countTracker, workspace))
-            {
-                RequestedShortcut = KeyChordHelpers.FromModifiers(false, false, false, false, (int)VirtualKey.F1, 0),
-            });
-            moreCommands.Add(new CommandContextItem(new CopyPathCommand(workspace.WindowsPath ?? string.Empty))
-            {
-                RequestedShortcut = KeyChordHelpers.FromModifiers(true, false, false, false, (int)VirtualKey.C, 0),
-            });
-            moreCommands.Add(refreshCommandContextItem);
-            moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, pinService)));
+                moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, countTracker, workspace))
+                {
+                    RequestedShortcut = KeyChordHelpers.FromModifiers(false, false, false, false, (int)VirtualKey.F1, 0),
+                });
+                moreCommands.Add(new CommandContextItem(new CopyPathCommand(workspace.WindowsPath ?? string.Empty))
+                {
+                    RequestedShortcut = KeyChordHelpers.FromModifiers(true, false, false, false, (int)VirtualKey.C, 0),
+                });
+                moreCommands.Add(refreshCommandContextItem);
+                moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, pinService)));
 
-            string subtitle = string.Empty;
-            if (workspace.VisualStudioCodeRemoteUri is null)
-            {
-                subtitle = Uri.UnescapeDataString(workspace.WindowsPath ?? string.Empty);
-            }
-            else
-            {
-                subtitle = workspace.WindowsPath ?? string.Empty;
-            }
+                string subtitle = string.Empty;
+                if (workspace.VisualStudioCodeRemoteUri is null)
+                {
+                    subtitle = Uri.UnescapeDataString(workspace.WindowsPath ?? string.Empty);
+                }
+                else
+                {
+                    subtitle = workspace.WindowsPath ?? string.Empty;
+                }
 
-            var item = new ListItem(command)
-            {
-                Title = details.Title ?? "(no title)",
-                Subtitle = subtitle ?? string.Empty,
-                Details = details,
-                Icon = icon,
-                Tags = tags.ToArray(),
-                MoreCommands = moreCommands.ToArray(),
-            };
+                var item = new ListItem(command)
+                {
+                    Title = details.Title ?? "(no title)",
+                    Subtitle = subtitle ?? string.Empty,
+                    Details = details,
+                    Icon = icon,
+                    Tags = tags.ToArray(),
+                    MoreCommands = moreCommands.ToArray(),
+                };
 
-            if (item.Command is IHasWorkspace { Workspace.PinDateTime: not null } &&
-                !item.Tags.Contains(PinTag))
-            {
-                item.Tags = item.Tags.Append(PinTag).ToArray();
+                if (item.Command is IHasWorkspace { Workspace.PinDateTime: not null } &&
+                    !item.Tags.Contains(PinTag))
+                {
+                    item.Tags = item.Tags.Append(PinTag).ToArray();
+                }
+                return item;
             }
-            return item;
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                return new ListItem(new OpenVisualStudioCodeCommand(workspace, page));
+            }
         }
     }
 }

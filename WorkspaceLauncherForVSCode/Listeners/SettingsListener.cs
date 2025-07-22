@@ -2,13 +2,14 @@
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
 
 namespace WorkspaceLauncherForVSCode.Listeners
 {
     public class SettingsListener
     {
-        private readonly SettingsManager _settingsManager;
+        private readonly SettingsManager? _settingsManager;
         private VisualStudioCodeEdition _previousEditions;
         private bool _previousEnableVisualStudio;
         private SearchBy _previousSearchBy;
@@ -24,57 +25,76 @@ namespace WorkspaceLauncherForVSCode.Listeners
 
         public SettingsListener(SettingsManager settingsManager)
         {
-            _settingsManager = settingsManager;
-            _previousEditions = _settingsManager.EnabledEditions;
-            _previousSearchBy = _settingsManager.SearchBy;
-            _previousEnableVisualStudio = _settingsManager.EnableVisualStudio;
-            _previousVsSecondaryCommand = _settingsManager.VSSecondaryCommand;
-            _previousVscodeSecondaryCommand = _settingsManager.VSCodeSecondaryCommand;
-            _previousTagTypes = _settingsManager.TagTypes;
-            _previousSortBy = _settingsManager.SortBy;
-            _prevEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
-            _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
+            try
+            {
+                _settingsManager = settingsManager;
+                _previousEditions = _settingsManager.EnabledEditions;
+                _previousSearchBy = _settingsManager.SearchBy;
+                _previousEnableVisualStudio = _settingsManager.EnableVisualStudio;
+                _previousVsSecondaryCommand = _settingsManager.VSSecondaryCommand;
+                _previousVscodeSecondaryCommand = _settingsManager.VSCodeSecondaryCommand;
+                _previousTagTypes = _settingsManager.TagTypes;
+                _previousSortBy = _settingsManager.SortBy;
+                _prevEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
+                _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
 
         private void OnSettingsChanged(object? sender, Settings e)
         {
-            var currentEditions = _settingsManager.EnabledEditions;
-            var currentSearchBy = _settingsManager.SearchBy;
-            var currentEnableVisualStudio = _settingsManager.EnableVisualStudio;
-            var currentVsSecondaryCommand = _settingsManager.VSSecondaryCommand;
-            var currentVscodeSecondaryCommand = _settingsManager.VSCodeSecondaryCommand;
-            var currentTagTypes = _settingsManager.TagTypes;
-            var currentSortBy = _settingsManager.SortBy;
-            var currentEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
-
-            if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand || currentTagTypes != _previousTagTypes)
+            try
             {
-                InstanceSettingsChanged?.Invoke(this, EventArgs.Empty);
-                _previousEditions = currentEditions;
-                _previousVsSecondaryCommand = currentVsSecondaryCommand;
-                _previousVscodeSecondaryCommand = currentVscodeSecondaryCommand;
-                _previousTagTypes = currentTagTypes;
+                if (_settingsManager == null)
+                {
+                    return;
+                }
+
+                var currentEditions = _settingsManager.EnabledEditions;
+                var currentSearchBy = _settingsManager.SearchBy;
+                var currentEnableVisualStudio = _settingsManager.EnableVisualStudio;
+                var currentVsSecondaryCommand = _settingsManager.VSSecondaryCommand;
+                var currentVscodeSecondaryCommand = _settingsManager.VSCodeSecondaryCommand;
+                var currentTagTypes = _settingsManager.TagTypes;
+                var currentSortBy = _settingsManager.SortBy;
+                var currentEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
+
+                if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand || currentTagTypes != _previousTagTypes)
+                {
+                    InstanceSettingsChanged?.Invoke(this, EventArgs.Empty);
+                    _previousEditions = currentEditions;
+                    _previousVsSecondaryCommand = currentVsSecondaryCommand;
+                    _previousVscodeSecondaryCommand = currentVscodeSecondaryCommand;
+                    _previousTagTypes = currentTagTypes;
+                }
+
+                if (currentSearchBy != _previousSearchBy)
+                {
+                    PageSettingsChanged?.Invoke(this, EventArgs.Empty);
+                    _previousSearchBy = currentSearchBy;
+                }
+
+                if (currentEnableWorkspaceWatcher != _prevEnableWorkspaceWatcher ||
+                    currentSortBy != _previousSortBy)
+                {
+                    SortSettingsChanged?.Invoke(this, EventArgs.Empty);
+                    _prevEnableWorkspaceWatcher = currentEnableWorkspaceWatcher;
+                    _previousSortBy = currentSortBy;
+                }
+
+                if (currentEnableVisualStudio != _previousEnableVisualStudio)
+                {
+                    PageSettingsChanged?.Invoke(this, EventArgs.Empty);
+                    InstanceSettingsChanged?.Invoke(this, EventArgs.Empty);
+                    _previousEnableVisualStudio = currentEnableVisualStudio;
+                }
             }
-
-            if (currentSearchBy != _previousSearchBy)
+            catch (Exception ex)
             {
-                PageSettingsChanged?.Invoke(this, EventArgs.Empty);
-                _previousSearchBy = currentSearchBy;
-            }
-
-            if (currentEnableWorkspaceWatcher != _prevEnableWorkspaceWatcher ||
-                currentSortBy != _previousSortBy)
-            {
-                SortSettingsChanged?.Invoke(this, EventArgs.Empty);
-                _prevEnableWorkspaceWatcher = currentEnableWorkspaceWatcher;
-                _previousSortBy = currentSortBy;
-            }
-
-            if (currentEnableVisualStudio != _previousEnableVisualStudio)
-            {
-                PageSettingsChanged?.Invoke(this, EventArgs.Empty);
-                InstanceSettingsChanged?.Invoke(this, EventArgs.Empty);
-                _previousEnableVisualStudio = currentEnableVisualStudio;
+                ErrorLogger.LogError(ex);
             }
         }
     }

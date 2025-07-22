@@ -22,25 +22,32 @@ namespace WorkspaceLauncherForVSCode.Services
 
         public async Task TogglePinStatusAsync(VisualStudioCodeWorkspace workspace)
         {
-            if (workspace?.Path is null)
+            try
             {
-                return;
-            }
+                if (workspace?.Path is null)
+                {
+                    return;
+                }
 
-            if (workspace.PinDateTime.HasValue)
-            {
-                await _workspaceStorage.RemovePinnedWorkspaceAsync(workspace.Path);
-                workspace.PinDateTime = null;
-                new ToastStatusMessage($"Unpinned \"{workspace.Name}\"").Show();
-            }
-            else
-            {
-                await _workspaceStorage.AddPinnedWorkspaceAsync(workspace.Path);
-                workspace.PinDateTime = DateTime.UtcNow;
-                new ToastStatusMessage($"Pinned \"{workspace.Name}\"").Show();
-            }
+                if (workspace.PinDateTime.HasValue)
+                {
+                    await _workspaceStorage.RemovePinnedWorkspaceAsync(workspace.Path);
+                    workspace.PinDateTime = null;
+                    new ToastStatusMessage($"Unpinned \"{workspace.Name}\"").Show();
+                }
+                else
+                {
+                    await _workspaceStorage.AddPinnedWorkspaceAsync(workspace.Path);
+                    workspace.PinDateTime = DateTime.UtcNow;
+                    new ToastStatusMessage($"Pinned \"{workspace.Name}\"").Show();
+                }
 
-            RefreshList?.Invoke(this, EventArgs.Empty);
+                RefreshList?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
     }
 }

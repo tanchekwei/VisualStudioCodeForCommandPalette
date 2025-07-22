@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using WorkspaceLauncherForVSCode.Classes;
 
 namespace WorkspaceLauncherForVSCode.Workspaces.Readers
 {
@@ -13,30 +14,60 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
 
         public VscdbDatabase(string dbPath)
         {
-            _connection = new SqliteConnection($"Data Source={dbPath};Mode=ReadOnly;");
+            try
+            {
+                _connection = new SqliteConnection($"Data Source={dbPath};Mode=ReadOnly;");
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                _connection = null!;
+            }
         }
 
         public async Task OpenAsync(CancellationToken cancellationToken)
         {
-            await _connection.OpenAsync(cancellationToken);
+            try
+            {
+                await _connection.OpenAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
 
         public async Task<string> ReadWorkspacesJsonAsync(CancellationToken cancellationToken)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT value FROM ItemTable WHERE key LIKE 'history.recentlyOpenedPathsList'";
-            var reader = await command.ExecuteReaderAsync(cancellationToken);
-            if (await reader.ReadAsync(cancellationToken))
+            try
             {
-                return reader.GetString(0);
+                var command = _connection.CreateCommand();
+                command.CommandText = "SELECT value FROM ItemTable WHERE key LIKE 'history.recentlyOpenedPathsList'";
+                var reader = await command.ExecuteReaderAsync(cancellationToken);
+                if (await reader.ReadAsync(cancellationToken))
+                {
+                    return reader.GetString(0);
+                }
+                return string.Empty;
             }
-            return string.Empty;
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                return string.Empty;
+            }
         }
 
         public void Dispose()
         {
-            _connection.Dispose();
-            GC.SuppressFinalize(this);
+            try
+            {
+                _connection.Dispose();
+                GC.SuppressFinalize(this);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
     }
 }

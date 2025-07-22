@@ -17,87 +17,103 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
     {
         public static async Task<IEnumerable<VisualStudioCodeWorkspace>> GetWorkspacesAsync(VisualStudioCodeInstance instance, CancellationToken cancellationToken)
         {
-#if DEBUG
-            using var logger = new TimeLogger();
-#endif
-            var workspaces = new ConcurrentBag<VisualStudioCodeWorkspace>();
-            var storageFilePath = Path.Combine(instance.StoragePath, "storage.json");
-
-            if (!File.Exists(storageFilePath))
-            {
-                return workspaces;
-            }
-
             try
             {
-                await using var stream = File.OpenRead(storageFilePath);
-                var root = await JsonSerializer.DeserializeAsync(stream, WorkspaceJsonContext.Default.StorageJsonRoot, cancellationToken);
+#if DEBUG
+                using var logger = new TimeLogger();
+#endif
+                var workspaces = new ConcurrentBag<VisualStudioCodeWorkspace>();
+                var storageFilePath = Path.Combine(instance.StoragePath, "storage.json");
 
-                if (root?.BackupWorkspaces != null)
+                if (!File.Exists(storageFilePath))
                 {
-                    if (root.BackupWorkspaces.Workspaces != null)
+                    return workspaces;
+                }
+
+                try
+                {
+                    await using var stream = File.OpenRead(storageFilePath);
+                    var root = await JsonSerializer.DeserializeAsync(stream, WorkspaceJsonContext.Default.StorageJsonRoot, cancellationToken);
+
+                    if (root?.BackupWorkspaces != null)
                     {
-                        foreach (var workspace in root.BackupWorkspaces.Workspaces)
+                        if (root.BackupWorkspaces.Workspaces != null)
                         {
-                            if (!string.IsNullOrEmpty(workspace.ConfigURIPath))
+                            foreach (var workspace in root.BackupWorkspaces.Workspaces)
                             {
-                                workspaces.Add(new VisualStudioCodeWorkspace(instance, workspace.ConfigURIPath, WorkspaceType.Workspace));
+                                if (!string.IsNullOrEmpty(workspace.ConfigURIPath))
+                                {
+                                    workspaces.Add(new VisualStudioCodeWorkspace(instance, workspace.ConfigURIPath, WorkspaceType.Workspace));
+                                }
                             }
                         }
-                    }
 
-                    if (root.BackupWorkspaces.Folders != null)
-                    {
-                        foreach (var folder in root.BackupWorkspaces.Folders)
+                        if (root.BackupWorkspaces.Folders != null)
                         {
-                            if (!string.IsNullOrEmpty(folder.FolderUri))
+                            foreach (var folder in root.BackupWorkspaces.Folders)
                             {
-                                workspaces.Add(new VisualStudioCodeWorkspace(instance, folder.FolderUri, WorkspaceType.Folder));
+                                if (!string.IsNullOrEmpty(folder.FolderUri))
+                                {
+                                    workspaces.Add(new VisualStudioCodeWorkspace(instance, folder.FolderUri, WorkspaceType.Folder));
+                                }
                             }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    ErrorLogger.LogError(ex);
+                }
+
+                return workspaces;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error parsing storage.json: {ex.Message}");
+                ErrorLogger.LogError(ex);
+                return new ConcurrentBag<VisualStudioCodeWorkspace>();
             }
-
-            return workspaces;
         }
 
         public static async Task<int> RemoveWorkspaceAsync(VisualStudioCodeWorkspace workspace)
         {
-            if (workspace.VSCodeInstance?.StoragePath is null)
+            try
             {
+                if (workspace.VSCodeInstance?.StoragePath is null)
+                {
+                    return 0;
+                }
+
+                var storageFilePath = Path.Combine(workspace.VSCodeInstance.StoragePath, "storage.json");
+                if (!File.Exists(storageFilePath)) return 0;
+
+                var jsonString = await File.ReadAllTextAsync(storageFilePath);
+                if (string.IsNullOrEmpty(jsonString)) return 0;
+
+                var root = JsonSerializer.Deserialize(jsonString, WorkspaceJsonContext.Default.StorageJsonRoot);
+                if (root?.BackupWorkspaces == null) return 0;
+
+                int removedCount;
+                if (workspace.WorkspaceType == WorkspaceType.Workspace)
+                {
+                    removedCount = root.BackupWorkspaces.Workspaces?.RemoveAll(w => w.ConfigURIPath == workspace.Path) ?? 0;
+                }
+                else
+                {
+                    removedCount = root.BackupWorkspaces.Folders?.RemoveAll(f => f.FolderUri == workspace.Path) ?? 0;
+                }
+
+                if (removedCount > 0)
+                {
+                    var newJsonString = JsonSerializer.Serialize(root, WorkspaceJsonContext.Default.StorageJsonRoot);
+                    await File.WriteAllTextAsync(storageFilePath, newJsonString);
+                }
+                return removedCount;
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
                 return 0;
             }
-
-            var storageFilePath = Path.Combine(workspace.VSCodeInstance.StoragePath, "storage.json");
-            if (!File.Exists(storageFilePath)) return 0;
-
-            var jsonString = await File.ReadAllTextAsync(storageFilePath);
-            if (string.IsNullOrEmpty(jsonString)) return 0;
-
-            var root = JsonSerializer.Deserialize(jsonString, WorkspaceJsonContext.Default.StorageJsonRoot);
-            if (root?.BackupWorkspaces == null) return 0;
-
-            int removedCount;
-            if (workspace.WorkspaceType == WorkspaceType.Workspace)
-            {
-                removedCount = root.BackupWorkspaces.Workspaces?.RemoveAll(w => w.ConfigURIPath == workspace.Path) ?? 0;
-            }
-            else
-            {
-                removedCount = root.BackupWorkspaces.Folders?.RemoveAll(f => f.FolderUri == workspace.Path) ?? 0;
-            }
-
-            if (removedCount > 0)
-            {
-                var newJsonString = JsonSerializer.Serialize(root, WorkspaceJsonContext.Default.StorageJsonRoot);
-                await File.WriteAllTextAsync(storageFilePath, newJsonString);
-            }
-            return removedCount;
         }
     }
 }

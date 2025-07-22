@@ -45,8 +45,8 @@ namespace WorkspaceLauncherForVSCode.Services
                 var instances = _vscodeService.GetInstances();
                 if (instances.Count > 0)
                 {
-                    var instance = instances[0];
-                    _cachedDbPath = Path.Combine(instance.StoragePath, "state.vscdb");
+                    var firstInstance = instances[0];
+                    _cachedDbPath = Path.Combine(firstInstance.StoragePath, "state.vscdb");
                     if (File.Exists(_cachedDbPath))
                     {
                         VscdbRecentListChangeTrackerInitializer.Initialize(_cachedDbPath);
@@ -139,7 +139,7 @@ namespace WorkspaceLauncherForVSCode.Services
         {
             if (_cachedConnection == null || _cachedConnection.State != ConnectionState.Open)
             {
-                CloseConnection(); 
+                CloseConnection();
 
                 _cachedConnection = new SqliteConnection($"Data Source={dbPath};Mode=ReadOnly;Cache=Shared;");
                 await _cachedConnection.OpenAsync();

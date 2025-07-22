@@ -64,36 +64,58 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
 
         public WorkspaceStorage()
         {
-            var dbPath = Path.Combine(Utilities.BaseSettingsPath(Constant.AppName), DbName);
-            _connection = new SqliteConnection($"Data Source={dbPath}");
-            _connection.Open();
-            InitializeDatabase();
+            try
+            {
+                var dbPath = Path.Combine(Utilities.BaseSettingsPath(Constant.AppName), DbName);
+                _connection = new SqliteConnection($"Data Source={dbPath}");
+                _connection.Open();
+                InitializeDatabase();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                throw;
+            }
         }
 
         private void InitializeDatabase()
         {
-            using var command = _connection.CreateCommand();
-            command.CommandText = Queries.Initialize;
-            command.ExecuteNonQuery();
+            try
+            {
+                using var command = _connection.CreateCommand();
+                command.CommandText = Queries.Initialize;
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
 
         public async Task<List<VisualStudioCodeWorkspace>> GetWorkspacesAsync()
         {
             var workspaces = new List<VisualStudioCodeWorkspace>();
-            using var command = _connection.CreateCommand();
-            command.CommandText = Queries.GetWorkspaces;
-            using var reader = await command.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
+            try
             {
-                workspaces.Add(new VisualStudioCodeWorkspace
+                using var command = _connection.CreateCommand();
+                command.CommandText = Queries.GetWorkspaces;
+                using var reader = await command.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
                 {
-                    Path = reader.GetString(0),
-                    Name = reader.IsDBNull(1) ? null : reader.GetString(1),
-                    WorkspaceType = (Enums.WorkspaceType)reader.GetInt32(2),
-                    Frequency = reader.GetInt32(3),
-                    LastAccessed = reader.IsDBNull(4) ? DateTime.MinValue : DateTime.Parse(reader.GetString(4), CultureInfo.InvariantCulture),
-                    PinDateTime = reader.IsDBNull(5) ? null : DateTime.Parse(reader.GetString(5), CultureInfo.InvariantCulture),
-                });
+                    workspaces.Add(new VisualStudioCodeWorkspace
+                    {
+                        Path = reader.GetString(0),
+                        Name = reader.IsDBNull(1) ? null : reader.GetString(1),
+                        WorkspaceType = (Enums.WorkspaceType)reader.GetInt32(2),
+                        Frequency = reader.GetInt32(3),
+                        LastAccessed = reader.IsDBNull(4) ? DateTime.MinValue : DateTime.Parse(reader.GetString(4), CultureInfo.InvariantCulture),
+                        PinDateTime = reader.IsDBNull(5) ? null : DateTime.Parse(reader.GetString(5), CultureInfo.InvariantCulture),
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
             }
             return workspaces;
         }
@@ -103,75 +125,110 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
 #if DEBUG
             using var logger = new TimeLogger();
 #endif
-            using var transaction = _connection.BeginTransaction();
-
-            if (_saveWorkspaceCommand == null)
+            try
             {
-                _saveWorkspaceCommand = _connection.CreateCommand();
-                _saveWorkspaceCommand.CommandText = Queries.SaveWorkspace;
-                _saveWorkspaceCommand.Parameters.Add("@Path", SqliteType.Text);
-                _saveWorkspaceCommand.Parameters.Add("@Name", SqliteType.Text);
-                _saveWorkspaceCommand.Parameters.Add("@Type", SqliteType.Integer);
-                _saveWorkspaceCommand.Parameters.Add("@Frequency", SqliteType.Integer);
-                _saveWorkspaceCommand.Parameters.Add("@LastAccessed", SqliteType.Text);
-            }
-            _saveWorkspaceCommand.Transaction = transaction;
+                using var transaction = _connection.BeginTransaction();
 
-            var pathParam = _saveWorkspaceCommand.Parameters["@Path"];
-            var nameParam = _saveWorkspaceCommand.Parameters["@Name"];
-            var typeParam = _saveWorkspaceCommand.Parameters["@Type"];
-            var frequencyParam = _saveWorkspaceCommand.Parameters["@Frequency"];
-            var lastAccessedParam = _saveWorkspaceCommand.Parameters["@LastAccessed"];
-
-            foreach (var workspace in workspaces)
-            {
-                if (string.IsNullOrEmpty(workspace.Path))
+                if (_saveWorkspaceCommand == null)
                 {
-                    continue;
+                    _saveWorkspaceCommand = _connection.CreateCommand();
+                    _saveWorkspaceCommand.CommandText = Queries.SaveWorkspace;
+                    _saveWorkspaceCommand.Parameters.Add("@Path", SqliteType.Text);
+                    _saveWorkspaceCommand.Parameters.Add("@Name", SqliteType.Text);
+                    _saveWorkspaceCommand.Parameters.Add("@Type", SqliteType.Integer);
+                    _saveWorkspaceCommand.Parameters.Add("@Frequency", SqliteType.Integer);
+                    _saveWorkspaceCommand.Parameters.Add("@LastAccessed", SqliteType.Text);
+                }
+                _saveWorkspaceCommand.Transaction = transaction;
+
+                var pathParam = _saveWorkspaceCommand.Parameters["@Path"];
+                var nameParam = _saveWorkspaceCommand.Parameters["@Name"];
+                var typeParam = _saveWorkspaceCommand.Parameters["@Type"];
+                var frequencyParam = _saveWorkspaceCommand.Parameters["@Frequency"];
+                var lastAccessedParam = _saveWorkspaceCommand.Parameters["@LastAccessed"];
+
+                foreach (var workspace in workspaces)
+                {
+                    if (string.IsNullOrEmpty(workspace.Path))
+                    {
+                        continue;
+                    }
+
+                    pathParam.Value = workspace.Path;
+                    nameParam.Value = workspace.Name ?? (object)DBNull.Value;
+                    typeParam.Value = (int)workspace.WorkspaceType;
+                    frequencyParam.Value = 0;
+                    lastAccessedParam.Value = workspace.LastAccessed.ToString("o");
+                    await _saveWorkspaceCommand.ExecuteNonQueryAsync();
                 }
 
-                pathParam.Value = workspace.Path;
-                nameParam.Value = workspace.Name ?? (object)DBNull.Value;
-                typeParam.Value = (int)workspace.WorkspaceType;
-                frequencyParam.Value = 0;
-                lastAccessedParam.Value = workspace.LastAccessed.ToString("o");
-                await _saveWorkspaceCommand.ExecuteNonQueryAsync();
+                transaction.Commit();
             }
-
-            transaction.Commit();
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
 
         public async Task UpdateWorkspaceFrequencyAsync(string path)
         {
-            using var command = _connection.CreateCommand();
-            command.CommandText = Queries.UpdateFrequency;
-            command.Parameters.AddWithValue("@path", path);
-            command.Parameters.AddWithValue("@LastAccessed", DateTime.Now.ToString("o"));
-            await command.ExecuteNonQueryAsync();
+            try
+            {
+                using var command = _connection.CreateCommand();
+                command.CommandText = Queries.UpdateFrequency;
+                command.Parameters.AddWithValue("@path", path);
+                command.Parameters.AddWithValue("@LastAccessed", DateTime.Now.ToString("o"));
+                await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
 
         public async Task ResetAllFrequenciesAsync()
         {
-            using var command = _connection.CreateCommand();
-            command.CommandText = Queries.ResetAllFrequencies;
-            await command.ExecuteNonQueryAsync();
+            try
+            {
+                using var command = _connection.CreateCommand();
+                command.CommandText = Queries.ResetAllFrequencies;
+                await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
 
         public async Task AddPinnedWorkspaceAsync(string path)
         {
-            using var command = _connection.CreateCommand();
-            command.CommandText = Queries.AddPinnedWorkspace;
-            command.Parameters.AddWithValue("@Path", path);
-            command.Parameters.AddWithValue("@PinDateTime", DateTime.UtcNow.ToString("o"));
-            await command.ExecuteNonQueryAsync();
+            try
+            {
+                using var command = _connection.CreateCommand();
+                command.CommandText = Queries.AddPinnedWorkspace;
+                command.Parameters.AddWithValue("@Path", path);
+                command.Parameters.AddWithValue("@PinDateTime", DateTime.UtcNow.ToString("o"));
+                await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
 
         public async Task RemovePinnedWorkspaceAsync(string path)
         {
-            using var command = _connection.CreateCommand();
-            command.CommandText = Queries.RemovePinnedWorkspace;
-            command.Parameters.AddWithValue("@Path", path);
-            await command.ExecuteNonQueryAsync();
+            try
+            {
+                using var command = _connection.CreateCommand();
+                command.CommandText = Queries.RemovePinnedWorkspace;
+                command.Parameters.AddWithValue("@Path", path);
+                await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
 
         public void Dispose()

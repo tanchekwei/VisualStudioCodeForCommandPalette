@@ -19,93 +19,109 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
     {
         public static async Task<IEnumerable<VisualStudioCodeWorkspace>> GetWorkspacesAsync(VisualStudioCodeInstance instance, CancellationToken cancellationToken)
         {
-#if DEBUG
-            using var logger = new TimeLogger();
-#endif
-            var workspaces = new List<VisualStudioCodeWorkspace>();
-            var dbPath = Path.Combine(instance.StoragePath, "state.vscdb");
-
-            if (!File.Exists(dbPath))
-            {
-                return workspaces;
-            }
-
             try
             {
-                using (var db = new VscdbDatabase(dbPath))
+#if DEBUG
+                using var logger = new TimeLogger();
+#endif
+                var workspaces = new List<VisualStudioCodeWorkspace>();
+                var dbPath = Path.Combine(instance.StoragePath, "state.vscdb");
+
+                if (!File.Exists(dbPath))
                 {
-                    await db.OpenAsync(cancellationToken);
-                    var jsonString = await db.ReadWorkspacesJsonAsync(cancellationToken);
-                    if (!string.IsNullOrEmpty(jsonString))
+                    return workspaces;
+                }
+
+                try
+                {
+                    using (var db = new VscdbDatabase(dbPath))
                     {
-                        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonString));
-                        var root = await JsonSerializer.DeserializeAsync(stream, WorkspaceJsonContext.Default.VscdbRoot, cancellationToken);
-
-                        if (root?.Entries != null)
+                        await db.OpenAsync(cancellationToken);
+                        var jsonString = await db.ReadWorkspacesJsonAsync(cancellationToken);
+                        if (!string.IsNullOrEmpty(jsonString))
                         {
-                            foreach (var entry in root.Entries)
-                            {
-                                VisualStudioCodeWorkspace? workspace = null;
-                                if (!string.IsNullOrEmpty(entry.FolderUri))
-                                {
-                                    workspace = new VisualStudioCodeWorkspace(instance, entry.FolderUri, WorkspaceType.Folder);
-                                }
-                                else if (entry.Workspace != null && !string.IsNullOrEmpty(entry.Workspace.ConfigPath))
-                                {
-                                    workspace = new VisualStudioCodeWorkspace(instance, entry.Workspace.ConfigPath, WorkspaceType.Workspace);
-                                }
+                            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonString));
+                            var root = await JsonSerializer.DeserializeAsync(stream, WorkspaceJsonContext.Default.VscdbRoot, cancellationToken);
 
-                                if (workspace != null)
+                            if (root?.Entries != null)
+                            {
+                                foreach (var entry in root.Entries)
                                 {
-                                    workspaces.Add(workspace);
+                                    VisualStudioCodeWorkspace? workspace = null;
+                                    if (!string.IsNullOrEmpty(entry.FolderUri))
+                                    {
+                                        workspace = new VisualStudioCodeWorkspace(instance, entry.FolderUri, WorkspaceType.Folder);
+                                    }
+                                    else if (entry.Workspace != null && !string.IsNullOrEmpty(entry.Workspace.ConfigPath))
+                                    {
+                                        workspace = new VisualStudioCodeWorkspace(instance, entry.Workspace.ConfigPath, WorkspaceType.Workspace);
+                                    }
+
+                                    if (workspace != null)
+                                    {
+                                        workspaces.Add(workspace);
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    ErrorLogger.LogError(ex);
+                }
+
+                return workspaces;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error parsing state.vscdb: {ex.Message}");
+                ErrorLogger.LogError(ex);
+                return new List<VisualStudioCodeWorkspace>();
             }
-
-            return workspaces;
         }
 
         public static async Task<int> RemoveWorkspaceAsync(VisualStudioCodeWorkspace workspace)
         {
-            if (workspace.VSCodeInstance?.StoragePath is null)
+            try
             {
+                if (workspace.VSCodeInstance?.StoragePath is null)
+                {
+                    return 0;
+                }
+                var dbPath = Path.Combine(workspace.VSCodeInstance.StoragePath, "state.vscdb");
+                if (!File.Exists(dbPath)) return 0;
+
+                await using var connection = new SqliteConnection($"Data Source={dbPath};");
+                await connection.OpenAsync();
+
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT value FROM ItemTable WHERE key LIKE 'history.recentlyOpenedPathsList'";
+                var jsonString = (string?)await command.ExecuteScalarAsync();
+
+                if (string.IsNullOrEmpty(jsonString)) return 0;
+
+                var root = JsonSerializer.Deserialize(jsonString, WorkspaceJsonContext.Default.VscdbRoot);
+                if (root?.Entries == null) return 0;
+
+                var removedCount = root.Entries.RemoveAll(entry =>
+                    (workspace.WorkspaceType == WorkspaceType.Folder && entry.FolderUri == workspace.Path) ||
+                    (workspace.WorkspaceType == WorkspaceType.Workspace && entry.Workspace?.ConfigPath == workspace.Path));
+
+                if (removedCount > 0)
+                {
+                    var newJsonString = JsonSerializer.Serialize(root, WorkspaceJsonContext.Default.VscdbRoot);
+                    command.CommandText = "UPDATE ItemTable SET value = @value WHERE key LIKE 'history.recentlyOpenedPathsList'";
+                    command.Parameters.AddWithValue("@value", newJsonString);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+                return removedCount;
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
                 return 0;
             }
-            var dbPath = Path.Combine(workspace.VSCodeInstance.StoragePath, "state.vscdb");
-            if (!File.Exists(dbPath)) return 0;
-
-            await using var connection = new SqliteConnection($"Data Source={dbPath};");
-            await connection.OpenAsync();
-
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT value FROM ItemTable WHERE key LIKE 'history.recentlyOpenedPathsList'";
-            var jsonString = (string?)await command.ExecuteScalarAsync();
-
-            if (string.IsNullOrEmpty(jsonString)) return 0;
-
-            var root = JsonSerializer.Deserialize(jsonString, WorkspaceJsonContext.Default.VscdbRoot);
-            if (root?.Entries == null) return 0;
-
-            var removedCount = root.Entries.RemoveAll(entry =>
-                (workspace.WorkspaceType == WorkspaceType.Folder && entry.FolderUri == workspace.Path) ||
-                (workspace.WorkspaceType == WorkspaceType.Workspace && entry.Workspace?.ConfigPath == workspace.Path));
-
-            if (removedCount > 0)
-            {
-                var newJsonString = JsonSerializer.Serialize(root, WorkspaceJsonContext.Default.VscdbRoot);
-                command.CommandText = "UPDATE ItemTable SET value = @value WHERE key LIKE 'history.recentlyOpenedPathsList'";
-                command.Parameters.AddWithValue("@value", newJsonString);
-
-                await command.ExecuteNonQueryAsync();
-            }
-            return removedCount;
         }
     }
 }

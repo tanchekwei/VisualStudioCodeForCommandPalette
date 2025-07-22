@@ -20,69 +20,82 @@ public class VisualStudioCodeRemoteUri
 
     public VisualStudioCodeRemoteUri(string uri)
     {
-        if (string.IsNullOrWhiteSpace(uri))
-            throw new ArgumentException("URI cannot be null or empty.", nameof(uri));
-
-        if (!uri.StartsWith(Constant.VscodeRemoteScheme, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException("URI must start with 'vscode-remote://'");
-
-        Uri = uri;
-
-        // Remove scheme
-        var withoutScheme = uri.Substring(Constant.VscodeRemoteScheme.Length);
-
-        // Detect percent-encoded '+' (e.g., Codespaces)
-        var firstSlash = withoutScheme.IndexOf('/');
-        var beforePath = firstSlash == -1 ? withoutScheme : withoutScheme.Substring(0, firstSlash);
-        var path = firstSlash == -1 ? "/" : withoutScheme.Substring(firstSlash);
-
-        // Handle encoded `+` (for codespaces)
-        string remoteType = string.Empty, remoteInfoRaw = string.Empty;
-
-        if (beforePath.Contains('+'))
+        try
         {
-            var parts = beforePath.Split('+', 2);
-            remoteType = parts[0];
-            remoteInfoRaw = parts[1];
-        }
-        else if (beforePath.Contains("%2B", StringComparison.OrdinalIgnoreCase))
-        {
-            var decoded = WebUtility.UrlDecode(beforePath); // decode first
-            var parts = decoded.Split('+', 2);
-            remoteType = parts[0];
-            remoteInfoRaw = parts[1];
-        }
-        else
-        {
-            throw new ArgumentException("Malformed vscode-remote URI: '+' not found.");
-        }
+            if (string.IsNullOrWhiteSpace(uri))
+                throw new ArgumentException("URI cannot be null or empty.", nameof(uri));
 
-        TypeStr = remoteType;
-        if (VisualStudioCodeRemoteTypeHelper.TryParse(remoteType, out var type))
-        {
-            Type = type;
+            if (!uri.StartsWith(Constant.VscodeRemoteScheme, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("URI must start with 'vscode-remote://'");
+
+            Uri = uri;
+
+            // Remove scheme
+            var withoutScheme = uri.Substring(Constant.VscodeRemoteScheme.Length);
+
+            // Detect percent-encoded '+' (e.g., Codespaces)
+            var firstSlash = withoutScheme.IndexOf('/');
+            var beforePath = firstSlash == -1 ? withoutScheme : withoutScheme.Substring(0, firstSlash);
+            var path = firstSlash == -1 ? "/" : withoutScheme.Substring(firstSlash);
+
+            // Handle encoded `+` (for codespaces)
+            string remoteType = string.Empty, remoteInfoRaw = string.Empty;
+
+            if (beforePath.Contains('+'))
+            {
+                var parts = beforePath.Split('+', 2);
+                remoteType = parts[0];
+                remoteInfoRaw = parts[1];
+            }
+            else if (beforePath.Contains("%2B", StringComparison.OrdinalIgnoreCase))
+            {
+                var decoded = WebUtility.UrlDecode(beforePath); // decode first
+                var parts = decoded.Split('+', 2);
+                remoteType = parts[0];
+                remoteInfoRaw = parts[1];
+            }
+            else
+            {
+                throw new ArgumentException("Malformed vscode-remote URI: '+' not found.");
+            }
+
+            TypeStr = remoteType;
+            if (VisualStudioCodeRemoteTypeHelper.TryParse(remoteType, out var type))
+            {
+                Type = type;
+            }
+            InfoRaw = remoteInfoRaw;
+            Path = path;
+
+            // Try to detect and decode hex-encoded JSON (must be even length and valid hex)
+            InfoDecoded = TryDecodeHexJson(remoteInfoRaw, out var jsonElement)
+                ? jsonElement.ToString()
+                : InfoRaw;
+
+            InfoJson = jsonElement.ValueKind != JsonValueKind.Undefined ? jsonElement : null;
         }
-        InfoRaw = remoteInfoRaw;
-        Path = path;
-
-        // Try to detect and decode hex-encoded JSON (must be even length and valid hex)
-        InfoDecoded = TryDecodeHexJson(remoteInfoRaw, out var jsonElement)
-            ? jsonElement.ToString()
-            : InfoRaw;
-
-        InfoJson = jsonElement.ValueKind != JsonValueKind.Undefined ? jsonElement : null;
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            Uri = string.Empty;
+            TypeStr = string.Empty;
+            InfoRaw = string.Empty;
+            InfoDecoded = string.Empty;
+            Path = string.Empty;
+            throw;
+        }
     }
 
     private static bool TryDecodeHexJson(string hex, out JsonElement element)
     {
         element = default;
 
-        // Rough check: valid hex, even length
-        if (hex.Length % 2 != 0 || !IsHexString(hex))
-            return false;
-
         try
         {
+            // Rough check: valid hex, even length
+            if (hex.Length % 2 != 0 || !IsHexString(hex))
+                return false;
+
             var bytes = Convert.FromHexString(hex);
             var json = Encoding.UTF8.GetString(bytes);
 
@@ -90,66 +103,126 @@ public class VisualStudioCodeRemoteUri
             element = doc.RootElement.Clone();
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            ErrorLogger.LogError(ex);
             return false;
         }
     }
 
     private static bool IsHexString(string s)
     {
-        foreach (char c in s)
+        try
         {
-            if (!System.Uri.IsHexDigit(c))
-                return false;
+            foreach (char c in s)
+            {
+                if (!System.Uri.IsHexDigit(c))
+                    return false;
+            }
+            return true;
         }
-        return true;
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return false;
+        }
     }
 
     public override string ToString()
     {
-        return $"Type: {Type}\nInfo: {InfoDecoded}\nPath: {Path}";
+        try
+        {
+            return $"Type: {Type}\nInfo: {InfoDecoded}\nPath: {Path}";
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return string.Empty;
+        }
     }
 
     public static bool IsVisualStudioCodeRemoteUri(string uri)
     {
-        return uri.StartsWith(Constant.VscodeRemoteScheme, StringComparison.OrdinalIgnoreCase);
+        try
+        {
+            return uri.StartsWith(Constant.VscodeRemoteScheme, StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return false;
+        }
     }
 
     public string GetSubtitle()
     {
-        string? subtitle = null;
-        switch (Type)
+        try
         {
-            case VisualStudioCodeRemoteType.Codespaces:
-                subtitle = GetCodespacesUrl(InfoRaw);
-                break;
-            case VisualStudioCodeRemoteType.DevContainer:
-                subtitle = GetDevContainerSubtitle();
-                break;
-            case VisualStudioCodeRemoteType.WSL:
-                WslPathHelper.TryGetWindowsPathFromWslUri(Uri, out var windowsPath);
-                subtitle = windowsPath;
-                break;
-            default:
-                break;
+            string? subtitle = null;
+            switch (Type)
+            {
+                case VisualStudioCodeRemoteType.Codespaces:
+                    subtitle = GetCodespacesUrl(InfoRaw);
+                    break;
+                case VisualStudioCodeRemoteType.DevContainer:
+                    subtitle = GetDevContainerSubtitle();
+                    break;
+                case VisualStudioCodeRemoteType.WSL:
+                    WslPathHelper.TryGetWindowsPathFromWslUri(Uri, out var windowsPath);
+                    subtitle = windowsPath;
+                    break;
+                default:
+                    break;
+            }
+            return string.IsNullOrWhiteSpace(subtitle) ? GetDecodedUri() : subtitle;
         }
-        return string.IsNullOrWhiteSpace(subtitle) ? GetDecodedUri() : subtitle;
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return string.Empty;
+        }
     }
 
     public static string GetCodespacesUrl(string subdomain)
     {
-        return $"{System.Uri.UriSchemeHttps}://{subdomain}.github.dev/";
+        try
+        {
+            return $"{System.Uri.UriSchemeHttps}://{subdomain}.github.dev/";
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return string.Empty;
+        }
     }
 
     public string? GetDevContainerSubtitle()
     {
-        if (InfoJson.HasValue && InfoJson.Value.TryGetProperty("hostPath", out JsonElement hostPathElement))
+        try
         {
-            return FileUriParser.CapitalizeDriveLetter(hostPathElement.GetString() ?? string.Empty);
+            if (InfoJson.HasValue && InfoJson.Value.TryGetProperty("hostPath", out JsonElement hostPathElement))
+            {
+                return FileUriParser.CapitalizeDriveLetter(hostPathElement.GetString() ?? string.Empty);
+            }
+            return null;
         }
-        return null;
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return null;
+        }
     }
 
-    public string GetDecodedUri() => $"{Scheme}{TypeStr}+{InfoDecoded}{Path}";
+    public string GetDecodedUri()
+    {
+        try
+        {
+            return $"{Scheme}{TypeStr}+{InfoDecoded}{Path}";
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return string.Empty;
+        }
+    }
 }

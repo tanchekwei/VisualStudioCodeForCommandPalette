@@ -37,23 +37,30 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
     /// <param name="path">The path to the workspace.</param>
     internal VisualStudioCodeWorkspace(VisualStudioCodeInstance instance, string path, WorkspaceType visualStudioCodeWorkspaceType)
     {
-        Path = path;
-        if (VisualStudioCodeRemoteUri.IsVisualStudioCodeRemoteUri(path))
+        try
         {
-            VisualStudioCodeRemoteUri = new(path);
-            WindowsPath = VisualStudioCodeRemoteUri?.GetSubtitle();
-        }
-        else if (FileUriParser.TryParse(path, out var windowsPath))
-        {
-            WindowsPath = windowsPath;
-        }
-        VSCodeInstance = instance;
-        WorkspaceType = visualStudioCodeWorkspaceType;
+            Path = path;
+            if (VisualStudioCodeRemoteUri.IsVisualStudioCodeRemoteUri(path))
+            {
+                VisualStudioCodeRemoteUri = new(path);
+                WindowsPath = VisualStudioCodeRemoteUri?.GetSubtitle();
+            }
+            else if (FileUriParser.TryParse(path, out var windowsPath))
+            {
+                WindowsPath = windowsPath;
+            }
+            VSCodeInstance = instance;
+            WorkspaceType = visualStudioCodeWorkspaceType;
 
-        SetName();
-        SetWorkspaceType();
-        SetVSCodeMetadata();
-        Name = WorkspaceName;
+            SetName();
+            SetWorkspaceType();
+            SetVSCodeMetadata();
+            Name = WorkspaceName;
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+        }
     }
 
     /// <summary>
@@ -62,28 +69,35 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
     /// <returns>The name of the workspace.</returns>
     public void SetName()
     {
-        if (Path == null) return;
-        WorkspaceName = "";
-
-        // split name by / and get last part
-        var nameParts = Uri.UnescapeDataString(Path).Split('/');
-        if (nameParts.Length == 0)
+        try
         {
-            return;
-        }
+            if (Path == null) return;
+            WorkspaceName = "";
 
-        WorkspaceName = nameParts[nameParts.Length - 1];
-
-        if (WorkspaceType == WorkspaceType.Workspace)
-        {
-            // remove .code-workspace
-            WorkspaceName = WorkspaceName.Replace(".code-workspace", "", StringComparison.OrdinalIgnoreCase);
-
-            // if the workspace name is "workspace", use the folder name instead
-            if (WorkspaceName.Equals("workspace", StringComparison.OrdinalIgnoreCase) && nameParts.Length >= 2)
+            // split name by / and get last part
+            var nameParts = Uri.UnescapeDataString(Path).Split('/');
+            if (nameParts.Length == 0)
             {
-                WorkspaceName = nameParts[nameParts.Length - 2];
+                return;
             }
+
+            WorkspaceName = nameParts[nameParts.Length - 1];
+
+            if (WorkspaceType == WorkspaceType.Workspace)
+            {
+                // remove .code-workspace
+                WorkspaceName = WorkspaceName.Replace(".code-workspace", "", StringComparison.OrdinalIgnoreCase);
+
+                // if the workspace name is "workspace", use the folder name instead
+                if (WorkspaceName.Equals("workspace", StringComparison.OrdinalIgnoreCase) && nameParts.Length >= 2)
+                {
+                    WorkspaceName = nameParts[nameParts.Length - 2];
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
         }
     }
 
@@ -93,20 +107,27 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
     /// <returns>The type of the workspace as a string.</returns>
     public void SetWorkspaceType()
     {
-        switch (WorkspaceType)
+        try
         {
-            case WorkspaceType.Workspace:
-                WorkspaceTypeString = "Workspace";
-                break;
-            case WorkspaceType.Folder:
-                WorkspaceTypeString = "Folder";
-                break;
-            case WorkspaceType.Solution:
-                WorkspaceTypeString = "Solution";
-                break;
-            default:
-                WorkspaceTypeString = "Unknown Type";
-                break;
+            switch (WorkspaceType)
+            {
+                case WorkspaceType.Workspace:
+                    WorkspaceTypeString = "Workspace";
+                    break;
+                case WorkspaceType.Folder:
+                    WorkspaceTypeString = "Folder";
+                    break;
+                case WorkspaceType.Solution:
+                    WorkspaceTypeString = "Solution";
+                    break;
+                default:
+                    WorkspaceTypeString = "Unknown Type";
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
         }
     }
 
@@ -116,15 +137,22 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
     /// <returns>An array of details elements containing information about the workspace.</returns>
     public void SetVSCodeMetadata()
     {
-        if (Path == null) return;
-        var typeTags = new List<Tag>() { new Tag(WorkspaceTypeString) };
-        if (VisualStudioCodeRemoteUri != null)
+        try
         {
-            typeTags.Add(new Tag(VisualStudioCodeRemoteUri.Type.ToDisplayName()));
+            if (Path == null) return;
+            var typeTags = new List<Tag>() { new Tag(WorkspaceTypeString) };
+            if (VisualStudioCodeRemoteUri != null)
+            {
+                typeTags.Add(new Tag(VisualStudioCodeRemoteUri.Type.ToDisplayName()));
+            }
+            else if (VisualStudioCodeRemoteUri?.TypeStr != null)
+            {
+                typeTags.Add(new Tag(VisualStudioCodeRemoteUri.TypeStr));
+            }
         }
-        else if (VisualStudioCodeRemoteUri?.TypeStr != null)
+        catch (Exception ex)
         {
-            typeTags.Add(new Tag(VisualStudioCodeRemoteUri.TypeStr));
+            ErrorLogger.LogError(ex);
         }
     }
 
@@ -138,52 +166,84 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
 
     public string GetWorkspaceName()
     {
-        string workspaceName;
-        if (VisualStudioCodeRemoteUri is null)
+        try
         {
-            return WorkspaceName;
-        }
-        switch (VisualStudioCodeRemoteUri.Type)
-        {
-            case VisualStudioCodeRemoteType.DevContainer:
-                if (string.IsNullOrEmpty(WindowsPath) || VisualStudioCodeRemoteUri.IsVisualStudioCodeRemoteUri(WindowsPath))
-                {
+            string workspaceName;
+            if (VisualStudioCodeRemoteUri is null)
+            {
+                return WorkspaceName;
+            }
+            switch (VisualStudioCodeRemoteUri.Type)
+            {
+                case VisualStudioCodeRemoteType.DevContainer:
+                    if (string.IsNullOrEmpty(WindowsPath) || VisualStudioCodeRemoteUri.IsVisualStudioCodeRemoteUri(WindowsPath))
+                    {
+                        workspaceName = WorkspaceName;
+                    }
+                    else
+                    {
+                        workspaceName = System.IO.Path.GetFileName(WindowsPath) ?? WorkspaceName;
+                    }
+                    break;
+                default:
                     workspaceName = WorkspaceName;
-                }
-                else
-                {
-                    workspaceName = System.IO.Path.GetFileName(WindowsPath) ?? WorkspaceName;
-                }
-                break;
-            default:
-                workspaceName = WorkspaceName;
-                break;
+                    break;
+            }
+            return workspaceName;
         }
-        return workspaceName;
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return string.Empty;
+        }
     }
 
     public bool Equals(VisualStudioCodeWorkspace? other)
     {
-        if (other is null)
+        try
         {
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return Path == other.Path;
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
             return false;
         }
-
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
-
-        return Path == other.Path;
     }
 
     public override bool Equals(object? obj)
     {
-        return Equals(obj as VisualStudioCodeWorkspace);
+        try
+        {
+            return Equals(obj as VisualStudioCodeWorkspace);
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return false;
+        }
     }
 
     public override int GetHashCode()
     {
-        return Path?.GetHashCode() ?? 0;
+        try
+        {
+            return Path?.GetHashCode() ?? 0;
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return 0;
+        }
     }
 }

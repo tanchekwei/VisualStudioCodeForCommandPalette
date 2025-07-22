@@ -295,39 +295,54 @@ public class SettingsManager : JsonSettingsManager
 
     internal static string SettingsJsonPath()
     {
-        var directory = Utilities.BaseSettingsPath(Constant.AppName);
-        Directory.CreateDirectory(directory);
-        return Path.Combine(directory, "settings.json");
+        try
+        {
+            var directory = Utilities.BaseSettingsPath(Constant.AppName);
+            Directory.CreateDirectory(directory);
+            return Path.Combine(directory, "settings.json");
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            throw;
+        }
     }
 
     public SettingsManager()
     {
-        FilePath = SettingsJsonPath();
-
-        Settings.Add(_showTypeTag);
-        Settings.Add(_showTargetTag);
-        Settings.Add(_enableVisualStudio);
-        Settings.Add(_enableDefault);
-        Settings.Add(_enableSystem);
-        Settings.Add(_enableInsider);
-        Settings.Add(_enableCustom);
-        Settings.Add(_pageSize);
-        Settings.Add(_searchBy);
-        Settings.Add(_sortBy);
-        Settings.Add(_terminalType);
-        Settings.Add(_vsSecondaryCommand);
-        Settings.Add(_vscodeSecondaryCommand);
-        Settings.Add(_clearSearchOnExecute);
-        // Settings.Add(_enableWorkspaceWatcher);
-#if DEBUG
-        Settings.Add(_enableLogging);
-#endif
-        // Load settings from file upon initialization
-        LoadSettings();
-
-        Settings.SettingsChanged += (s, a) =>
+        try
         {
-            SaveSettings();
-        };
+            FilePath = SettingsJsonPath();
+
+            Settings.Add(_showTypeTag);
+            Settings.Add(_showTargetTag);
+            Settings.Add(_enableVisualStudio);
+            Settings.Add(_enableDefault);
+            Settings.Add(_enableSystem);
+            Settings.Add(_enableInsider);
+            Settings.Add(_enableCustom);
+            Settings.Add(_pageSize);
+            Settings.Add(_searchBy);
+            Settings.Add(_sortBy);
+            Settings.Add(_terminalType);
+            Settings.Add(_vsSecondaryCommand);
+            Settings.Add(_vscodeSecondaryCommand);
+            Settings.Add(_clearSearchOnExecute);
+            // Settings.Add(_enableWorkspaceWatcher);
+#if DEBUG
+            Settings.Add(_enableLogging);
+#endif
+            // Load settings from file upon initialization
+            LoadSettings();
+
+            Settings.SettingsChanged += (s, a) =>
+            {
+                SaveSettings();
+            };
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+        }
     }
 }

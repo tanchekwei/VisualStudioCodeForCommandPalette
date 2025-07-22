@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using System.Text;
+using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Helpers;
 
 namespace WorkspaceLauncherForVSCode.Components
@@ -17,19 +18,27 @@ namespace WorkspaceLauncherForVSCode.Components
         {
             get
             {
-                var sizeOfTitle = NativeMethods.GetWindowTextLength(hwnd);
-                if (sizeOfTitle++ > 0)
+                try
                 {
-                    StringBuilder titleBuffer = new StringBuilder(sizeOfTitle);
-                    var numCharactersWritten = NativeMethods.GetWindowText(hwnd, titleBuffer, sizeOfTitle);
-                    if (numCharactersWritten == 0)
+                    var sizeOfTitle = NativeMethods.GetWindowTextLength(hwnd);
+                    if (sizeOfTitle++ > 0)
+                    {
+                        StringBuilder titleBuffer = new StringBuilder(sizeOfTitle);
+                        var numCharactersWritten = NativeMethods.GetWindowText(hwnd, titleBuffer, sizeOfTitle);
+                        if (numCharactersWritten == 0)
+                        {
+                            return string.Empty;
+                        }
+                        return titleBuffer.ToString();
+                    }
+                    else
                     {
                         return string.Empty;
                     }
-                    return titleBuffer.ToString();
                 }
-                else
+                catch (Exception ex)
                 {
+                    ErrorLogger.LogError(ex);
                     return string.Empty;
                 }
             }
@@ -56,18 +65,25 @@ namespace WorkspaceLauncherForVSCode.Components
 
         internal void SwitchToWindow()
         {
-            if (!Minimized)
+            try
             {
-                NativeMethods.SetForegroundWindow(Hwnd);
-            }
-            else
-            {
-                if (!NativeMethods.ShowWindow(Hwnd, ShowWindowCommand.Restore))
+                if (!Minimized)
                 {
-                    _ = NativeMethods.SendMessage(Hwnd, Win32Constants.WM_SYSCOMMAND, Win32Constants.SC_RESTORE);
+                    NativeMethods.SetForegroundWindow(Hwnd);
                 }
+                else
+                {
+                    if (!NativeMethods.ShowWindow(Hwnd, ShowWindowCommand.Restore))
+                    {
+                        _ = NativeMethods.SendMessage(Hwnd, Win32Constants.WM_SYSCOMMAND, Win32Constants.SC_RESTORE);
+                    }
+                }
+                NativeMethods.FlashWindow(Hwnd, true);
             }
-            NativeMethods.FlashWindow(Hwnd, true);
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
         }
 
         public override string ToString()
@@ -78,14 +94,22 @@ namespace WorkspaceLauncherForVSCode.Components
 
         internal WindowSizeState GetWindowSizeState()
         {
-            NativeMethods.GetWindowPlacement(Hwnd, out WINDOWPLACEMENT placement);
-            return placement.ShowCmd switch
+            try
             {
-                ShowWindowCommand.Normal => WindowSizeState.Normal,
-                ShowWindowCommand.Minimize or ShowWindowCommand.ShowMinimized => WindowSizeState.Minimized,
-                ShowWindowCommand.Maximize => WindowSizeState.Maximized,
-                _ => WindowSizeState.Unknown,
-            };
+                NativeMethods.GetWindowPlacement(Hwnd, out WINDOWPLACEMENT placement);
+                return placement.ShowCmd switch
+                {
+                    ShowWindowCommand.Normal => WindowSizeState.Normal,
+                    ShowWindowCommand.Minimize or ShowWindowCommand.ShowMinimized => WindowSizeState.Minimized,
+                    ShowWindowCommand.Maximize => WindowSizeState.Maximized,
+                    _ => WindowSizeState.Unknown,
+                };
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                return WindowSizeState.Unknown;
+            }
         }
 
         internal enum WindowSizeState
@@ -98,15 +122,23 @@ namespace WorkspaceLauncherForVSCode.Components
 
         internal WindowCloakState GetWindowCloakState()
         {
-            _ = NativeMethods.DwmGetWindowAttribute(Hwnd, (int)DwmWindowAttributes.Cloaked, out var isCloakedState, sizeof(uint));
-            return isCloakedState switch
+            try
             {
-                (int)DwmWindowCloakStates.None => WindowCloakState.None,
-                (int)DwmWindowCloakStates.CloakedApp => WindowCloakState.App,
-                (int)DwmWindowCloakStates.CloakedShell => WindowCloakState.Shell,
-                (int)DwmWindowCloakStates.CloakedInherited => WindowCloakState.Inherited,
-                _ => WindowCloakState.Unknown,
-            };
+                _ = NativeMethods.DwmGetWindowAttribute(Hwnd, (int)DwmWindowAttributes.Cloaked, out var isCloakedState, sizeof(uint));
+                return isCloakedState switch
+                {
+                    (int)DwmWindowCloakStates.None => WindowCloakState.None,
+                    (int)DwmWindowCloakStates.CloakedApp => WindowCloakState.App,
+                    (int)DwmWindowCloakStates.CloakedShell => WindowCloakState.Shell,
+                    (int)DwmWindowCloakStates.CloakedInherited => WindowCloakState.Inherited,
+                    _ => WindowCloakState.Unknown,
+                };
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                return WindowCloakState.Unknown;
+            }
         }
 
         internal enum WindowCloakState
@@ -120,9 +152,17 @@ namespace WorkspaceLauncherForVSCode.Components
 
         private static string GetWindowClassName(IntPtr hwnd)
         {
-            StringBuilder windowClassName = new StringBuilder(300);
-            var numCharactersWritten = NativeMethods.GetClassName(hwnd, windowClassName, windowClassName.MaxCapacity);
-            return numCharactersWritten == 0 ? string.Empty : windowClassName.ToString();
+            try
+            {
+                StringBuilder windowClassName = new StringBuilder(300);
+                var numCharactersWritten = NativeMethods.GetClassName(hwnd, windowClassName, windowClassName.MaxCapacity);
+                return numCharactersWritten == 0 ? string.Empty : windowClassName.ToString();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                return string.Empty;
+            }
         }
     }
 }

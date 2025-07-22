@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Xml;
+using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Services.VisualStudio.Models.Json;
 
 namespace WorkspaceLauncherForVSCode.Services.VisualStudio.Models
@@ -25,10 +26,20 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio.Models
 
         public VisualStudioInstance(Json.VisualStudioInstance visualStudioInstance, string applicationPrivateSettingsPath)
         {
-            ProductLineVersion = visualStudioInstance.Catalog.ProductLineVersion;
-            IsPrerelease = visualStudioInstance.IsPrerelease;
-            ApplicationPrivateSettingsPath = applicationPrivateSettingsPath;
-            InstancePath = visualStudioInstance.ProductPath;
+            try
+            {
+                ProductLineVersion = visualStudioInstance.Catalog.ProductLineVersion;
+                IsPrerelease = visualStudioInstance.IsPrerelease;
+                ApplicationPrivateSettingsPath = applicationPrivateSettingsPath;
+                InstancePath = visualStudioInstance.ProductPath;
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+                ProductLineVersion = string.Empty;
+                ApplicationPrivateSettingsPath = string.Empty;
+                InstancePath = string.Empty;
+            }
         }
 
         public IEnumerable<CodeContainer> GetCodeContainers()
@@ -47,8 +58,9 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio.Models
                     ? Enumerable.Empty<CodeContainer>()
                     : containers.Select(c => new CodeContainer(c, this));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                ErrorLogger.LogError(ex);
                 return Enumerable.Empty<CodeContainer>();
             }
         }
@@ -88,8 +100,9 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio.Models
                 return null;
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                ErrorLogger.LogError(ex);
                 return null;
             }
         }

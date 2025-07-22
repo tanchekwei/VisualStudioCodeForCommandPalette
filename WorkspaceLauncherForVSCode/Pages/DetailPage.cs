@@ -1,5 +1,6 @@
 // Copyright (c) 2025 tanchekwei
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
+using System;
 using System.Text.Json;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -27,17 +28,34 @@ public sealed partial class DetailPage : ContentPage
 
     public DetailPage(VisualStudioCodeWorkspace workspace)
     {
-        Title = TitleText;
-        Name = NameText;
-        Id = IdText;
-        Icon = Classes.Icon.Bug;
-        Workspace = workspace;
+        try
+        {
+            Title = TitleText;
+            Name = NameText;
+            Id = IdText;
+            Icon = Classes.Icon.Bug;
+            Workspace = workspace;
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            Workspace = null!;
+            throw;
+        }
     }
 
     public override IContent[] GetContent()
     {
-        var json = JsonSerializer.Serialize(Workspace, _serializerContext.VisualStudioCodeWorkspace);
-        var markdown = $"{MarkdownPrefix}{json}{MarkdownSuffix}";
-        return [new MarkdownContent(markdown)];
+        try
+        {
+            var json = JsonSerializer.Serialize(Workspace, _serializerContext.VisualStudioCodeWorkspace);
+            var markdown = $"{MarkdownPrefix}{json}{MarkdownSuffix}";
+            return [new MarkdownContent(markdown)];
+        }
+        catch (Exception ex)
+        {
+            ErrorLogger.LogError(ex);
+            return Array.Empty<IContent>();
+        }
     }
 }
