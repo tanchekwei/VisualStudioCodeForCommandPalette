@@ -36,8 +36,9 @@ namespace WorkspaceLauncherForVSCode.Services
             {
                 var appdataProgramFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                 var programsFolderPathBase = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-                var defaultStoragePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Code", "User", "globalStorage");
-                var insiderStoragePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Code - Insiders", "User", "globalStorage");
+                var appDataBasePath = Environment.GetEnvironmentVariable("VSCODE_APPDATA") ?? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var defaultStoragePath = Path.Combine(appDataBasePath, "Code", "User", "globalStorage");
+                var insiderStoragePath = Path.Combine(appDataBasePath, "Code - Insiders", "User", "globalStorage");
 
                 if (enabledEditions.HasFlag(VisualStudioCodeEdition.Default))
                 {
