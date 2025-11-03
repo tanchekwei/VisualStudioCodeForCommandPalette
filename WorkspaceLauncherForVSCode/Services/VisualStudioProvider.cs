@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
@@ -22,9 +21,18 @@ namespace WorkspaceLauncherForVSCode.Services
 #endif
                 visualStudioService.InitInstances(Array.Empty<string>());
                 var results = visualStudioService.GetResults(showPrerelease);
-                var workspaceMap = dbWorkspaces.Where(w => w.Path != null).ToDictionary(w => w.Path!, w => w);
 
-                var list = results.Select(r =>
+                var workspaceMap = new Dictionary<string, VisualStudioCodeWorkspace>();
+                foreach (var w in dbWorkspaces)
+                {
+                    if (w.Path != null)
+                    {
+                        workspaceMap[w.Path] = w;
+                    }
+                }
+
+                var list = new List<VisualStudioCodeWorkspace>();
+                foreach (var r in results)
                 {
                     var vs = new VisualStudioCodeWorkspace
                     {
@@ -42,8 +50,9 @@ namespace WorkspaceLauncherForVSCode.Services
                         vs.LastAccessed = workspace.LastAccessed;
                         vs.PinDateTime = workspace.PinDateTime;
                     }
-                    return vs;
-                }).ToList();
+                    list.Add(vs);
+                }
+
                 return Task.FromResult(list);
             }
             catch (Exception ex)

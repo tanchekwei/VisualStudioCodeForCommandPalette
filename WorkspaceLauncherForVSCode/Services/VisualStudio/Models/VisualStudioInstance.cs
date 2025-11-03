@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Xml;
 using WorkspaceLauncherForVSCode.Classes;
@@ -47,21 +46,29 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio.Models
             var codeContainersString = GetCodeContainersPath();
             if (string.IsNullOrWhiteSpace(codeContainersString))
             {
-                return Enumerable.Empty<CodeContainer>();
+                return new List<CodeContainer>();
             }
 
             try
             {
                 var containers = JsonSerializer.Deserialize(codeContainersString, CodeContainerSerializerContext.Default.ListCodeContainer);
 
-                return containers == null
-                    ? Enumerable.Empty<CodeContainer>()
-                    : containers.Select(c => new CodeContainer(c, this));
+                if (containers == null)
+                {
+                    return new List<CodeContainer>();
+                }
+
+                var results = new List<CodeContainer>(containers.Count);
+                foreach (var c in containers)
+                {
+                    results.Add(new CodeContainer(c, this));
+                }
+                return results;
             }
             catch (Exception ex)
             {
                 ErrorLogger.LogError(ex);
-                return Enumerable.Empty<CodeContainer>();
+                return new List<CodeContainer>();
             }
         }
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using WorkspaceLauncherForVSCode.Enums;
 
 namespace WorkspaceLauncherForVSCode.Classes;
@@ -70,17 +69,17 @@ public class CountTracker
     {
         try
         {
-            foreach (var key in _counts.Keys.ToList())
+            foreach (var key in _counts.Keys)
             {
                 _counts[key] = 0;
             }
 
-            foreach (var key in _vscodeRemoteCounts.Keys.ToList())
+            foreach (var key in _vscodeRemoteCounts.Keys)
             {
                 _vscodeRemoteCounts[key] = 0;
             }
 
-            foreach (var key in _vscodeLocalCounts.Keys.ToList())
+            foreach (var key in _vscodeLocalCounts.Keys)
             {
                 _vscodeLocalCounts[key] = 0;
             }
@@ -91,3 +90,4 @@ public class CountTracker
         }
     }
 }
+  

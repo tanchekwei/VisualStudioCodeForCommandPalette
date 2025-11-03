@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Services.VisualStudio.Models.Json;
@@ -19,6 +18,7 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
         private const string VsWhereDir = @"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer";
         private const string VsWhereBin = "vswhere.exe";
         private const string VisualStudioDataDir = @"%LOCALAPPDATA%\Microsoft\VisualStudio";
+        private const int SingleDirectory = 0;
 
         private List<VsCodeModels.VisualStudioInstance>? _instances;
 
@@ -92,7 +92,16 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
                                 continue;
                             }
 
-                            if (excludedVersions.Contains(instance.Catalog.ProductLineVersion))
+                            bool isExcluded = false;
+                            foreach (var excluded in excludedVersions)
+                            {
+                                if (excluded == instance.Catalog.ProductLineVersion)
+                                {
+                                    isExcluded = true;
+                                    break;
+                                }
+                            }
+                            if (isExcluded)
                             {
                                 continue;
                             }
@@ -128,22 +137,47 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
             {
                 if (_instances == null)
                 {
-                    return Enumerable.Empty<VsCodeModels.CodeContainer>();
+                    return new List<VsCodeModels.CodeContainer>();
                 }
 
-                var query = _instances.AsEnumerable();
-
+                var filteredInstances = new List<VsCodeModels.VisualStudioInstance>();
                 if (!showPrerelease)
                 {
-                    query = query.Where(i => !i.IsPrerelease);
+                    foreach (var instance in _instances)
+                    {
+                        if (!instance.IsPrerelease)
+                        {
+                            filteredInstances.Add(instance);
+                        }
+                    }
+                }
+                else
+                {
+                    filteredInstances.AddRange(_instances);
                 }
 
-                return query.SelectMany(i => i.GetCodeContainers()).OrderBy(c => c.Name).ThenBy(c => c.Instance.IsPrerelease);
+                var results = new List<VsCodeModels.CodeContainer>();
+                foreach (var instance in filteredInstances)
+                {
+                    results.AddRange(instance.GetCodeContainers());
+                }
+
+                results.Sort((a, b) =>
+                {
+                    int nameCompare = string.Compare(a.Name, b.Name, StringComparison.Ordinal);
+                    if (nameCompare != 0)
+                    {
+                        return nameCompare;
+                    }
+                    return a.Instance.IsPrerelease.CompareTo(b.Instance.IsPrerelease);
+                });
+
+                return results;
             }
             catch (Exception ex)
             {
                 ErrorLogger.LogError(ex);
-                return Enumerable.Empty<VsCodeModels.CodeContainer>();
+                return new List<VsCodeModels.CodeContainer>();
             }
         }
 
@@ -152,14 +186,19 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
             try
             {
                 var dataPath = Environment.ExpandEnvironmentVariables(VisualStudioDataDir);
-                var directory = Directory.EnumerateDirectories(dataPath, $"*{instanceId}", SearchOption.TopDirectoryOnly)
-                    .Select(d => new DirectoryInfo(d))
-                    .Where(d => !d.Name.StartsWith("SettingsBackup_", StringComparison.Ordinal))
-                    .ToArray();
-
-                if (directory.Length == 1)
+                var matchingDirs = new List<DirectoryInfo>();
+                foreach (var dir in Directory.EnumerateDirectories(dataPath, $"*{instanceId}", SearchOption.TopDirectoryOnly))
                 {
-                    var applicationPrivateSettingspath = Path.Combine(directory[0].FullName, "ApplicationPrivateSettings.xml");
+                    var dirInfo = new DirectoryInfo(dir);
+                    if (!dirInfo.Name.StartsWith("SettingsBackup_", StringComparison.Ordinal))
+                    {
+                        matchingDirs.Add(dirInfo);
+                    }
+                }
+
+                if (matchingDirs.Count == 1)
+                {
+                    var applicationPrivateSettingspath = Path.Combine(matchingDirs[SingleDirectory].FullName, "ApplicationPrivateSettings.xml");
 
                     if (File.Exists(applicationPrivateSettingspath))
                     {

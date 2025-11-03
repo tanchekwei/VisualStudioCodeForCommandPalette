@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.System;
@@ -152,7 +151,16 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                         break;
                 }
 
-                if (moreCommands.Any(c => c.Command is OpenInExplorerCommand))
+                bool hasOpenInExplorer = false;
+                foreach (var c in moreCommands)
+                {
+                    if (c.Command is OpenInExplorerCommand)
+                    {
+                        hasOpenInExplorer = true;
+                        break;
+                    }
+                }
+                if (hasOpenInExplorer)
                 {
                     moreCommands.Add(new CommandContextItem(new OpenInTerminalCommand(workspace, settingsManager)));
                 }
@@ -188,10 +196,25 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     MoreCommands = moreCommands.ToArray(),
                 };
 
-                if (item.Command is IHasWorkspace { Workspace.PinDateTime: not null } &&
-                    !item.Tags.Contains(PinTag))
+                if (item.Command is IHasWorkspace { Workspace.PinDateTime: not null })
                 {
-                    item.Tags = item.Tags.Append(PinTag).ToArray();
+                    bool hasPinTag = false;
+                    foreach (var tag in item.Tags)
+                    {
+                        if (tag == PinTag)
+                        {
+                            hasPinTag = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasPinTag)
+                    {
+                        var newTags = new Tag[item.Tags.Length + 1];
+                        item.Tags.CopyTo(newTags, 0);
+                        newTags[item.Tags.Length] = PinTag;
+                        item.Tags = newTags;
+                    }
                 }
                 return item;
             }
@@ -203,3 +226,4 @@ namespace WorkspaceLauncherForVSCode.Workspaces
         }
     }
 }
+

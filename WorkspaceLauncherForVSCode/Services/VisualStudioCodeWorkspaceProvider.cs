@@ -1,10 +1,8 @@
 // Modifications copyright (c) 2025 tanchekwei 
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkspaceLauncherForVSCode.Classes;
@@ -14,7 +12,7 @@ namespace WorkspaceLauncherForVSCode.Services
 {
     public static class VisualStudioCodeWorkspaceProvider
     {
-        public static async Task<IEnumerable<VisualStudioCodeWorkspace>> GetWorkspacesAsync(VisualStudioCodeInstance instance, List<VisualStudioCodeWorkspace> dbWorkspaces, CancellationToken cancellationToken)
+        public static async Task<List<VisualStudioCodeWorkspace>> GetWorkspacesAsync(VisualStudioCodeInstance instance, List<VisualStudioCodeWorkspace> dbWorkspaces, CancellationToken cancellationToken)
         {
             try
             {
@@ -23,7 +21,7 @@ namespace WorkspaceLauncherForVSCode.Services
 #endif
                 if (cancellationToken.IsCancellationRequested || !File.Exists(instance.ExecutablePath))
                 {
-                    return Enumerable.Empty<VisualStudioCodeWorkspace>();
+                    return new List<VisualStudioCodeWorkspace>();
                 }
 
                 var vscdbTask = VscdbWorkspaceReader.GetWorkspacesAsync(instance, cancellationToken);
@@ -31,10 +29,17 @@ namespace WorkspaceLauncherForVSCode.Services
 
                 await Task.WhenAll(vscdbTask, storageJsonTask);
 
-                var allWorkspaces = vscdbTask.Result.Concat(storageJsonTask.Result).ToList();
-                var workspaceMap = dbWorkspaces
-                    .Where(w => w.Path != null)
-                    .ToDictionary(w => w.Path!, w => w);
+                var allWorkspaces = new List<VisualStudioCodeWorkspace>(vscdbTask.Result);
+                allWorkspaces.AddRange(storageJsonTask.Result);
+
+                var workspaceMap = new Dictionary<string, VisualStudioCodeWorkspace>();
+                foreach (var w in dbWorkspaces)
+                {
+                    if (w.Path != null)
+                    {
+                        workspaceMap[w.Path] = w;
+                    }
+                }
 
                 foreach (var workspace in allWorkspaces)
                 {
@@ -51,7 +56,7 @@ namespace WorkspaceLauncherForVSCode.Services
             catch (Exception ex)
             {
                 ErrorLogger.LogError(ex);
-                return Enumerable.Empty<VisualStudioCodeWorkspace>();
+                return new List<VisualStudioCodeWorkspace>();
             }
         }
     }

@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkspaceLauncherForVSCode.Classes;
@@ -13,6 +12,7 @@ namespace WorkspaceLauncherForVSCode.Services
 {
     public class VisualStudioCodeService : IVisualStudioCodeService
     {
+        private const int FirstInstanceIndex = 0;
         public List<VisualStudioCodeInstance> Instances { get; private set; } = new List<VisualStudioCodeInstance>();
         private readonly VisualStudioService _visualStudioService;
         public VisualStudioCodeService(VisualStudioService visualStudioService)
@@ -40,8 +40,8 @@ namespace WorkspaceLauncherForVSCode.Services
             if (Instances.Count == 1)
             {
                 // Single instance: no need for concurrency or deduplication
-                var firstInstance = Instances[0];
-                var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(firstInstance, dbWorkspaces.ToList(), cancellationToken);
+                var firstInstance = Instances[FirstInstanceIndex];
+                var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(firstInstance, new List<VisualStudioCodeWorkspace>(dbWorkspaces), cancellationToken);
                 var unique = new Dictionary<string, VisualStudioCodeWorkspace>();
                 foreach (var workspace in workspaces)
                 {
@@ -51,28 +51,29 @@ namespace WorkspaceLauncherForVSCode.Services
                         unique[workspace.Path] = workspace;
                     }
                 }
-                return unique.Values.ToList();
+                return new List<VisualStudioCodeWorkspace>(unique.Values);
             }
             else
             {
                 // Multiple instances: use ConcurrentDictionary for thread-safe deduplication
                 var workspaceMap = new ConcurrentDictionary<string, VisualStudioCodeWorkspace>();
+                var dbWorkspacesList = new List<VisualStudioCodeWorkspace>(dbWorkspaces);
                 await Parallel.ForEachAsync(Instances, cancellationToken, async (instance, ct) =>
                 {
-                    var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(instance, dbWorkspaces.ToList(), ct);
+                    var workspaces = await VisualStudioCodeWorkspaceProvider.GetWorkspacesAsync(instance, dbWorkspacesList, ct);
                     foreach (var workspace in workspaces)
                     {
                         if (workspace.Path == null) continue;
                         workspaceMap.TryAdd(workspace.Path, workspace);
                     }
                 });
-                return workspaceMap.Values.ToList();
+                return new List<VisualStudioCodeWorkspace>(workspaceMap.Values);
             }
         }
 
         public Task<List<VisualStudioCodeWorkspace>> GetVisualStudioSolutions(IEnumerable<VisualStudioCodeWorkspace> dbWorkspaces, bool includeRegistry)
         {
-            return VisualStudioProvider.GetSolutions(_visualStudioService, dbWorkspaces.ToList(), includeRegistry);
+            return VisualStudioProvider.GetSolutions(_visualStudioService, new List<VisualStudioCodeWorkspace>(dbWorkspaces), includeRegistry);
         }
     }
 }
