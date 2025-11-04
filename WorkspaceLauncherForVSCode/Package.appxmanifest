@@ -12,7 +12,7 @@
 	<Identity
 	  Name="15722UsefulApp.WorkspaceLauncherforVSCode"
 	  Publisher="CN=BF18CC4F-2F9D-43F9-9BF7-0E949EE3057D"
-	  Version="1.17.0.0" />
+	  Version="1.18.0.0" />
 	
 	<Properties>
     <DisplayName>Visual Studio / Code for Command Palette</DisplayName>
