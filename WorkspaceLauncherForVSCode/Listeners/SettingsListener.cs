@@ -18,6 +18,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
         private TagType _previousTagTypes;
         private SortBy _previousSortBy;
         private bool _prevEnableWorkspaceWatcher;
+        private bool _previousUseHelperLauncher;
 
         public event EventHandler? InstanceSettingsChanged;
         public event EventHandler? PageSettingsChanged;
@@ -36,6 +37,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
                 _previousTagTypes = _settingsManager.TagTypes;
                 _previousSortBy = _settingsManager.SortBy;
                 _prevEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
+                _previousUseHelperLauncher = _settingsManager.UseHelperLauncher;
                 _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
             }
             catch (Exception ex)
@@ -61,6 +63,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
                 var currentTagTypes = _settingsManager.TagTypes;
                 var currentSortBy = _settingsManager.SortBy;
                 var currentEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
+                var currentUseHelperLauncher = _settingsManager.UseHelperLauncher;
 
                 if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand || currentTagTypes != _previousTagTypes)
                 {
@@ -90,6 +93,11 @@ namespace WorkspaceLauncherForVSCode.Listeners
                     PageSettingsChanged?.Invoke(this, EventArgs.Empty);
                     InstanceSettingsChanged?.Invoke(this, EventArgs.Empty);
                     _previousEnableVisualStudio = currentEnableVisualStudio;
+                }
+                
+                if (currentUseHelperLauncher != _previousUseHelperLauncher)
+                {
+                    _previousUseHelperLauncher = currentUseHelperLauncher;
                 }
             }
             catch (Exception ex)

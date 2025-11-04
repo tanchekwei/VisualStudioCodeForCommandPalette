@@ -1,6 +1,8 @@
 ﻿// Modifications copyright (c) 2025 tanchekwei
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.CmdPal.Ext.System.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -90,7 +92,30 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
                 arguments = $"--folder-uri \"{Workspace.Path}\"";
             }
 
-            OpenInShellHelper.OpenInShell(Workspace.VSCodeInstance.ExecutablePath, arguments, runAs: _elevated ? OpenInShellHelper.ShellRunAsType.Administrator : OpenInShellHelper.ShellRunAsType.None);
+            if (page.SettingsManager.UseHelperLauncher)
+            {
+                var launcherPath = Path.Combine(AppContext.BaseDirectory, "VisualStudioCodeForCommandPaletteLauncher.exe");
+                var launcherArgs = $"\"{Workspace.VSCodeInstance.ExecutablePath}\" {arguments}";
+
+                var startInfo = new ProcessStartInfo(launcherPath, launcherArgs)
+                {
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                };
+
+                if (_elevated)
+                {
+                    startInfo.Verb = "runas";
+                    startInfo.UseShellExecute = true;
+                }
+
+                Process.Start(startInfo);
+            }
+            else
+            {
+                OpenInShellHelper.OpenInShell(Workspace.VSCodeInstance.ExecutablePath, arguments, runAs: _elevated ? OpenInShellHelper.ShellRunAsType.Administrator : OpenInShellHelper.ShellRunAsType.None);
+            }
 
             Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path));
 

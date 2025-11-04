@@ -83,6 +83,12 @@ public class SettingsManager : JsonSettingsManager
         "Enable Logging",
         "Enables diagnostic logging for troubleshooting.",
         false);
+        
+    private readonly ToggleSetting _useHelperLauncher = new(
+        Namespaced(nameof(UseHelperLauncher)),
+        "Use Helper Launcher",
+        "Launches Visual Studio Code via a helper executable (VisualStudioCodeForCommandPaletteLauncher.exe). Enable this if Visual Studio Code doesn't come to the foreground when opened. This workaround is needed on some PCs because Windows can prevent background processes (like this extension) from 'stealing' focus.",
+        false);
 
     private readonly ToggleSetting _showTypeTag = new(
         Namespaced(nameof(_showTypeTag)),
@@ -206,6 +212,7 @@ public class SettingsManager : JsonSettingsManager
     }
 
     public bool EnableLogging => _enableLogging.Value;
+    public bool UseHelperLauncher => _useHelperLauncher.Value;
     public bool EnableVisualStudio => _enableVisualStudio.Value;
     public bool EnableWorkspaceWatcher => _enableWorkspaceWatcher.Value;
     public bool ClearSearchOnExecute => _clearSearchOnExecute.Value;
@@ -328,6 +335,7 @@ public class SettingsManager : JsonSettingsManager
             Settings.Add(_vsSecondaryCommand);
             Settings.Add(_vscodeSecondaryCommand);
             Settings.Add(_clearSearchOnExecute);
+            Settings.Add(_useHelperLauncher);
             // Settings.Add(_enableWorkspaceWatcher);
 #if DEBUG
             Settings.Add(_enableLogging);

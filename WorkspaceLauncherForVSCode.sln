@@ -4,6 +4,8 @@ VisualStudioVersion = 17.13.35507.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkspaceLauncherForVSCode", "WorkspaceLauncherForVSCode\WorkspaceLauncherForVSCode.csproj", "{DBDA4F4C-D6F6-414C-A521-6B4031F8D15A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualStudioCodeForCommandPaletteLauncher", "VisualStudioCodeForCommandPaletteLauncher\VisualStudioCodeForCommandPaletteLauncher.csproj", "{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -32,6 +34,18 @@ Global
 		{DBDA4F4C-D6F6-414C-A521-6B4031F8D15A}.Release|x86.ActiveCfg = Release|x86
 		{DBDA4F4C-D6F6-414C-A521-6B4031F8D15A}.Release|x86.Build.0 = Release|x86
 		{DBDA4F4C-D6F6-414C-A521-6B4031F8D15A}.Release|x86.Deploy.0 = Release|x86
+		{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}.Debug|ARM64.Build.0 = Debug|ARM64
+		{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}.Debug|x64.ActiveCfg = Debug|x64
+		{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}.Debug|x64.Build.0 = Debug|x64
+		{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}.Debug|x86.ActiveCfg = Debug|x64
+		{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}.Debug|x86.Build.0 = Debug|x64
+		{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}.Release|ARM64.ActiveCfg = Release|ARM64
+		{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}.Release|ARM64.Build.0 = Release|ARM64
+		{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}.Release|x64.ActiveCfg = Release|x64
+		{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}.Release|x64.Build.0 = Release|x64
+		{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}.Release|x86.ActiveCfg = Release|x64
+		{9237B5EF-9F2D-44B8-BBAA-E4DC8488B122}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

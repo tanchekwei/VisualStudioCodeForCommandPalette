@@ -84,6 +84,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\VisualStudioCodeForCommandPaletteLauncher\bin\$(Platform)\release\net8.0\publish\VisualStudioCodeForCommandPaletteLauncher.exe">
+      <Link>VisualStudioCodeForCommandPaletteLauncher.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Update="Properties\Resource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
