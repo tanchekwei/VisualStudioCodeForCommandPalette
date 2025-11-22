@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Services.VisualStudio;
+using WorkspaceLauncherForVSCode.Services.VisualStudio.Models;
 
 namespace WorkspaceLauncherForVSCode.Services
 {
@@ -30,6 +31,13 @@ namespace WorkspaceLauncherForVSCode.Services
         public List<VisualStudioCodeInstance> GetInstances()
         {
             return Instances;
+        }
+
+        public List<VisualStudioInstance> GetVisualStudioInstances()
+        {
+            return _visualStudioService.Instances != null
+                ? [.. _visualStudioService.Instances]
+                : [];
         }
 
         public async Task<List<VisualStudioCodeWorkspace>> GetWorkspacesAsync(IEnumerable<VisualStudioCodeWorkspace> dbWorkspaces, CancellationToken cancellationToken)

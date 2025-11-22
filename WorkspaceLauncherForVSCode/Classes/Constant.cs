@@ -12,6 +12,7 @@ public static class Constant
     public const string AppName = "WorkspaceLauncherForVSCode";
 #endif
     public const string VscodeRemoteScheme = "vscode-remote://";
+    public const string VisualStudio2026Version = "18";
     public static readonly string AssemblyVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? string.Empty;
     public static readonly string SettingsFolderPath = Utilities.BaseSettingsPath(AppName);
 }

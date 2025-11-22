@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
+using WorkspaceLauncherForVSCode.Services.VisualStudio.Models;
 
 namespace WorkspaceLauncherForVSCode;
 
@@ -13,6 +14,8 @@ public interface IVisualStudioCodeService
     void LoadInstances(VisualStudioCodeEdition enabledEditions);
 
     List<VisualStudioCodeInstance> GetInstances();
+
+    List<VisualStudioInstance> GetVisualStudioInstances();
 
     Task<List<VisualStudioCodeWorkspace>> GetWorkspacesAsync(IEnumerable<VisualStudioCodeWorkspace> dbWorkspaces, CancellationToken cancellationToken);
 

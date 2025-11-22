@@ -118,6 +118,7 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
                     WorkspaceTypeString = "Folder";
                     break;
                 case WorkspaceType.Solution:
+                case WorkspaceType.Solution2026:
                     WorkspaceTypeString = "Solution";
                     break;
                 default:

@@ -7,6 +7,7 @@ using Microsoft.CmdPal.Ext.System.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Components;
+using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Helpers;
 using WorkspaceLauncherForVSCode.Interfaces;
 
@@ -35,6 +36,10 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
             {
                 Name = "Open";
                 this.Icon = Classes.Icon.VisualStudio;
+                if (workspace.WorkspaceType == WorkspaceType.Solution2026)
+                {
+                    this.Icon = Classes.Icon.VisualStudio2026;
+                }
             }
         }
         catch (Exception ex)
@@ -64,7 +69,7 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
 
             if (page != null)
             {
-                Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path));
+                Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path, Workspace.WorkspaceType));
             }
 
             OpenWindows.Instance.UpdateVisualStudioWindowsList();

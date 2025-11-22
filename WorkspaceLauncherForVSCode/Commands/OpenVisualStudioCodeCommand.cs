@@ -117,7 +117,7 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
                 OpenInShellHelper.OpenInShell(Workspace.VSCodeInstance.ExecutablePath, arguments, runAs: _elevated ? OpenInShellHelper.ShellRunAsType.Administrator : OpenInShellHelper.ShellRunAsType.None);
             }
 
-            Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path));
+            Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path, Workspace.WorkspaceType));
 
             return PageCommandResultHandler.HandleCommandResult(page);
         }

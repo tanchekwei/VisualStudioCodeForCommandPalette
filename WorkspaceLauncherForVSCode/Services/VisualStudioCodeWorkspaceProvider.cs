@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkspaceLauncherForVSCode.Classes;
+using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Workspaces.Readers;
 
 namespace WorkspaceLauncherForVSCode.Services
@@ -32,18 +33,18 @@ namespace WorkspaceLauncherForVSCode.Services
                 var allWorkspaces = new List<VisualStudioCodeWorkspace>(vscdbTask.Result);
                 allWorkspaces.AddRange(storageJsonTask.Result);
 
-                var workspaceMap = new Dictionary<string, VisualStudioCodeWorkspace>();
+                var workspaceMap = new Dictionary<(string, WorkspaceType), VisualStudioCodeWorkspace>();
                 foreach (var w in dbWorkspaces)
                 {
                     if (w.Path != null)
                     {
-                        workspaceMap[w.Path] = w;
+                        workspaceMap[(w.Path, w.WorkspaceType)] = w;
                     }
                 }
 
                 foreach (var workspace in allWorkspaces)
                 {
-                    if (workspace.Path != null && workspaceMap.TryGetValue(workspace.Path, out var dbWorkspace))
+                    if (workspace.Path != null && workspaceMap.TryGetValue((workspace.Path, workspace.WorkspaceType), out var dbWorkspace))
                     {
                         workspace.Frequency = dbWorkspace.Frequency;
                         workspace.LastAccessed = dbWorkspace.LastAccessed;

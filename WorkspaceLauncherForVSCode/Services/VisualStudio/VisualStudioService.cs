@@ -186,24 +186,27 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
             try
             {
                 var dataPath = Environment.ExpandEnvironmentVariables(VisualStudioDataDir);
-                var matchingDirs = new List<DirectoryInfo>();
+                var candidates = new List<FileInfo>();
+
                 foreach (var dir in Directory.EnumerateDirectories(dataPath, $"*{instanceId}", SearchOption.TopDirectoryOnly))
                 {
                     var dirInfo = new DirectoryInfo(dir);
                     if (!dirInfo.Name.StartsWith("SettingsBackup_", StringComparison.Ordinal))
                     {
-                        matchingDirs.Add(dirInfo);
+                        var applicationPrivateSettingspath = Path.Combine(dirInfo.FullName, "ApplicationPrivateSettings.xml");
+                        var fileInfo = new FileInfo(applicationPrivateSettingspath);
+                        if (fileInfo.Exists)
+                        {
+                            candidates.Add(fileInfo);
+                        }
                     }
                 }
 
-                if (matchingDirs.Count == 1)
+                if (candidates.Count > 0)
                 {
-                    var applicationPrivateSettingspath = Path.Combine(matchingDirs[SingleDirectory].FullName, "ApplicationPrivateSettings.xml");
-
-                    if (File.Exists(applicationPrivateSettingspath))
-                    {
-                        return applicationPrivateSettingspath;
-                    }
+                    // Pick the most recently modified settings file
+                    candidates.Sort((a, b) => b.LastWriteTime.CompareTo(a.LastWriteTime));
+                    return candidates[SingleDirectory].FullName;
                 }
             }
             catch (Exception ex)

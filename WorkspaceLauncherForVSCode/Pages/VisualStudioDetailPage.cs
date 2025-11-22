@@ -44,11 +44,17 @@ namespace WorkspaceLauncherForVSCode.Pages
                 {
                     foreach (var instance in _visualStudioService.Instances)
                     {
+                        var icon = Classes.Icon.VisualStudio;
+                        if (instance.ProductLineVersion == Constant.VisualStudio2026Version)
+                        {
+                            icon = Classes.Icon.VisualStudio2026;
+                        }
+
                         instancesDetails.Add(new()
                         {
                             Title = instance.InstancePath,
                             Subtitle = "Instance Path",
-                            Icon = Classes.Icon.VisualStudio,
+                            Icon = icon,
                         });
                     }
                 }

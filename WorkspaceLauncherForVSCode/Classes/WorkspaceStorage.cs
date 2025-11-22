@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Microsoft.Data.Sqlite;
+using WorkspaceLauncherForVSCode.Enums;
 
 namespace WorkspaceLauncherForVSCode.Classes
 {
@@ -19,12 +20,13 @@ namespace WorkspaceLauncherForVSCode.Classes
         private static class Queries
         {
             public const string Initialize = @"
-                CREATE TABLE IF NOT EXISTS Workspaces (
-                    Path TEXT PRIMARY KEY,
+                CREATE TABLE IF NOT EXISTS WorkspacesV2 (
+                    Path TEXT,
                     Name TEXT,
                     Type INTEGER,
                     Frequency INTEGER DEFAULT 0,
-                    LastAccessed TEXT
+                    LastAccessed TEXT,
+                    PRIMARY KEY (Path, Type)
                 );
                 CREATE TABLE IF NOT EXISTS PinnedWorkspaces (
                     Path TEXT PRIMARY KEY,
@@ -38,28 +40,28 @@ namespace WorkspaceLauncherForVSCode.Classes
     w.Frequency, 
     w.LastAccessed, 
     p.PinDateTime
-FROM Workspaces w
+FROM WorkspacesV2 w
 LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
 ";
 
             public const string SaveWorkspace = @"
-                INSERT OR REPLACE INTO Workspaces (Path, Name, Type, Frequency, LastAccessed)
+                INSERT OR REPLACE INTO WorkspacesV2 (Path, Name, Type, Frequency, LastAccessed)
                 VALUES (
                     @Path,
                     @Name,
                     @Type,
-                    COALESCE((SELECT Frequency FROM Workspaces WHERE Path = @Path), @Frequency),
-                    COALESCE((SELECT LastAccessed FROM Workspaces WHERE Path = @Path), @LastAccessed)
+                    COALESCE((SELECT Frequency FROM WorkspacesV2 WHERE Path = @Path AND Type = @Type), @Frequency),
+                    COALESCE((SELECT LastAccessed FROM WorkspacesV2 WHERE Path = @Path AND Type = @Type), @LastAccessed)
                 );
                 ";
 
-            public const string UpdateFrequency = "UPDATE Workspaces SET Frequency = Frequency + 1, LastAccessed = @LastAccessed WHERE Path = @path";
+            public const string UpdateFrequency = "UPDATE WorkspacesV2 SET Frequency = Frequency + 1, LastAccessed = @LastAccessed WHERE Path = @path AND Type = @Type";
 
             public const string GetPinnedWorkspaces = "SELECT Path, PinDateTime FROM PinnedWorkspaces";
             public const string AddPinnedWorkspace = "INSERT OR REPLACE INTO PinnedWorkspaces (Path, PinDateTime) VALUES (@Path, @PinDateTime)";
             public const string RemovePinnedWorkspace = "DELETE FROM PinnedWorkspaces WHERE Path = @Path";
 
-            public const string ResetAllFrequencies = "UPDATE Workspaces SET Frequency = 0";
+            public const string ResetAllFrequencies = "UPDATE WorkspacesV2 SET Frequency = 0";
         }
 
         public WorkspaceStorage()
@@ -82,9 +84,34 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
         {
             try
             {
-                using var command = _connection.CreateCommand();
-                command.CommandText = Queries.Initialize;
-                command.ExecuteNonQuery();
+                using var transaction = _connection.BeginTransaction();
+                
+                // 1. Initialize V2 Table and PinnedWorkspaces
+                var initCmd = _connection.CreateCommand();
+                initCmd.Transaction = transaction;
+                initCmd.CommandText = Queries.Initialize;
+                initCmd.ExecuteNonQuery();
+
+                // 2. Check if old 'Workspaces' table exists (indicating legacy schema or previous version)
+                var checkCmd = _connection.CreateCommand();
+                checkCmd.Transaction = transaction;
+                checkCmd.CommandText = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='Workspaces'";
+                var oldTableExists = (long)checkCmd.ExecuteScalar() > 0;
+
+                if (oldTableExists)
+                {
+                    // 3. Migrate data from 'Workspaces' to 'WorkspacesV2'
+                    var migrateCmd = _connection.CreateCommand();
+                    migrateCmd.Transaction = transaction;
+                    migrateCmd.CommandText = @"
+                        INSERT OR IGNORE INTO WorkspacesV2 (Path, Name, Type, Frequency, LastAccessed)
+                        SELECT Path, Name, Type, Frequency, LastAccessed FROM Workspaces;
+                        DROP TABLE Workspaces;
+                    ";
+                    migrateCmd.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
             }
             catch (Exception ex)
             {
@@ -170,13 +197,14 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
             }
         }
 
-        public async Task UpdateWorkspaceFrequencyAsync(string path)
+        public async Task UpdateWorkspaceFrequencyAsync(string path, WorkspaceType type)
         {
             try
             {
                 using var command = _connection.CreateCommand();
                 command.CommandText = Queries.UpdateFrequency;
                 command.Parameters.AddWithValue("@path", path);
+                command.Parameters.AddWithValue("@Type", (int)type);
                 command.Parameters.AddWithValue("@LastAccessed", DateTime.Now.ToString("o"));
                 await command.ExecuteNonQueryAsync();
             }

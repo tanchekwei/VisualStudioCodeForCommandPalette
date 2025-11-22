@@ -22,29 +22,35 @@ namespace WorkspaceLauncherForVSCode.Services
                 visualStudioService.InitInstances(Array.Empty<string>());
                 var results = visualStudioService.GetResults(showPrerelease);
 
-                var workspaceMap = new Dictionary<string, VisualStudioCodeWorkspace>();
+                var workspaceMap = new Dictionary<(string, WorkspaceType), VisualStudioCodeWorkspace>();
                 foreach (var w in dbWorkspaces)
                 {
                     if (w.Path != null)
                     {
-                        workspaceMap[w.Path] = w;
+                        workspaceMap[(w.Path, w.WorkspaceType)] = w;
                     }
                 }
 
                 var list = new List<VisualStudioCodeWorkspace>();
                 foreach (var r in results)
                 {
+                    var workspaceType = WorkspaceType.Solution;
+                    if (r.Instance?.ProductLineVersion == Constant.VisualStudio2026Version)
+                    {
+                        workspaceType = WorkspaceType.Solution2026;
+                    }
+
                     var vs = new VisualStudioCodeWorkspace
                     {
                         Name = r.Name,
                         Path = r.FullPath,
                         WindowsPath = r.FullPath,
-                        WorkspaceType = WorkspaceType.Solution,
+                        WorkspaceType = workspaceType,
                         VSInstance = r.Instance,
                         VSLastAccessed = r.LastAccessed,
                     };
                     vs.SetWorkspaceType();
-                    if (r.FullPath != null && workspaceMap.TryGetValue(r.FullPath, out var workspace))
+                    if (r.FullPath != null && workspaceMap.TryGetValue((r.FullPath, workspaceType), out var workspace))
                     {
                         vs.Frequency = workspace.Frequency;
                         vs.LastAccessed = workspace.LastAccessed;

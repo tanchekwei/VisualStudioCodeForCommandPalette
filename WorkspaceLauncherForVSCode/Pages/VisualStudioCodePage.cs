@@ -9,11 +9,13 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.System;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
+using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Listeners;
 using WorkspaceLauncherForVSCode.Pages;
 using WorkspaceLauncherForVSCode.Properties;
 using WorkspaceLauncherForVSCode.Services;
+using WorkspaceLauncherForVSCode.Services.VisualStudio.Models;
 using WorkspaceLauncherForVSCode.Workspaces;
 
 namespace WorkspaceLauncherForVSCode;
@@ -44,6 +46,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private CommandContextItem _helpCommandContextItem;
     private readonly IListItem[] _noResultsRefreshItem;
     private readonly IListItem[] _refreshSuggestionItem;
+    private List<VisualStudioInstance> _visualStudioInstanceList = new();
 
     public VisualStudioCodePage
     (
@@ -174,7 +177,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             foreach (var workspace in _cachedFilteredWorkspaces)
             {
                 if (count >= _settingsManager.PageSize) break;
-                itemsToAdd.Add(WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService));
+                itemsToAdd.Add(WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList));
                 count++;
             }
             _visibleItems.AddRange(itemsToAdd);
@@ -227,7 +230,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         var listItems = new List<ListItem>();
         foreach (var w in workspaces)
         {
-            listItems.Add(WorkspaceItemFactory.Create(w, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService));
+            listItems.Add(WorkspaceItemFactory.Create(w, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList));
         }
         return listItems;
     }
@@ -243,7 +246,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         {
             var cancellationToken = InitializeRefresh();
             var (workspaces, solutions) = await FetchWorkspacesAsync(isUserInitiated, cancellationToken, isBackground);
-
+            _visualStudioInstanceList = _vscodeService.GetVisualStudioInstances();
             if (cancellationToken.IsCancellationRequested) return;
 
             var allWorkspaces = await ProcessAndSaveWorkspaces(workspaces, solutions);
@@ -341,7 +344,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             foreach (var workspace in filtered)
             {
                 if (count >= _settingsManager.PageSize) break;
-                itemsToAdd.Add(WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService));
+                itemsToAdd.Add(WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList));
                 count++;
             }
             _visibleItems.AddRange(itemsToAdd);
@@ -408,7 +411,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             foreach (var workspace in _cachedFilteredWorkspaces)
             {
                 if (count >= _settingsManager.PageSize) break;
-                itemsToAdd.Add(WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService));
+                itemsToAdd.Add(WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList));
                 count++;
             }
             _visibleItems.AddRange(itemsToAdd);
@@ -418,20 +421,20 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         RaiseItemsChanged(_visibleItems.Count);
     }
 
-    public async Task UpdateFrequencyAsync(string path)
+    public async Task UpdateFrequencyAsync(string path, WorkspaceType type)
     {
 #if DEBUG
         using var logger = new TimeLogger();
 #endif
 
-        await _workspaceStorage.UpdateWorkspaceFrequencyAsync(path);
+        await _workspaceStorage.UpdateWorkspaceFrequencyAsync(path, type);
 
         lock (_itemsLock)
         {
             VisualStudioCodeWorkspace? itemToUpdate = null;
             foreach (var item in AllWorkspaces)
             {
-                if (item?.Path == path)
+                if (item?.Path == path && item?.WorkspaceType == type)
                 {
                     itemToUpdate = item;
                     break;
@@ -452,7 +455,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                 foreach (var workspace in _cachedFilteredWorkspaces)
                 {
                     if (count >= _settingsManager.PageSize) break;
-                    itemsToAdd.Add(WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService));
+                    itemsToAdd.Add(WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList));
                     count++;
                 }
                 _visibleItems.AddRange(itemsToAdd);

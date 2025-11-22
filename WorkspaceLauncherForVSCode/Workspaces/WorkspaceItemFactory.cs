@@ -1,4 +1,4 @@
-// Modifications copyright (c) 2025 tanchekwei
+// Modifications copyright (c) 2025 tanchekwei 
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Helpers;
 using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Pages;
-using WorkspaceLauncherForVSCode.Services;
+using WorkspaceLauncherForVSCode.Services.VisualStudio.Models;
 
 namespace WorkspaceLauncherForVSCode.Workspaces
 {
@@ -30,7 +30,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             SettingsManager settingsManager,
             CountTracker countTracker,
             CommandContextItem refreshCommandContextItem,
-            IPinService pinService)
+            IPinService pinService,
+            List<VisualStudioInstance> visualStudioInstanceList)
         {
             try
             {
@@ -46,8 +47,13 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 switch (workspace.WorkspaceType)
                 {
                     case WorkspaceType.Solution:
+                    case WorkspaceType.Solution2026:
                         command = new OpenSolutionCommand(workspace, page);
                         icon = Classes.Icon.VisualStudio;
+                        if (workspace.WorkspaceType == WorkspaceType.Solution2026 || workspace.VSInstance?.ProductLineVersion == Constant.VisualStudio2026Version)
+                        {
+                            icon = Classes.Icon.VisualStudio2026;
+                        }
                         workspace.WindowsPath = workspace.Path;
                         details = new Details
                         {
@@ -77,6 +83,45 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                             }
                             moreCommands.Add(new CommandContextItem(new OpenSolutionCommand(workspace, page, elevated: true)));
                         }
+
+                        // Add alternative version opening options based on installed instances
+                        foreach (var instance in visualStudioInstanceList)
+                        {
+                            if (workspace.VSInstance != null && 
+                                string.Equals(workspace.VSInstance.InstancePath, instance.InstancePath, StringComparison.OrdinalIgnoreCase))
+                            {
+                                continue;
+                            }
+
+                            var altIcon = Icon.VisualStudio;
+                            var versionLabel = instance.ProductLineVersion;
+                            var targetType = WorkspaceType.Solution;
+
+                            if (instance.ProductLineVersion == Constant.VisualStudio2026Version) // "18"
+                            {
+                                altIcon = Icon.VisualStudio2026;
+                                versionLabel = "2026";
+                                targetType = WorkspaceType.Solution2026;
+                            }
+
+                            var tempWorkspace = new VisualStudioCodeWorkspace
+                            {
+                                Path = workspace.Path,
+                                Name = workspace.Name,
+                                WindowsPath = workspace.WindowsPath,
+                                WorkspaceType = targetType,
+                                VSInstance = instance,
+                                VisualStudioCodeRemoteUri = workspace.VisualStudioCodeRemoteUri
+                            };
+
+                            var altCommand = new OpenSolutionCommand(tempWorkspace, page, elevated: false) 
+                            { 
+                                Name = $"Open in Visual Studio {versionLabel}", 
+                                Icon = altIcon 
+                            };
+                            moreCommands.Add(new CommandContextItem(altCommand));
+                        }
+
                         break;
                     default:
                         command = new OpenVisualStudioCodeCommand(workspace, page);

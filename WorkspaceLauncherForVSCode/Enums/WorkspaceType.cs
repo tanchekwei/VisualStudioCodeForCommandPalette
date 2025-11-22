@@ -10,4 +10,5 @@ public enum WorkspaceType
     Workspace,
     Folder,
     Solution,
+    Solution2026,
 }
