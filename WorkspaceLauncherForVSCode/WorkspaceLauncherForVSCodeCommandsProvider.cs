@@ -78,7 +78,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
         catch (Exception ex)
         {
             ErrorLogger.LogError(ex);
-            return Array.Empty<ICommandItem>();
+            return [];
         }
     }
 }

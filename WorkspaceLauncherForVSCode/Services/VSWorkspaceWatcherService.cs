@@ -41,7 +41,7 @@ namespace WorkspaceLauncherForVSCode.Services
 #endif
                 if (_settingsManager.EnableWorkspaceWatcher && _settingsManager.SortBy == Enums.SortBy.RecentFromVS)
                 {
-                    _visualStudioService.InitInstances(Array.Empty<string>());
+                    _visualStudioService.InitInstances([]);
                     var instances = _visualStudioService.Instances;
                     if (instances is null)
                     {

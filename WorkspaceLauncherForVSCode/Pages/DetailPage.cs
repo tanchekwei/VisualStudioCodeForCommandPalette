@@ -55,7 +55,7 @@ public sealed partial class DetailPage : ContentPage
         catch (Exception ex)
         {
             ErrorLogger.LogError(ex);
-            return Array.Empty<IContent>();
+            return [];
         }
     }
 }

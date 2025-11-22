@@ -91,7 +91,7 @@ namespace WorkspaceLauncherForVSCode.Pages
             catch (Exception ex)
             {
                 ErrorLogger.LogError(ex);
-                return Array.Empty<IListItem>();
+                return [];
             }
         }
     }

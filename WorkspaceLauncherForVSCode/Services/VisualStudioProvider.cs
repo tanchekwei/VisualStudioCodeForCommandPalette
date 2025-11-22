@@ -19,7 +19,7 @@ namespace WorkspaceLauncherForVSCode.Services
 #if DEBUG
                 using var logger = new TimeLogger();
 #endif
-                visualStudioService.InitInstances(Array.Empty<string>());
+                visualStudioService.InitInstances([]);
                 var results = visualStudioService.GetResults(showPrerelease);
 
                 var workspaceMap = new Dictionary<(string, WorkspaceType), VisualStudioCodeWorkspace>();
