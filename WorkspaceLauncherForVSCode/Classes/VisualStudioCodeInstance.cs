@@ -3,8 +3,8 @@
 using System;
 using System.Text.Json.Serialization;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Classes;
+using WorkspaceLauncherForVSCode.Enums;
 
 namespace WorkspaceLauncherForVSCode;
 

@@ -87,7 +87,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                         // Add alternative version opening options based on installed instances
                         foreach (var instance in visualStudioInstanceList)
                         {
-                            if (workspace.VSInstance != null && 
+                            if (workspace.VSInstance != null &&
                                 string.Equals(workspace.VSInstance.InstancePath, instance.InstancePath, StringComparison.OrdinalIgnoreCase))
                             {
                                 continue;
@@ -114,10 +114,10 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                                 VisualStudioCodeRemoteUri = workspace.VisualStudioCodeRemoteUri
                             };
 
-                            var altCommand = new OpenSolutionCommand(tempWorkspace, page, elevated: false) 
-                            { 
-                                Name = $"Open in Visual Studio {versionLabel}", 
-                                Icon = altIcon 
+                            var altCommand = new OpenSolutionCommand(tempWorkspace, page, elevated: false)
+                            {
+                                Name = $"Open in Visual Studio {versionLabel}",
+                                Icon = altIcon
                             };
                             moreCommands.Add(new CommandContextItem(altCommand));
                         }

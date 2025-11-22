@@ -83,7 +83,7 @@ public class SettingsManager : JsonSettingsManager
         "Enable Logging",
         "Enables diagnostic logging for troubleshooting.",
         false);
-        
+
     private readonly ToggleSetting _useHelperLauncher = new(
         Namespaced(nameof(UseHelperLauncher)),
         "Use Helper Launcher",

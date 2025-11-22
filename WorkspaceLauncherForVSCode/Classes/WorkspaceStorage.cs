@@ -85,7 +85,7 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
             try
             {
                 using var transaction = _connection.BeginTransaction();
-                
+
                 // 1. Initialize V2 Table and PinnedWorkspaces
                 var initCmd = _connection.CreateCommand();
                 initCmd.Transaction = transaction;

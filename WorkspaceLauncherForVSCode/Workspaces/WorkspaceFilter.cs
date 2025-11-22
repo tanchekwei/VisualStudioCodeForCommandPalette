@@ -138,4 +138,4 @@ namespace WorkspaceLauncherForVSCode.Workspaces
         }
     }
 }
-  
+

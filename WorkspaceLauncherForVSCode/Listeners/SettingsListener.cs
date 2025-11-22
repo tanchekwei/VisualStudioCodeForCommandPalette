@@ -94,7 +94,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
                     InstanceSettingsChanged?.Invoke(this, EventArgs.Empty);
                     _previousEnableVisualStudio = currentEnableVisualStudio;
                 }
-                
+
                 if (currentUseHelperLauncher != _previousUseHelperLauncher)
                 {
                     _previousUseHelperLauncher = currentUseHelperLauncher;
