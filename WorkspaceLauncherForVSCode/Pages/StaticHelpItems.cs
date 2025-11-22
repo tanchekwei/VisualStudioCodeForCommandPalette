@@ -15,18 +15,18 @@ namespace WorkspaceLauncherForVSCode.Pages
         );
 
         public static readonly ListItem ViewSource = new(
-            new Commands.OpenUrlCommand("https://github.com/tanchekwei/VisualStudioCodeForCommandPalette", "View source code", Classes.Icon.GitHub)
+            new Commands.OpenUrlCommand("https://github.com/tanchekwei/VisualStudioCodeForCommandPalette", "View source code", Icon.GitHub)
         );
 
         public static readonly ListItem ReportBug = new(
-            new Commands.OpenUrlCommand("https://github.com/tanchekwei/VisualStudioCodeForCommandPalette/issues/new", "Report issue", Classes.Icon.GitHub)
+            new Commands.OpenUrlCommand("https://github.com/tanchekwei/VisualStudioCodeForCommandPalette/issues/new", "Report issue", Icon.GitHub)
         );
 
         public static readonly ListItem ExtensionVersion = new()
         {
             Title = Constant.AssemblyVersion,
             Subtitle = "Extension Version",
-            Icon = Classes.Icon.Extension
+            Icon = Icon.Extension
         };
 
         public static readonly List<ListItem> CountDetailItems = new()
@@ -34,42 +34,42 @@ namespace WorkspaceLauncherForVSCode.Pages
             new ListItem
             {
                 Subtitle = "Folder",
-                Icon = Classes.Icon.VisualStudioCode,
+                Icon = Icon.VisualStudioCode,
             },
             new ListItem
             {
                 Subtitle = "Workspace",
-                Icon = Classes.Icon.VisualStudioCode,
+                Icon = Icon.VisualStudioCode,
             },
             new ListItem
             {
                 Subtitle = "Codespaces",
-                Icon = Classes.Icon.VisualStudioCode,
+                Icon = Icon.VisualStudioCode,
             },
             new ListItem
             {
                 Subtitle = "WSL",
-                Icon = Classes.Icon.VisualStudioCode,
+                Icon = Icon.VisualStudioCode,
             },
             new ListItem
             {
                 Subtitle = "Dev Container",
-                Icon = Classes.Icon.VisualStudioCode,
+                Icon = Icon.VisualStudioCode,
             },
             new ListItem
             {
                 Subtitle = "Attached Container",
-                Icon = Classes.Icon.VisualStudioCode,
+                Icon = Icon.VisualStudioCode,
             },
             new ListItem
             {
                 Subtitle = "SSH Remote",
-                Icon = Classes.Icon.VisualStudioCode,
+                Icon = Icon.VisualStudioCode,
             },
             new ListItem
             {
                 Subtitle = "Total",
-                Icon = Classes.Icon.VisualStudioCode,
+                Icon = Icon.VisualStudioCode,
             }
         };
 
@@ -84,7 +84,7 @@ namespace WorkspaceLauncherForVSCode.Pages
                 SettingsItem = new ListItem(deps.Get<SettingsManager>().Settings.SettingsPage)
                 {
                     Title = "Setting",
-                    Icon = Classes.Icon.Setting
+                    Icon = Icon.Setting
                 };
                 VisualStudioCodeDetailPage = new(new VisualStudioCodeDetailPage(deps));
                 VisualStudioDetailPage = new(new VisualStudioDetailPage(deps));
@@ -93,17 +93,17 @@ namespace WorkspaceLauncherForVSCode.Pages
                     new ListItem(VisualStudioDetailPage)
                     {
                         Subtitle = "Visual Studio",
-                        Icon = Classes.Icon.VisualStudio,
+                        Icon = Icon.VisualStudio,
                     },
                     new ListItem(VisualStudioCodeDetailPage)
                     {
                         Subtitle = "Visual Studio Code",
-                        Icon = Classes.Icon.VisualStudioCode,
+                        Icon = Icon.VisualStudioCode,
                     },
                     new ListItem()
                     {
                         Subtitle = "Total",
-                        Icon = Classes.Icon.VisualStudioAndVisualStudioCode,
+                        Icon = Icon.VisualStudioAndVisualStudioCode,
                     }
                 };
             }

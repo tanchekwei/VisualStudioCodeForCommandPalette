@@ -49,10 +49,10 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     case WorkspaceType.Solution:
                     case WorkspaceType.Solution2026:
                         command = new OpenSolutionCommand(workspace, page);
-                        icon = Classes.Icon.VisualStudio;
+                        icon = Icon.VisualStudio;
                         if (workspace.WorkspaceType == WorkspaceType.Solution2026 || workspace.VSInstance?.ProductLineVersion == Constant.VisualStudio2026Version)
                         {
-                            icon = Classes.Icon.VisualStudio2026;
+                            icon = Icon.VisualStudio2026;
                         }
                         workspace.WindowsPath = workspace.Path;
                         details = new Details
@@ -125,7 +125,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                         break;
                     default:
                         command = new OpenVisualStudioCodeCommand(workspace, page);
-                        icon = Classes.Icon.VisualStudioCode;
+                        icon = Icon.VisualStudioCode;
                         details = new Details
                         {
                             Title = workspace.GetWorkspaceName(),
@@ -179,7 +179,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                                 case VisualStudioCodeRemoteType.Codespaces:
                                     if (!string.IsNullOrEmpty(workspace.WindowsPath))
                                     {
-                                        moreCommands.Add(new CommandContextItem(new Commands.OpenUrlCommand(workspace.WindowsPath, "Open in Browser", Classes.Icon.GitHub)));
+                                        moreCommands.Add(new CommandContextItem(new Commands.OpenUrlCommand(workspace.WindowsPath, "Open in Browser", Icon.GitHub)));
                                     }
                                     break;
                                 case VisualStudioCodeRemoteType.WSL:

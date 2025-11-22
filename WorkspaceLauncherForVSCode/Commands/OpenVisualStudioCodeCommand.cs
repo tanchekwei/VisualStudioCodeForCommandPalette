@@ -83,7 +83,7 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
 
             string? arguments;
             // Open the workspace in Visual Studio Code
-            if (Workspace.Path.EndsWith(".code-workspace", System.StringComparison.OrdinalIgnoreCase))
+            if (Workspace.Path.EndsWith(".code-workspace", StringComparison.OrdinalIgnoreCase))
             {
                 arguments = $"--file-uri \"{Workspace.Path}\"";
             }

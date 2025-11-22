@@ -376,12 +376,12 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     {
         if (_settingsManager.EnableWorkspaceWatcher)
         {
-            if (_settingsManager.SortBy == Enums.SortBy.RecentFromVSCode)
+            if (_settingsManager.SortBy == SortBy.RecentFromVSCode)
             {
                 _vscodeWatcherService.StartWatching();
                 _vsWatcherService.StopWatching();
             }
-            else if (_settingsManager.SortBy == Enums.SortBy.RecentFromVS)
+            else if (_settingsManager.SortBy == SortBy.RecentFromVS)
             {
                 _vscodeWatcherService.StopWatching();
                 _vsWatcherService.StartWatching();
