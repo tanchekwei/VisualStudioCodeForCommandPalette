@@ -14,7 +14,6 @@ using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Listeners;
 using WorkspaceLauncherForVSCode.Pages;
 using WorkspaceLauncherForVSCode.Properties;
-using WorkspaceLauncherForVSCode.Services;
 using WorkspaceLauncherForVSCode.Services.VisualStudio.Models;
 using WorkspaceLauncherForVSCode.Workspaces;
 

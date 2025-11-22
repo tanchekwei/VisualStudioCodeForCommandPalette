@@ -6,8 +6,6 @@ using System.Globalization;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
-using WorkspaceLauncherForVSCode.Enums;
-using WorkspaceLauncherForVSCode.Services;
 using WorkspaceLauncherForVSCode.Services.VisualStudio;
 
 namespace WorkspaceLauncherForVSCode.Pages
