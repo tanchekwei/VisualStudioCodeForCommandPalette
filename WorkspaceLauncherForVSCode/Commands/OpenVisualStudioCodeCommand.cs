@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.CmdPal.Ext.System.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
@@ -114,7 +113,7 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
             }
             else
             {
-                OpenInShellHelper.OpenInShell(Workspace.VSCodeInstance.ExecutablePath, arguments, runAs: _elevated ? OpenInShellHelper.ShellRunAsType.Administrator : OpenInShellHelper.ShellRunAsType.None);
+                ShellHelpers.OpenInShell(Workspace.VSCodeInstance.ExecutablePath, arguments, runAs: _elevated ? ShellHelpers.ShellRunAsType.Administrator : ShellHelpers.ShellRunAsType.None);
             }
 
             Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path, Workspace.WorkspaceType));

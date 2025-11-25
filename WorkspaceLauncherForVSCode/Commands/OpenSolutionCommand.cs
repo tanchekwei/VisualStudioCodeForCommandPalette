@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.CmdPal.Ext.System.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Components;
@@ -111,7 +110,7 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
 
             if (Workspace.VSInstance != null)
             {
-                OpenInShellHelper.OpenInShell(Workspace.VSInstance.InstancePath, Workspace.Path, runAs: _elevated ? OpenInShellHelper.ShellRunAsType.Administrator : OpenInShellHelper.ShellRunAsType.None);
+                ShellHelpers.OpenInShell(Workspace.VSInstance.InstancePath, Workspace.Path, runAs: _elevated ? ShellHelpers.ShellRunAsType.Administrator : ShellHelpers.ShellRunAsType.None);
             }
 
             return PageCommandResultHandler.HandleCommandResult(page);

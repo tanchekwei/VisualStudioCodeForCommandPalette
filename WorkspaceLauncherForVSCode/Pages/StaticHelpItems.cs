@@ -93,7 +93,7 @@ namespace WorkspaceLauncherForVSCode.Pages
                     new ListItem(VisualStudioDetailPage)
                     {
                         Subtitle = "Visual Studio",
-                        Icon = Icon.VisualStudio,
+                        Icon = Icon.VisualStudio2026,
                     },
                     new ListItem(VisualStudioCodeDetailPage)
                     {

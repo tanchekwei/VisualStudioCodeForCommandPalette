@@ -62,7 +62,7 @@ namespace WorkspaceLauncherForVSCode.Pages
                     {
                         Title = _countTracker[CountType.VisualStudio].ToString(CultureInfo.InvariantCulture),
                         Subtitle = "Total",
-                        Icon = Classes.Icon.VisualStudio,
+                        Icon = Classes.Icon.VisualStudio2026,
                     }
                 ];
             }

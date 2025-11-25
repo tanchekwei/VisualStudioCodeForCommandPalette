@@ -47,7 +47,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
         }
     }
 
-    private void OnInstanceSettingsChanged(object? sender, System.EventArgs e)
+    private void OnInstanceSettingsChanged(object? sender, EventArgs e)
     {
         try
         {

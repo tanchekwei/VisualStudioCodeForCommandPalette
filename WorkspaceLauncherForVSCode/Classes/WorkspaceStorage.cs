@@ -96,7 +96,8 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
                 var checkCmd = _connection.CreateCommand();
                 checkCmd.Transaction = transaction;
                 checkCmd.CommandText = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='Workspaces'";
-                var oldTableExists = (long)checkCmd.ExecuteScalar() > 0;
+                var count = checkCmd.ExecuteScalar() as long? ?? 0L;
+                var oldTableExists = count > 0;
 
                 if (oldTableExists)
                 {
@@ -133,7 +134,7 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
                     {
                         Path = reader.GetString(0),
                         Name = reader.IsDBNull(1) ? null : reader.GetString(1),
-                        WorkspaceType = (Enums.WorkspaceType)reader.GetInt32(2),
+                        WorkspaceType = (WorkspaceType)reader.GetInt32(2),
                         Frequency = reader.GetInt32(3),
                         LastAccessed = reader.IsDBNull(4) ? DateTime.MinValue : DateTime.Parse(reader.GetString(4), CultureInfo.InvariantCulture),
                         PinDateTime = reader.IsDBNull(5) ? null : DateTime.Parse(reader.GetString(5), CultureInfo.InvariantCulture),

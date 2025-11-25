@@ -25,29 +25,26 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 
                 if (isSearching)
                 {
-                    var matcher = StringMatcher.Instance;
-                    matcher.UserSettingSearchPrecision = SearchPrecisionScore.Regular;
-
-                    var matchedItems = new List<(VisualStudioCodeWorkspace item, MatchResult bestMatch)>();
+                    var matchedItems = new List<(VisualStudioCodeWorkspace item, int score)>();
 
                     foreach (var item in allWorkspaces)
                     {
                         var titleScore = (searchBy is SearchBy.Title or SearchBy.Both)
-                            ? matcher.FuzzyMatch(searchText, item.Name ?? string.Empty)
-                            : new MatchResult(false, 0);
+                            ? FuzzyStringMatcher.ScoreFuzzy(searchText, item.Name ?? string.Empty)
+                            : 0;
 
                         var subtitleScore = (searchBy is SearchBy.Path or SearchBy.Both)
-                            ? matcher.FuzzyMatch(searchText, item.WindowsPath ?? string.Empty)
-                            : new MatchResult(false, 0);
+                            ? FuzzyStringMatcher.ScoreFuzzy(searchText, item.WindowsPath ?? string.Empty)
+                            : 0;
 
-                        var bestMatch = titleScore.Score >= subtitleScore.Score ? titleScore : subtitleScore;
-                        if (bestMatch.Success)
+                        var bestScore = Math.Max(titleScore, subtitleScore);
+                        if (bestScore > 0)
                         {
-                            matchedItems.Add((item, bestMatch));
+                            matchedItems.Add((item, bestScore));
                         }
                     }
 
-                    matchedItems.Sort((a, b) => b.bestMatch.Score.CompareTo(a.bestMatch.Score));
+                    matchedItems.Sort((a, b) => b.score.CompareTo(a.score));
 
                     filteredItems = new List<VisualStudioCodeWorkspace>(matchedItems.Count);
                     foreach (var match in matchedItems)
@@ -137,4 +134,3 @@ namespace WorkspaceLauncherForVSCode.Workspaces
         }
     }
 }
-

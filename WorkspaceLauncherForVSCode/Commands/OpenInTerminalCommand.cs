@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.IO;
-using Microsoft.CmdPal.Ext.System.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
@@ -59,7 +58,7 @@ namespace WorkspaceLauncherForVSCode.Commands
                     }
 
                     var terminal = _settingsManager.TerminalType == TerminalType.PowerShell ? "powershell.exe" : "cmd.exe";
-                    OpenInShellHelper.OpenInShell(terminal, workingDir: directoryPath);
+                    ShellHelpers.OpenInShell(terminal, workingDir: directoryPath);
                 }
 
                 return CommandResult.Dismiss();
