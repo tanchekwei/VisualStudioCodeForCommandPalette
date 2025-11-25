@@ -58,6 +58,10 @@ namespace WorkspaceLauncherForVSCode.Pages
                             _countTracker.Increment(WorkspaceType.Solution);
                             _countTracker.Increment(CountType.VisualStudio);
                             break;
+                        case WorkspaceType.Solution2026:
+                            _countTracker.Increment(WorkspaceType.Solution2026);
+                            _countTracker.Increment(CountType.VisualStudio);
+                            break;
                         default:
                             break;
                     }

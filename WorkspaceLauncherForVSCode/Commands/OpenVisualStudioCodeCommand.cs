@@ -61,7 +61,7 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
     {
         try
         {
-            if (Workspace.WorkspaceType == WorkspaceType.Solution)
+            if (Workspace.WorkspaceType == WorkspaceType.Solution || Workspace.WorkspaceType == WorkspaceType.Solution2026)
             {
                 return CommandResult.Confirm(new ConfirmationArgs { Title = "Error", Description = "Cannot open a solution with this command." });
             }

@@ -42,7 +42,9 @@ namespace WorkspaceLauncherForVSCode.Commands
                 {
                     return CommandResult.Dismiss();
                 }
-                if (workspace?.WorkspaceType == WorkspaceType.Solution || workspace?.WorkspaceType == WorkspaceType.Workspace)
+                if (workspace?.WorkspaceType == WorkspaceType.Solution ||
+                    workspace?.WorkspaceType == WorkspaceType.Solution2026 ||
+                    workspace?.WorkspaceType == WorkspaceType.Workspace)
                 {
                     pathToOpen = Path.GetDirectoryName(pathToOpen) ?? string.Empty;
                 }
