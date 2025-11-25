@@ -17,7 +17,7 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
 
-    <AssemblyVersion>1.19.0.0</AssemblyVersion>
+    <AssemblyVersion>1.20.0.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\LargeTile.scale-125.png" />
