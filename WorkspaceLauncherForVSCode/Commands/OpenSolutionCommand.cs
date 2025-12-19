@@ -110,7 +110,7 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
 
             if (Workspace.VSInstance != null)
             {
-                ShellHelpers.OpenInShell(Workspace.VSInstance.InstancePath, Workspace.Path, runAs: _elevated ? ShellHelpers.ShellRunAsType.Administrator : ShellHelpers.ShellRunAsType.None);
+                ShellHelpers.OpenInShell(Workspace.VSInstance.InstancePath, $"\"{Workspace.Path}\"", runAs: _elevated ? ShellHelpers.ShellRunAsType.Administrator : ShellHelpers.ShellRunAsType.None);
             }
 
             return PageCommandResultHandler.HandleCommandResult(page);
