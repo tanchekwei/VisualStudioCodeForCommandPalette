@@ -122,6 +122,21 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                             moreCommands.Add(new CommandContextItem(altCommand));
                         }
 
+                        // Add Open in Visual Studio Code option
+                        var vsCodeInstances = page.VSCodeService.GetInstances();
+                        if (vsCodeInstances.Count > 0)
+                        {
+                            var tempVsCodeWorkspace = new VisualStudioCodeWorkspace
+                            {
+                                Path = workspace.Path,
+                                Name = workspace.Name,
+                                WindowsPath = workspace.WindowsPath,
+                                WorkspaceType = workspace.WorkspaceType,
+                                VSCodeInstance = vsCodeInstances[0], // Use the first available VS Code instance
+                                VisualStudioCodeRemoteUri = workspace.VisualStudioCodeRemoteUri
+                            };
+                            moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(tempVsCodeWorkspace, page, isFromVisualStudioSolution: true)));
+                        }
                         break;
                     default:
                         command = new OpenVisualStudioCodeCommand(workspace, page);

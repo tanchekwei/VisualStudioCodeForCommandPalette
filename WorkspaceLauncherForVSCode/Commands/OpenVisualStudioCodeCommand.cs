@@ -18,6 +18,7 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
 {
     private readonly VisualStudioCodePage page;
     private readonly bool _elevated;
+    private readonly bool _isFromVisualStudioSolution;
 
     public VisualStudioCodeWorkspace Workspace { get; set; }
 
@@ -26,13 +27,16 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
     /// </summary>
     /// <param name="workspace">The Visual Studio Code workspace to open.</param>
     /// <param name="page">The Visual Studio Code page instance.</param>
-    public OpenVisualStudioCodeCommand(VisualStudioCodeWorkspace workspace, VisualStudioCodePage page, bool elevated = false)
+    /// <param name="elevated">Whether to run as administrator.</param>
+    /// <param name="isFromVisualStudioSolution">Whether this command is opening a Visual Studio solution.</param>
+    public OpenVisualStudioCodeCommand(VisualStudioCodeWorkspace workspace, VisualStudioCodePage page, bool elevated = false, bool isFromVisualStudioSolution = false)
     {
         try
         {
             Workspace = workspace;
             this.page = page;
             _elevated = elevated;
+            _isFromVisualStudioSolution = isFromVisualStudioSolution;
             this.Icon = Classes.Icon.VisualStudioCode;
 
             if (elevated)
@@ -42,7 +46,14 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
             }
             else
             {
-                Name = $"Open";
+                if (isFromVisualStudioSolution)
+                {
+                    Name = "Open in Visual Studio Code";
+                }
+                else
+                {
+                    Name = "Open";
+                }
             }
         }
         catch (Exception ex)
@@ -60,7 +71,7 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
     {
         try
         {
-            if (Workspace.WorkspaceType == WorkspaceType.Solution || Workspace.WorkspaceType == WorkspaceType.Solution2026)
+            if (!_isFromVisualStudioSolution && (Workspace.WorkspaceType == WorkspaceType.Solution || Workspace.WorkspaceType == WorkspaceType.Solution2026))
             {
                 return CommandResult.Confirm(new ConfirmationArgs { Title = "Error", Description = "Cannot open a solution with this command." });
             }
@@ -88,7 +99,22 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
             }
             else
             {
-                arguments = $"--folder-uri \"{Workspace.Path}\"";
+                var path = Workspace.Path;
+                if (_isFromVisualStudioSolution)
+                {
+                    if (File.Exists(path) && !Directory.Exists(path))
+                    {
+                        path = Path.GetDirectoryName(path);
+                    }
+
+                    if (path != null)
+                    {
+                        var uri = new Uri(path);
+                        path = uri.AbsoluteUri;
+                    }
+                }
+
+                arguments = $"--folder-uri \"{path}\"";
             }
 
             if (page.SettingsManager.UseHelperLauncher)
