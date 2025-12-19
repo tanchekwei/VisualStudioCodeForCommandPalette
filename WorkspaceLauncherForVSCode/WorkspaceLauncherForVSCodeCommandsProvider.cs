@@ -24,7 +24,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
 #endif
             _settingsManager = settingsManager;
             _vscodeService = visualStudioCodeService;
-            DisplayName = "Visual Studio / Code";
+            DisplayName = "Open Recent Visual Studio / Code";
 #if DEBUG
             DisplayName += " (Dev)";
 #endif
