@@ -162,7 +162,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 
             // Add Open in Visual Studio Code option
             var vsCodeInstances = page.VSCodeService.GetInstances();
-            if (vsCodeInstances.Count > 0)
+            foreach (var instance in vsCodeInstances)
             {
                 var tempVsCodeWorkspace = new VisualStudioCodeWorkspace
                 {
@@ -170,10 +170,22 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     Name = workspace.Name,
                     WindowsPath = workspace.WindowsPath,
                     WorkspaceType = workspace.WorkspaceType,
-                    VSCodeInstance = vsCodeInstances[0],
+                    VSCodeInstance = instance,
                     VisualStudioCodeRemoteUri = workspace.VisualStudioCodeRemoteUri
                 };
-                moreCommands.Add(new CommandContextItem(new OpenVisualStudioCodeCommand(tempVsCodeWorkspace, page, isFromVisualStudioSolution: true)));
+
+                var commandIcon = Icon.VisualStudioCode;
+                if (instance.VisualStudioCodeType == VisualStudioCodeType.Insider)
+                {
+                    commandIcon = Icon.VisualStudioCodeInsiders;
+                }
+
+                var openCommand = new OpenVisualStudioCodeCommand(tempVsCodeWorkspace, page, isFromVisualStudioSolution: true)
+                {
+                    Name = $"Open in {instance.Name.Replace("VS Code", "Visual Studio Code")}",
+                    Icon = commandIcon
+                };
+                moreCommands.Add(new CommandContextItem(openCommand));
             }
 
             return (command, icon, details, tags, moreCommands);
@@ -289,7 +301,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 
                 var openCommand = new OpenVisualStudioCodeCommand(tempWorkspace, page)
                 {
-                    Name = $"Open in {instance.Name}",
+                    Name = $"Open in {instance.Name.Replace("VS Code", "Visual Studio Code")}",
                     Icon = commandIcon 
                 };
                  
