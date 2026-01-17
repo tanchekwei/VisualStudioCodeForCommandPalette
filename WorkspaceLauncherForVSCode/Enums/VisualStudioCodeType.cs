@@ -8,5 +8,7 @@ namespace WorkspaceLauncherForVSCode.Enums;
 public enum VisualStudioCodeType
 {
   Default,
-  Insider
+  Insider,
+  Cursor,
+  Antigravity
 }

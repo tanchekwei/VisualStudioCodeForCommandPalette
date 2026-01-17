@@ -179,6 +179,14 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 {
                     commandIcon = Icon.VisualStudioCodeInsiders;
                 }
+                else if (instance.VisualStudioCodeType == VisualStudioCodeType.Cursor)
+                {
+                    commandIcon = Icon.Cursor;
+                }
+                else if (instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity)
+                {
+                    commandIcon = Icon.Antigravity;
+                }
 
                 var openCommand = new OpenVisualStudioCodeCommand(tempVsCodeWorkspace, page, isFromVisualStudioSolution: true)
                 {
@@ -202,6 +210,14 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             {
                 icon = Icon.VisualStudioCodeInsiders;
             }
+            else if (workspace.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Cursor)
+            {
+                icon = Icon.Cursor;
+            }
+            else if (workspace.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Antigravity)
+            {
+                icon = Icon.Antigravity;
+            }
             var details = new Details
             {
                 Title = workspace.GetWorkspaceName(),
@@ -219,7 +235,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 {
                     tags.Add(new Tag(workspace.VisualStudioCodeRemoteUri.TypeStr));
                 }
-                else if (workspace.WorkspaceType == WorkspaceType.Workspace || workspace.WorkspaceType == WorkspaceType.WorkspaceInsider)
+                else if (workspace.WorkspaceType == WorkspaceType.Workspace ||
+                         workspace.WorkspaceType == WorkspaceType.WorkspaceInsider)
                 {
                     tags.Add(new Tag(nameof(WorkspaceType.Workspace)));
                 }
@@ -297,6 +314,14 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 if (instance.VisualStudioCodeType == VisualStudioCodeType.Insider)
                 {
                     commandIcon = Icon.VisualStudioCodeInsiders;
+                }
+                else if (instance.VisualStudioCodeType == VisualStudioCodeType.Cursor)
+                {
+                    commandIcon = Icon.Cursor;
+                }
+                else if (instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity)
+                {
+                    commandIcon = Icon.Antigravity;
                 }
 
                 var openCommand = new OpenVisualStudioCodeCommand(tempWorkspace, page)

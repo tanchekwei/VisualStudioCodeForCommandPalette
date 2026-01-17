@@ -139,6 +139,21 @@ public class SettingsManager : JsonSettingsManager
         "",
         false);
 
+    
+    private readonly ToggleSetting _enableCursor = new(
+        Namespaced(nameof(_enableCursor)),
+        "Enable Cursor\n" +
+        "Loads folders/workspaces from Cursor",
+        "",
+        false);
+
+    private readonly ToggleSetting _enableAntigravity = new(
+        Namespaced(nameof(_enableAntigravity)),
+        "Enable Google Antigravity\n" +
+        "Loads folders/workspaces from Google Antigravity",
+        "",
+        false);
+
     private readonly ToggleSetting _enableWorkspaceWatcher = new(
         Namespaced(nameof(EnableWorkspaceWatcher)),
         "Enable Workspace Watcher",
@@ -246,8 +261,10 @@ public class SettingsManager : JsonSettingsManager
             var editions = VisualStudioCodeEdition.None;
             if (_enableDefault.Value) editions |= VisualStudioCodeEdition.Default;
             if (_enableSystem.Value) editions |= VisualStudioCodeEdition.System;
-            if (_enableInsider.Value) editions |= VisualStudioCodeEdition.Insider;
+            if ( _enableInsider.Value) editions |= VisualStudioCodeEdition.Insider;
             if (_enableCustom.Value) editions |= VisualStudioCodeEdition.Custom;
+            if (_enableCursor.Value) editions |= VisualStudioCodeEdition.Cursor;
+            if (_enableAntigravity.Value) editions |= VisualStudioCodeEdition.Antigravity;
             return editions;
         }
     }
@@ -328,6 +345,8 @@ public class SettingsManager : JsonSettingsManager
             Settings.Add(_enableSystem);
             Settings.Add(_enableInsider);
             Settings.Add(_enableCustom);
+            Settings.Add(_enableCursor);
+            Settings.Add(_enableAntigravity);
             Settings.Add(_pageSize);
             Settings.Add(_searchBy);
             Settings.Add(_sortBy);

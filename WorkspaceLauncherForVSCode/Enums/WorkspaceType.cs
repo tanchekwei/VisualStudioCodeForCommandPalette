@@ -13,4 +13,6 @@ public enum WorkspaceType
     Solution2026,
     FolderInsider,
     WorkspaceInsider,
+    Cursor,
+    Antigravity,
 }

@@ -11,6 +11,8 @@ namespace WorkspaceLauncherForVSCode.Enums
         Default = 1,
         System = 2,
         Insider = 4,
-        Custom = 8
+        Custom = 8,
+        Cursor = 16,
+        Antigravity = 32
     }
 }

@@ -127,6 +127,12 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
                 case WorkspaceType.WorkspaceInsider:
                     WorkspaceTypeString = "Workspace (Insider)";
                     break;
+                case WorkspaceType.Cursor:
+                    WorkspaceTypeString = "Cursor";
+                    break;
+                case WorkspaceType.Antigravity:
+                    WorkspaceTypeString = "Antigravity";
+                    break;
                 default:
                     WorkspaceTypeString = "Unknown Type";
                     break;

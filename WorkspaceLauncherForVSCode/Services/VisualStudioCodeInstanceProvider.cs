@@ -100,6 +100,18 @@ namespace WorkspaceLauncherForVSCode.Services
                         ErrorLogger.LogError(ex);
                     }
                 }
+                if (enabledEditions.HasFlag(VisualStudioCodeEdition.Cursor))
+                {
+                    var cursorPath = Path.Combine("C:", "Program Files", "cursor", "Cursor.exe");
+                    var cursorStoragePath = Path.Combine(appDataBasePath, "Cursor", "User", "globalStorage");
+                    AddInstance(instances, "Cursor", cursorPath, cursorStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Cursor);
+                }
+                if (enabledEditions.HasFlag(VisualStudioCodeEdition.Antigravity))
+                {
+                    var antigravityPath = Path.Combine(appdataProgramFilesPath, "Programs", "antigravity", "Antigravity.exe");
+                    var antigravityStoragePath = Path.Combine(appDataBasePath, "Antigravity", "User", "globalStorage");
+                    AddInstance(instances, "Antigravity", antigravityPath, antigravityStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Antigravity);
+                }
             }
             catch (Exception ex)
             {

@@ -47,8 +47,15 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                                 foreach (var entry in root.Entries)
                                 {
                                     VisualStudioCodeWorkspace? workspace = null;
-                                    var folderType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.FolderInsider : WorkspaceType.Folder;
-                                    var workspaceType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.WorkspaceInsider : WorkspaceType.Workspace;
+                                    var folderType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.FolderInsider :
+                                                     instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.Cursor :
+                                                     instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.Antigravity :
+                                                     WorkspaceType.Folder;
+
+                                    var workspaceType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.WorkspaceInsider :
+                                                        instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.Cursor :
+                                                        instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.Antigravity :
+                                                        WorkspaceType.Workspace;
 
                                     if (!string.IsNullOrEmpty(entry.FolderUri))
                                     {
@@ -106,8 +113,14 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                 if (root?.Entries == null) return 0;
 
                 var removedCount = root.Entries.RemoveAll(entry =>
-                    ((workspace.WorkspaceType == WorkspaceType.Folder || workspace.WorkspaceType == WorkspaceType.FolderInsider) && entry.FolderUri == workspace.Path) ||
-                    ((workspace.WorkspaceType == WorkspaceType.Workspace || workspace.WorkspaceType == WorkspaceType.WorkspaceInsider) && entry.Workspace?.ConfigPath == workspace.Path));
+                    ((workspace.WorkspaceType == WorkspaceType.Folder ||
+                      workspace.WorkspaceType == WorkspaceType.FolderInsider ||
+                      workspace.WorkspaceType == WorkspaceType.Cursor ||
+                      workspace.WorkspaceType == WorkspaceType.Antigravity) && entry.FolderUri == workspace.Path) ||
+                    ((workspace.WorkspaceType == WorkspaceType.Workspace ||
+                      workspace.WorkspaceType == WorkspaceType.WorkspaceInsider ||
+                      workspace.WorkspaceType == WorkspaceType.Cursor ||
+                      workspace.WorkspaceType == WorkspaceType.Antigravity) && entry.Workspace?.ConfigPath == workspace.Path));
 
                 if (removedCount > 0)
                 {
