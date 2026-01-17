@@ -97,6 +97,16 @@ The results are then combined into a single, unified list for easy access.
 
 For more detailed technical information about the project's architecture and components, please see the [Project Guide](./GUIDE.md).
 
+## Changelog
+
+### 1.21.0.0
+- Add option to open Visual Studio solutions in Visual Studio Code
+- Add help command into refresh command context
+
+### 1.9.0.0
+- Native AOT compilation and trimming
+- fix: WSL and Remote VS Code
+
 ## Contributing
 
 Contributions are welcome! If you have suggestions for improvements or new features, please open an issue or submit a pull request.

@@ -25,6 +25,10 @@ The project is organized into the following key directories within the `Workspac
     - `OpenSolutionCommand.cs` - The primary command for launching a selected Visual Studio solution.
     - `CopyPathCommand.cs` - Copies the workspace or solution path to the clipboard.
     - `RemoveWorkspaceCommand.cs` - Removes a workspace from the recently opened list.
+    - `PinWorkspaceCommand.cs` - Pins or unpins a workspace.
+    - `RefreshWorkspacesCommand.cs` - Manually refreshes the workspace list.
+    - `OpenInTerminalCommand.cs` - Opens the workspace location in a terminal.
+    - `ResetFrequencyCommand.cs` - Resets the usage frequency of a workspace.
 - **`/Components`**: Contains components for window management, adapted from the WindowWalker extension.
     - `Window.cs` - Represents a single open window.
     - `WindowProcess.cs` - Manages process information for a window.
@@ -40,6 +44,9 @@ The project is organized into the following key directories within the `Workspac
   - [`VisualStudioCodeInstanceProvider.cs`](./Services/VisualStudioCodeInstanceProvider.cs) - Discovers all installed instances of Visual Studio Code.
   - [`VisualStudioCodeWorkspaceProvider.cs`](./Services/VisualStudioCodeWorkspaceProvider.cs) - Orchestrates the process of finding recent VS Code workspaces.
   - [`VisualStudioProvider.cs`](./Services/VisualStudioProvider.cs) - Orchestrates the process of finding recent Visual Studio solutions.
+  - [`PinService.cs`](./Services/PinService.cs) - Manages the pinned state of workspaces.
+  - [`VSWorkspaceWatcherService.cs`](./Services/VSWorkspaceWatcherService.cs) - Monitors Visual Studio settings files for changes to trigger auto-refresh.
+  - [`VSCodeWorkspaceWatcherService.cs`](./Services/VSCodeWorkspaceWatcherService.cs) - Monitors Visual Studio Code storage for changes to trigger auto-refresh.
   - **`/Services/VisualStudio`**: Contains the integrated source code for discovering Visual Studio instances and their recent items.
 - **`/Workspaces`**: Contains workspace-related logic.
     - **`/Models`**: C# models that map to the JSON structures of Visual Studio Code's workspace storage.
@@ -64,6 +71,14 @@ The extension integrates logic from the **WindowWalker** extension to provide wi
 *   **`VisualStudioCodeWorkspaceProvider`**: This static provider orchestrates the process of finding recently opened VS Code workspaces. It doesn't perform the reading itself but delegates the task to specialized reader classes.
 *   **`VisualStudioProvider`**: This static provider orchestrates the process of finding recently opened Visual Studio solutions. It uses the integrated `VisualStudioService` to discover Visual Studio instances and their recent items.
 
+### Watcher Services
+
+*   **`VSWorkspaceWatcherService` & `VSCodeWorkspaceWatcherService`**: These services provide real-time updates by monitoring the underlying configuration files (`ApplicationPrivateSettings.xml` for VS, `storage.json` / `state.vscdb` for VS Code). When a change is detected (e.g., a new solution is opened), the extension automatically refreshes the list.
+
+### Pin Service
+
+*   **`PinService`**: Manages the pinning functionality, allowing users to keep frequently used workspaces at the top of the list. It persists the pinned state across sessions.
+
 ### Visual Studio Integration
 
 The extension now includes the core logic from the `PowerToys-Run-VisualStudio` project to discover Visual Studio installations and their recent solutions. This is accomplished by:
@@ -73,10 +88,15 @@ The extension now includes the core logic from the `PowerToys-Run-VisualStudio` 
 
 This integration provides a seamless experience, allowing users to access both Visual Studio solutions and VS Code workspaces from a single interface.
 
+**Asynchronous Initialization**:
+To prevent UI freezing, the discovery of Visual Studio instances (which involves running `vswhere.exe`) and the scanning of their settings files are performed asynchronously in the background. The `InitInstancesAsync` method ensures that the heavy lifting is done without blocking the main thread, providing a responsive user experience even during startup.
+
 ### Workspace Readers and Performance
 
 To ensure high performance and low memory usage, the extension uses the `System.Text.Json` source generator for deserializing workspace data. This avoids runtime reflection and minimizes allocations.
 
+*   **Native AOT**: The application supports Native AOT (Ahead-of-Time) compilation, which significantly reduces startup time and memory footprint (introduced in version 1.9.0.0).
+*   **Asynchronous Loading**: All heavy I/O operations, including reading workspace databases and running external processes, are fully asynchronous to maintain UI responsiveness.
 *   **`VscdbWorkspaceReader` & `StorageJsonWorkspaceReader`**: These static reader classes are responsible for retrieving workspace information from Visual Studio Code's two primary data sources: the `state.vscdb` SQLite database and the `storage.json` file. Each reader is optimized to read its specific source and deserialize the data efficiently using source-generated models.
 
 ### Settings
@@ -94,5 +114,7 @@ Beyond the primary action of opening a workspace or solution, the extension prov
 
 *   **`CopyPathCommand`**: This command allows the user to copy the full file path of a workspace, solution, or folder directly to the clipboard.
 *   **`RemoveWorkspaceCommand`**: This command provides the functionality to remove a workspace entry from the Visual Studio Code's list of recently opened items (not applicable to Visual Studio solutions).
+*   **`PinWorkspaceCommand`**: (Un)pins a workspace or solution.
+*   **`OpenInTerminalCommand`**: Opens the selected workspace's folder in the configured terminal.
 
 This architecture ensures a clean separation of concerns, making the codebase easier to understand, extend, and debug.
