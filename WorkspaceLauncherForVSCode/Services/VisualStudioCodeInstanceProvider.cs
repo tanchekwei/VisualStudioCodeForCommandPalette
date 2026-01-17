@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
 
@@ -10,6 +11,11 @@ namespace WorkspaceLauncherForVSCode.Services
 {
     public static class VisualStudioCodeInstanceProvider
     {
+        public static async Task<List<VisualStudioCodeInstance>> GetInstancesAsync(VisualStudioCodeEdition enabledEditions)
+        {
+            return await Task.Run(() => GetInstances(enabledEditions));
+        }
+
         public static List<VisualStudioCodeInstance> GetInstances(VisualStudioCodeEdition enabledEditions)
         {
 #if DEBUG

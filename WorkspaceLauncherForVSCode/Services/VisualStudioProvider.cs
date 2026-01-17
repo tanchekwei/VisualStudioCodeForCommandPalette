@@ -11,7 +11,7 @@ namespace WorkspaceLauncherForVSCode.Services
 {
     public static class VisualStudioProvider
     {
-        public static Task<List<VisualStudioCodeWorkspace>> GetSolutions(
+        public static async Task<List<VisualStudioCodeWorkspace>> GetSolutions(
             VisualStudioService visualStudioService, List<VisualStudioCodeWorkspace> dbWorkspaces, bool showPrerelease)
         {
             try
@@ -19,7 +19,7 @@ namespace WorkspaceLauncherForVSCode.Services
 #if DEBUG
                 using var logger = new TimeLogger();
 #endif
-                visualStudioService.InitInstances([]);
+                await visualStudioService.InitInstancesAsync([]);
                 var results = visualStudioService.GetResults(showPrerelease);
 
                 var workspaceMap = new Dictionary<(string, WorkspaceType), VisualStudioCodeWorkspace>();
@@ -59,12 +59,12 @@ namespace WorkspaceLauncherForVSCode.Services
                     list.Add(vs);
                 }
 
-                return Task.FromResult(list);
+                return list;
             }
             catch (Exception ex)
             {
                 ErrorLogger.LogError(ex);
-                return Task.FromResult(new List<VisualStudioCodeWorkspace>());
+                return new List<VisualStudioCodeWorkspace>();
             }
         }
     }

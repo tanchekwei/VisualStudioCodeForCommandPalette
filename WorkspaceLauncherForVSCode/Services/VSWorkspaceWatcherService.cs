@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Services.VisualStudio;
@@ -41,28 +42,38 @@ namespace WorkspaceLauncherForVSCode.Services
 #endif
                 if (_settingsManager.EnableWorkspaceWatcher && _settingsManager.SortBy == Enums.SortBy.RecentFromVS)
                 {
-                    _visualStudioService.InitInstances([]);
-                    var instances = _visualStudioService.Instances;
-                    if (instances is null)
+                    Task.Run(async () =>
                     {
-                        return;
-                    }
-                    foreach (var instance in instances)
-                    {
-                        if (instance.ApplicationPrivateSettingsPath is not null && File.Exists(instance.ApplicationPrivateSettingsPath))
+                        try
                         {
-                            var watcher = new FileSystemWatcher
+                            await _visualStudioService.InitInstancesAsync([]);
+                            var instances = _visualStudioService.Instances;
+                            if (instances is null)
                             {
-                                Path = Path.GetDirectoryName(instance.ApplicationPrivateSettingsPath)!,
-                                Filter = Path.GetFileName(instance.ApplicationPrivateSettingsPath),
-                                NotifyFilter = NotifyFilters.LastWrite,
-                                EnableRaisingEvents = true
-                            };
-                            watcher.Changed += OnChanged;
-                            _watchers.Add(watcher);
+                                return;
+                            }
+                            foreach (var instance in instances)
+                            {
+                                if (instance.ApplicationPrivateSettingsPath is not null && File.Exists(instance.ApplicationPrivateSettingsPath))
+                                {
+                                    var watcher = new FileSystemWatcher
+                                    {
+                                        Path = Path.GetDirectoryName(instance.ApplicationPrivateSettingsPath)!,
+                                        Filter = Path.GetFileName(instance.ApplicationPrivateSettingsPath),
+                                        NotifyFilter = NotifyFilters.LastWrite,
+                                        EnableRaisingEvents = true
+                                    };
+                                    watcher.Changed += OnChanged;
+                                    _watchers.Add(watcher);
+                                }
+                            }
+                            _isWatching = true;
                         }
-                    }
-                    _isWatching = true;
+                        catch (Exception ex) 
+                        {
+                            ErrorLogger.LogError(ex);
+                        }
+                    });
                 }
             }
             catch (Exception ex)

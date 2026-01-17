@@ -286,7 +286,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     {
         if (isUserInitiated)
         {
-            _vscodeService.LoadInstances(_settingsManager.EnabledEditions);
+            await _vscodeService.LoadInstancesAsync(_settingsManager.EnabledEditions);
         }
 
         var dbWorkspaces = await _workspaceStorage.GetWorkspacesAsync();

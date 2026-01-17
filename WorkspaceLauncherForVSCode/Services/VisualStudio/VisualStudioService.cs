@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Services.VisualStudio.Models.Json;
 
@@ -29,6 +30,11 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
         }
 
         public void InitInstances(string[] excludedVersions)
+        {
+            InitInstancesAsync(excludedVersions).GetAwaiter().GetResult();
+        }
+
+        public async Task InitInstancesAsync(string[] excludedVersions)
         {
             try
             {
@@ -71,8 +77,8 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
                             continue;
                         }
 
-                        var output = process.StandardOutput.ReadToEnd();
-                        process.WaitForExit(TimeSpan.FromSeconds(5));
+                        var output = await process.StandardOutput.ReadToEndAsync();
+                        await process.WaitForExitAsync();
                         if (string.IsNullOrWhiteSpace(output))
                         {
                             continue;
@@ -86,7 +92,7 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
 
                         foreach (var instance in instancesJson)
                         {
-                            var applicationPrivateSettingsPath = GetApplicationPrivateSettingsPathByInstanceId(instance.InstanceId);
+                            var applicationPrivateSettingsPath = await Task.Run(() => GetApplicationPrivateSettingsPathByInstanceId(instance.InstanceId));
                             if (string.IsNullOrWhiteSpace(applicationPrivateSettingsPath))
                             {
                                 continue;
