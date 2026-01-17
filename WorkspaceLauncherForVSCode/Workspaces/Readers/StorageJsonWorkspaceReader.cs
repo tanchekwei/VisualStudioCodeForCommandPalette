@@ -38,13 +38,13 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                     if (root?.BackupWorkspaces != null)
                     {
                         var folderType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.FolderInsider :
-                                         instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.Cursor :
-                                         instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.Antigravity :
+                                         instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.CursorFolder :
+                                         instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.AntigravityFolder :
                                          WorkspaceType.Folder;
 
                         var workspaceType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.WorkspaceInsider :
-                                            instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.Cursor :
-                                            instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.Antigravity :
+                                            instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.CursorWorkspace :
+                                            instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.AntigravityWorkspace :
                                             WorkspaceType.Workspace;
 
                         if (root.BackupWorkspaces.Workspaces != null)
@@ -105,8 +105,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                 int removedCount;
                 if (workspace.WorkspaceType == WorkspaceType.Workspace ||
                     workspace.WorkspaceType == WorkspaceType.WorkspaceInsider ||
-                    workspace.WorkspaceType == WorkspaceType.Cursor ||
-                    workspace.WorkspaceType == WorkspaceType.Antigravity)
+                    workspace.WorkspaceType == WorkspaceType.CursorWorkspace ||
+                    workspace.WorkspaceType == WorkspaceType.AntigravityWorkspace)
                 {
                     removedCount = root.BackupWorkspaces.Workspaces?.RemoveAll(w => w.ConfigURIPath == workspace.Path) ?? 0;
                 }
