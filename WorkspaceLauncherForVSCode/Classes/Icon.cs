@@ -10,6 +10,7 @@ public static class Icon
     public static readonly IconInfo VisualStudio = IconHelpers.FromRelativePath(@"Assets\VisualStudioIcon.svg");
     public static readonly IconInfo VisualStudio2026 = IconHelpers.FromRelativePath(@"Assets\VisualStudioIcon2026.svg");
     public static readonly IconInfo VisualStudioCode = IconHelpers.FromRelativePath("Assets\\VisualStudioCodeIcon.svg");
+    public static readonly IconInfo VisualStudioCodeInsiders = IconHelpers.FromRelativePath("Assets\\VisualStudioCodeInsiderIcon.svg");
     public static readonly IconInfo VisualStudioAndVisualStudioCode = IconHelpers.FromRelativePath("Assets\\VisualStudioAndVisualStudioCodeIcon.svg");
     public static readonly IconInfo FileExplorer = IconHelpers.FromRelativePath("Assets\\FileExplorer.svg");
     public static readonly IconInfo GitHub = IconHelpers.FromRelativePath("Assets\\github-mark-white.svg");

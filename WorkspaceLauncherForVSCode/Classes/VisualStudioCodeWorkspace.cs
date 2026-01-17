@@ -121,6 +121,12 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
                 case WorkspaceType.Solution2026:
                     WorkspaceTypeString = "Solution";
                     break;
+                case WorkspaceType.FolderInsider:
+                    WorkspaceTypeString = "Folder (Insider)";
+                    break;
+                case WorkspaceType.WorkspaceInsider:
+                    WorkspaceTypeString = "Workspace (Insider)";
+                    break;
                 default:
                     WorkspaceTypeString = "Unknown Type";
                     break;
@@ -213,7 +219,7 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
                 return true;
             }
 
-            return Path == other.Path;
+            return Path == other.Path && WorkspaceType == other.WorkspaceType;
         }
         catch (Exception ex)
         {
@@ -239,7 +245,7 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
     {
         try
         {
-            return Path?.GetHashCode() ?? 0;
+            return HashCode.Combine(Path, WorkspaceType);
         }
         catch (Exception ex)
         {

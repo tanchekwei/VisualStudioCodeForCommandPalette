@@ -73,7 +73,7 @@ namespace WorkspaceLauncherForVSCode.Services
                     foreach (var workspace in workspaces)
                     {
                         if (workspace.Path == null) continue;
-                        workspaceMap.TryAdd(workspace.Path, workspace);
+                        workspaceMap.TryAdd($"{workspace.Path}|{workspace.WorkspaceType}", workspace);
                     }
                 });
                 return new List<VisualStudioCodeWorkspace>(workspaceMap.Values);

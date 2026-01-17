@@ -186,6 +186,10 @@ namespace WorkspaceLauncherForVSCode.Workspaces
         {
             var command = new OpenVisualStudioCodeCommand(workspace, page);
             var icon = Icon.VisualStudioCode;
+            if (workspace.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Insider)
+            {
+                icon = Icon.VisualStudioCodeInsiders;
+            }
             var details = new Details
             {
                 Title = workspace.GetWorkspaceName(),
@@ -203,7 +207,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 {
                     tags.Add(new Tag(workspace.VisualStudioCodeRemoteUri.TypeStr));
                 }
-                else if (workspace.WorkspaceType == WorkspaceType.Workspace)
+                else if (workspace.WorkspaceType == WorkspaceType.Workspace || workspace.WorkspaceType == WorkspaceType.WorkspaceInsider)
                 {
                     tags.Add(new Tag(nameof(WorkspaceType.Workspace)));
                 }
@@ -254,6 +258,42 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                         }
                         break;
                 }
+            }
+
+            // Add Open in other VS Code instances
+            var vsCodeInstances = page.VSCodeService.GetInstances();
+            foreach (var instance in vsCodeInstances)
+            {
+                if (workspace.VSCodeInstance != null &&
+                    string.Equals(workspace.VSCodeInstance.ExecutablePath, instance.ExecutablePath, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                var tempWorkspace = new VisualStudioCodeWorkspace
+                {
+                    Path = workspace.Path,
+                    Name = workspace.Name,
+                    WindowsPath = workspace.WindowsPath,
+                    WorkspaceType = workspace.WorkspaceType,
+                    VSCodeInstance = instance,
+                    VisualStudioCodeRemoteUri = workspace.VisualStudioCodeRemoteUri,
+                    LastAccessed = workspace.LastAccessed // Preserve last accessed for sorting/display consistency if needed
+                };
+
+                var commandIcon = Icon.VisualStudioCode;
+                if (instance.VisualStudioCodeType == VisualStudioCodeType.Insider)
+                {
+                    commandIcon = Icon.VisualStudioCodeInsiders;
+                }
+
+                var openCommand = new OpenVisualStudioCodeCommand(tempWorkspace, page)
+                {
+                    Name = $"Open in {instance.Name}",
+                    Icon = commandIcon 
+                };
+                 
+                moreCommands.Add(new CommandContextItem(openCommand));
             }
 
             return (command, icon, details, tags, moreCommands);

@@ -47,13 +47,16 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                                 foreach (var entry in root.Entries)
                                 {
                                     VisualStudioCodeWorkspace? workspace = null;
+                                    var folderType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.FolderInsider : WorkspaceType.Folder;
+                                    var workspaceType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.WorkspaceInsider : WorkspaceType.Workspace;
+
                                     if (!string.IsNullOrEmpty(entry.FolderUri))
                                     {
-                                        workspace = new VisualStudioCodeWorkspace(instance, entry.FolderUri, WorkspaceType.Folder);
+                                        workspace = new VisualStudioCodeWorkspace(instance, entry.FolderUri, folderType);
                                     }
                                     else if (entry.Workspace != null && !string.IsNullOrEmpty(entry.Workspace.ConfigPath))
                                     {
-                                        workspace = new VisualStudioCodeWorkspace(instance, entry.Workspace.ConfigPath, WorkspaceType.Workspace);
+                                        workspace = new VisualStudioCodeWorkspace(instance, entry.Workspace.ConfigPath, workspaceType);
                                     }
 
                                     if (workspace != null)
@@ -103,8 +106,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                 if (root?.Entries == null) return 0;
 
                 var removedCount = root.Entries.RemoveAll(entry =>
-                    (workspace.WorkspaceType == WorkspaceType.Folder && entry.FolderUri == workspace.Path) ||
-                    (workspace.WorkspaceType == WorkspaceType.Workspace && entry.Workspace?.ConfigPath == workspace.Path));
+                    ((workspace.WorkspaceType == WorkspaceType.Folder || workspace.WorkspaceType == WorkspaceType.FolderInsider) && entry.FolderUri == workspace.Path) ||
+                    ((workspace.WorkspaceType == WorkspaceType.Workspace || workspace.WorkspaceType == WorkspaceType.WorkspaceInsider) && entry.Workspace?.ConfigPath == workspace.Path));
 
                 if (removedCount > 0)
                 {

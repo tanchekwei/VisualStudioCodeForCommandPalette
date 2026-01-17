@@ -37,13 +37,16 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
 
                     if (root?.BackupWorkspaces != null)
                     {
+                        var folderType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.FolderInsider : WorkspaceType.Folder;
+                        var workspaceType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.WorkspaceInsider : WorkspaceType.Workspace;
+
                         if (root.BackupWorkspaces.Workspaces != null)
                         {
                             foreach (var workspace in root.BackupWorkspaces.Workspaces)
                             {
                                 if (!string.IsNullOrEmpty(workspace.ConfigURIPath))
                                 {
-                                    workspaces.Add(new VisualStudioCodeWorkspace(instance, workspace.ConfigURIPath, WorkspaceType.Workspace));
+                                    workspaces.Add(new VisualStudioCodeWorkspace(instance, workspace.ConfigURIPath, workspaceType));
                                 }
                             }
                         }
@@ -54,7 +57,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                             {
                                 if (!string.IsNullOrEmpty(folder.FolderUri))
                                 {
-                                    workspaces.Add(new VisualStudioCodeWorkspace(instance, folder.FolderUri, WorkspaceType.Folder));
+                                    workspaces.Add(new VisualStudioCodeWorkspace(instance, folder.FolderUri, folderType));
                                 }
                             }
                         }
@@ -93,7 +96,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                 if (root?.BackupWorkspaces == null) return 0;
 
                 int removedCount;
-                if (workspace.WorkspaceType == WorkspaceType.Workspace)
+                if (workspace.WorkspaceType == WorkspaceType.Workspace || workspace.WorkspaceType == WorkspaceType.WorkspaceInsider)
                 {
                     removedCount = root.BackupWorkspaces.Workspaces?.RemoveAll(w => w.ConfigURIPath == workspace.Path) ?? 0;
                 }

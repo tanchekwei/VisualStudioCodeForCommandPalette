@@ -10,11 +10,6 @@ try
 {
     string targetExe = args[0].Trim('"');
     string executableName = Path.GetFileName(targetExe);
-    if (!string.Equals(executableName, "Code.exe", StringComparison.OrdinalIgnoreCase))
-    {
-        Console.Error.WriteLine($"Error: This launcher only supports executing Code.exe for VisualStudioCodeForCommandPalette extension. Attempted to run: {executableName}");
-        return 1;
-    }
     string arguments = args.Length > 1 ? string.Join(" ", args, 1, args.Length - 1) : "";
     var startInfo = new ProcessStartInfo
     {
