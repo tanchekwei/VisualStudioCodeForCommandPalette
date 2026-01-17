@@ -40,11 +40,13 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                         var folderType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.FolderInsider :
                                          instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.CursorFolder :
                                          instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.AntigravityFolder :
+                                         instance.VisualStudioCodeType == VisualStudioCodeType.Windsurf ? WorkspaceType.WindsurfFolder :
                                          WorkspaceType.Folder;
 
                         var workspaceType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.WorkspaceInsider :
                                             instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.CursorWorkspace :
                                             instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.AntigravityWorkspace :
+                                            instance.VisualStudioCodeType == VisualStudioCodeType.Windsurf ? WorkspaceType.WindsurfWorkspace :
                                             WorkspaceType.Workspace;
 
                         if (root.BackupWorkspaces.Workspaces != null)
@@ -106,7 +108,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                 if (workspace.WorkspaceType == WorkspaceType.Workspace ||
                     workspace.WorkspaceType == WorkspaceType.WorkspaceInsider ||
                     workspace.WorkspaceType == WorkspaceType.CursorWorkspace ||
-                    workspace.WorkspaceType == WorkspaceType.AntigravityWorkspace)
+                    workspace.WorkspaceType == WorkspaceType.AntigravityWorkspace ||
+                    workspace.WorkspaceType == WorkspaceType.WindsurfWorkspace)
                 {
                     removedCount = root.BackupWorkspaces.Workspaces?.RemoveAll(w => w.ConfigURIPath == workspace.Path) ?? 0;
                 }

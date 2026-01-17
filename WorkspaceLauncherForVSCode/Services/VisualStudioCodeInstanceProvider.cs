@@ -11,12 +11,12 @@ namespace WorkspaceLauncherForVSCode.Services
 {
     public static class VisualStudioCodeInstanceProvider
     {
-        public static async Task<List<VisualStudioCodeInstance>> GetInstancesAsync(VisualStudioCodeEdition enabledEditions, string? cursorPath = null, string? antigravityPath = null)
+        public static async Task<List<VisualStudioCodeInstance>> GetInstancesAsync(VisualStudioCodeEdition enabledEditions, string? cursorPath = null, string? antigravityPath = null, string? windsurfPath = null)
         {
-            return await Task.Run(() => GetInstances(enabledEditions, cursorPath, antigravityPath));
+            return await Task.Run(() => GetInstances(enabledEditions, cursorPath, antigravityPath, windsurfPath));
         }
 
-        public static List<VisualStudioCodeInstance> GetInstances(VisualStudioCodeEdition enabledEditions, string? cursorPath = null, string? antigravityPath = null)
+        public static List<VisualStudioCodeInstance> GetInstances(VisualStudioCodeEdition enabledEditions, string? cursorPath = null, string? antigravityPath = null, string? windsurfPath = null)
         {
 #if DEBUG
             using var logger = new TimeLogger();
@@ -24,7 +24,7 @@ namespace WorkspaceLauncherForVSCode.Services
             var instances = new List<VisualStudioCodeInstance>();
             try
             {
-                LoadInstances(enabledEditions, instances, cursorPath, antigravityPath);
+                LoadInstances(enabledEditions, instances, cursorPath, antigravityPath, windsurfPath);
             }
             catch (Exception ex)
             {
@@ -33,7 +33,7 @@ namespace WorkspaceLauncherForVSCode.Services
             return instances;
         }
 
-        private static void LoadInstances(VisualStudioCodeEdition enabledEditions, List<VisualStudioCodeInstance> instances, string? cursorPathOverride = null, string? antigravityPathOverride = null)
+        private static void LoadInstances(VisualStudioCodeEdition enabledEditions, List<VisualStudioCodeInstance> instances, string? cursorPathOverride = null, string? antigravityPathOverride = null, string? windsurfPathOverride = null)
         {
 #if DEBUG
             using var logger = new TimeLogger();
@@ -127,6 +127,22 @@ namespace WorkspaceLauncherForVSCode.Services
                     {
                         var antigravityPath = Path.Combine(appdataProgramFilesPath, "Programs", "antigravity", "Antigravity.exe");
                         AddInstance(instances, "Antigravity", antigravityPath, antigravityStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Antigravity);
+                    }
+                }
+                if (enabledEditions.HasFlag(VisualStudioCodeEdition.Windsurf))
+                {
+                    var windsurfStoragePath = Path.Combine(appDataBasePath, "Windsurf", "User", "globalStorage");
+                    if (!string.IsNullOrEmpty(windsurfPathOverride) && File.Exists(windsurfPathOverride))
+                    {
+                        AddInstance(instances, "Windsurf", windsurfPathOverride, windsurfStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Windsurf);
+                    }
+                    else
+                    {
+                        var windsurfPath = Path.Combine(appdataProgramFilesPath, "Programs", "Windsurf", "Windsurf.exe");
+                        if (File.Exists(windsurfPath))
+                        {
+                            AddInstance(instances, "Windsurf", windsurfPath, windsurfStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Windsurf);
+                        }
                     }
                 }
             }

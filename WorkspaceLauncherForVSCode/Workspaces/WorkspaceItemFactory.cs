@@ -187,6 +187,10 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 {
                     commandIcon = Icon.Antigravity;
                 }
+                else if (instance.VisualStudioCodeType == VisualStudioCodeType.Windsurf)
+                {
+                    commandIcon = Icon.Windsurf;
+                }
 
                 var openCommand = new OpenVisualStudioCodeCommand(tempVsCodeWorkspace, page, isFromVisualStudioSolution: true)
                 {
@@ -217,6 +221,10 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             else if (workspace.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Antigravity)
             {
                 icon = Icon.Antigravity;
+            }
+            else if (workspace.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Windsurf)
+            {
+                icon = Icon.Windsurf;
             }
             var details = new Details
             {
@@ -322,6 +330,10 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 else if (instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity)
                 {
                     commandIcon = Icon.Antigravity;
+                }
+                else if (instance.VisualStudioCodeType == VisualStudioCodeType.Windsurf)
+                {
+                    commandIcon = Icon.Windsurf;
                 }
 
                 var openCommand = new OpenVisualStudioCodeCommand(tempWorkspace, page)

@@ -17,4 +17,6 @@ public enum WorkspaceType
     CursorWorkspace,
     AntigravityFolder,
     AntigravityWorkspace,
+    WindsurfFolder,
+    WindsurfWorkspace,
 }

@@ -14,6 +14,7 @@ public static class Icon
     public static readonly IconInfo VisualStudioAndVisualStudioCode = IconHelpers.FromRelativePath("Assets\\VisualStudioAndVisualStudioCodeIcon.svg");
     public static readonly IconInfo Cursor = IconHelpers.FromRelativePath("Assets\\CursorIcon.png");
     public static readonly IconInfo Antigravity = IconHelpers.FromRelativePath("Assets\\AntigravityIcon.png");
+    public static readonly IconInfo Windsurf = IconHelpers.FromRelativePath("Assets\\WindsurfIcon.png");
     public static readonly IconInfo FileExplorer = IconHelpers.FromRelativePath("Assets\\FileExplorer.svg");
     public static readonly IconInfo GitHub = IconHelpers.FromRelativePath("Assets\\github-mark-white.svg");
     public static readonly IconInfo Pinned = new IconInfo("\ue718");

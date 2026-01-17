@@ -135,6 +135,10 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
                 case WorkspaceType.AntigravityWorkspace:
                     WorkspaceTypeString = "Antigravity";
                     break;
+                case WorkspaceType.WindsurfFolder:
+                case WorkspaceType.WindsurfWorkspace:
+                    WorkspaceTypeString = "Windsurf";
+                    break;
                 default:
                     WorkspaceTypeString = "Unknown Type";
                     break;

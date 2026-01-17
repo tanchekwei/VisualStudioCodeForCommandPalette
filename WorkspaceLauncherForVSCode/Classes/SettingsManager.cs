@@ -166,6 +166,19 @@ public class SettingsManager : JsonSettingsManager
         "The executable path for Google Antigravity. Leave default if installed in the standard location.",
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "antigravity", "Antigravity.exe"));
 
+    private readonly ToggleSetting _enableWindsurf = new(
+        Namespaced(nameof(_enableWindsurf)),
+        "Enable Windsurf\n" +
+        "Loads folders from Windsurf",
+        "",
+        false);
+
+    private readonly TextSetting _windsurfPath = new(
+        Namespaced("WindsurfPath"),
+        "Windsurf Path",
+        "The executable path for Windsurf. Leave default if installed in the standard location.",
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Windsurf", "Windsurf.exe"));
+
     private readonly ToggleSetting _enableWorkspaceWatcher = new(
         Namespaced(nameof(EnableWorkspaceWatcher)),
         "Enable Workspace Watcher",
@@ -277,12 +290,14 @@ public class SettingsManager : JsonSettingsManager
             if (_enableCustom.Value) editions |= VisualStudioCodeEdition.Custom;
             if (_enableCursor.Value) editions |= VisualStudioCodeEdition.Cursor;
             if (_enableAntigravity.Value) editions |= VisualStudioCodeEdition.Antigravity;
+            if (_enableWindsurf.Value) editions |= VisualStudioCodeEdition.Windsurf;
             return editions;
         }
     }
 
     public string CursorPath => _cursorPath.Value;
     public string AntigravityPath => _antigravityPath.Value;
+    public string WindsurfPath => _windsurfPath.Value;
 
     public SearchBy SearchBy
     {
@@ -364,6 +379,8 @@ public class SettingsManager : JsonSettingsManager
             Settings.Add(_cursorPath);
             Settings.Add(_enableAntigravity);
             Settings.Add(_antigravityPath);
+            Settings.Add(_enableWindsurf);
+            Settings.Add(_windsurfPath);
             Settings.Add(_pageSize);
             Settings.Add(_searchBy);
             Settings.Add(_sortBy);

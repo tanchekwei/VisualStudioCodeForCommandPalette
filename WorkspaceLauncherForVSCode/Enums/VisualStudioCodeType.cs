@@ -10,5 +10,6 @@ public enum VisualStudioCodeType
   Default,
   Insider,
   Cursor,
-  Antigravity
+  Antigravity,
+  Windsurf
 }
