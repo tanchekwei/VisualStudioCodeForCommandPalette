@@ -10,7 +10,7 @@ namespace WorkspaceLauncherForVSCode;
 
 public interface IVisualStudioCodeService
 {
-    Task LoadInstancesAsync(VisualStudioCodeEdition enabledEditions);
+    Task LoadInstancesAsync(VisualStudioCodeEdition enabledEditions, string? cursorPath = null, string? antigravityPath = null);
 
     List<VisualStudioCodeInstance> GetInstances();
 

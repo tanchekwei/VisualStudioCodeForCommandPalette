@@ -143,16 +143,28 @@ public class SettingsManager : JsonSettingsManager
     private readonly ToggleSetting _enableCursor = new(
         Namespaced(nameof(_enableCursor)),
         "Enable Cursor\n" +
-        "Loads folders/workspaces from Cursor",
+        "Loads folders from Cursor",
         "",
         false);
+
+    private readonly TextSetting _cursorPath = new(
+        Namespaced("CursorPath"),
+        "Cursor Path",
+        "The executable path for Cursor. Leave default if installed in the standard location.",
+        Path.Combine("C:", "Program Files", "cursor", "Cursor.exe"));
 
     private readonly ToggleSetting _enableAntigravity = new(
         Namespaced(nameof(_enableAntigravity)),
         "Enable Google Antigravity\n" +
-        "Loads folders/workspaces from Google Antigravity",
+        "Loads folders from Google Antigravity",
         "",
         false);
+
+    private readonly TextSetting _antigravityPath = new(
+        Namespaced("AntigravityPath"),
+        "Antigravity Path",
+        "The executable path for Google Antigravity. Leave default if installed in the standard location.",
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "antigravity", "Antigravity.exe"));
 
     private readonly ToggleSetting _enableWorkspaceWatcher = new(
         Namespaced(nameof(EnableWorkspaceWatcher)),
@@ -269,6 +281,9 @@ public class SettingsManager : JsonSettingsManager
         }
     }
 
+    public string CursorPath => _cursorPath.Value;
+    public string AntigravityPath => _antigravityPath.Value;
+
     public SearchBy SearchBy
     {
         get
@@ -346,7 +361,9 @@ public class SettingsManager : JsonSettingsManager
             Settings.Add(_enableInsider);
             Settings.Add(_enableCustom);
             Settings.Add(_enableCursor);
+            Settings.Add(_cursorPath);
             Settings.Add(_enableAntigravity);
+            Settings.Add(_antigravityPath);
             Settings.Add(_pageSize);
             Settings.Add(_searchBy);
             Settings.Add(_sortBy);

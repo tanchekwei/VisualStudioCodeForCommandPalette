@@ -11,12 +11,12 @@ namespace WorkspaceLauncherForVSCode.Services
 {
     public static class VisualStudioCodeInstanceProvider
     {
-        public static async Task<List<VisualStudioCodeInstance>> GetInstancesAsync(VisualStudioCodeEdition enabledEditions)
+        public static async Task<List<VisualStudioCodeInstance>> GetInstancesAsync(VisualStudioCodeEdition enabledEditions, string? cursorPath = null, string? antigravityPath = null)
         {
-            return await Task.Run(() => GetInstances(enabledEditions));
+            return await Task.Run(() => GetInstances(enabledEditions, cursorPath, antigravityPath));
         }
 
-        public static List<VisualStudioCodeInstance> GetInstances(VisualStudioCodeEdition enabledEditions)
+        public static List<VisualStudioCodeInstance> GetInstances(VisualStudioCodeEdition enabledEditions, string? cursorPath = null, string? antigravityPath = null)
         {
 #if DEBUG
             using var logger = new TimeLogger();
@@ -24,7 +24,7 @@ namespace WorkspaceLauncherForVSCode.Services
             var instances = new List<VisualStudioCodeInstance>();
             try
             {
-                LoadInstances(enabledEditions, instances);
+                LoadInstances(enabledEditions, instances, cursorPath, antigravityPath);
             }
             catch (Exception ex)
             {
@@ -33,7 +33,7 @@ namespace WorkspaceLauncherForVSCode.Services
             return instances;
         }
 
-        private static void LoadInstances(VisualStudioCodeEdition enabledEditions, List<VisualStudioCodeInstance> instances)
+        private static void LoadInstances(VisualStudioCodeEdition enabledEditions, List<VisualStudioCodeInstance> instances, string? cursorPathOverride = null, string? antigravityPathOverride = null)
         {
 #if DEBUG
             using var logger = new TimeLogger();
@@ -102,15 +102,32 @@ namespace WorkspaceLauncherForVSCode.Services
                 }
                 if (enabledEditions.HasFlag(VisualStudioCodeEdition.Cursor))
                 {
-                    var cursorPath = Path.Combine("C:", "Program Files", "cursor", "Cursor.exe");
                     var cursorStoragePath = Path.Combine(appDataBasePath, "Cursor", "User", "globalStorage");
-                    AddInstance(instances, "Cursor", cursorPath, cursorStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Cursor);
+                    if (!string.IsNullOrEmpty(cursorPathOverride) && File.Exists(cursorPathOverride))
+                    {
+                        AddInstance(instances, "Cursor", cursorPathOverride, cursorStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Cursor);
+                    }
+                    else
+                    {
+                        var cursorPath = Path.Combine(appDataBasePath, "Cursor", "Cursor.exe");
+                        if (File.Exists(cursorPath))
+                        {
+                            AddInstance(instances, "Cursor", cursorPath, cursorStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Cursor);
+                        }
+                    }
                 }
                 if (enabledEditions.HasFlag(VisualStudioCodeEdition.Antigravity))
                 {
-                    var antigravityPath = Path.Combine(appdataProgramFilesPath, "Programs", "antigravity", "Antigravity.exe");
-                    var antigravityStoragePath = Path.Combine(appDataBasePath, "Antigravity", "User", "globalStorage");
-                    AddInstance(instances, "Antigravity", antigravityPath, antigravityStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Antigravity);
+                     var antigravityStoragePath = Path.Combine(appDataBasePath, "Antigravity", "User", "globalStorage");
+                     if (!string.IsNullOrEmpty(antigravityPathOverride) && File.Exists(antigravityPathOverride))
+                    {
+                        AddInstance(instances, "Antigravity", antigravityPathOverride, antigravityStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Antigravity);
+                    }
+                    else
+                    {
+                        var antigravityPath = Path.Combine(appdataProgramFilesPath, "Programs", "antigravity", "Antigravity.exe");
+                        AddInstance(instances, "Antigravity", antigravityPath, antigravityStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Antigravity);
+                    }
                 }
             }
             catch (Exception ex)
