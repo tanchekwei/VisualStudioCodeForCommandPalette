@@ -15,6 +15,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
 {
     public static class StorageJsonWorkspaceReader
     {
+        private static readonly ConcurrentDictionary<string, (DateTime LastWriteTime, List<(string Path, WorkspaceType Type)> Entries)> _cache = new();
+
         public static async Task<IEnumerable<VisualStudioCodeWorkspace>> GetWorkspacesAsync(VisualStudioCodeInstance instance, CancellationToken cancellationToken)
         {
             try
@@ -29,6 +31,18 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                 {
                     return workspaces;
                 }
+
+                var lastWriteTime = File.GetLastWriteTimeUtc(storageFilePath);
+                if (_cache.TryGetValue(storageFilePath, out var cached) && cached.LastWriteTime == lastWriteTime)
+                {
+                    foreach (var entry in cached.Entries)
+                    {
+                        workspaces.Add(new VisualStudioCodeWorkspace(instance, entry.Path, entry.Type));
+                    }
+                    return workspaces;
+                }
+
+                var cacheEntries = new List<(string Path, WorkspaceType Type)>();
 
                 try
                 {
@@ -56,6 +70,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                                 if (!string.IsNullOrEmpty(workspace.ConfigURIPath))
                                 {
                                     workspaces.Add(new VisualStudioCodeWorkspace(instance, workspace.ConfigURIPath, workspaceType));
+                                    cacheEntries.Add((workspace.ConfigURIPath, workspaceType));
                                 }
                             }
                         }
@@ -67,10 +82,12 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                                 if (!string.IsNullOrEmpty(folder.FolderUri))
                                 {
                                     workspaces.Add(new VisualStudioCodeWorkspace(instance, folder.FolderUri, folderType));
+                                    cacheEntries.Add((folder.FolderUri, folderType));
                                 }
                             }
                         }
                     }
+                    _cache[storageFilePath] = (lastWriteTime, cacheEntries);
                 }
                 catch (Exception ex)
                 {

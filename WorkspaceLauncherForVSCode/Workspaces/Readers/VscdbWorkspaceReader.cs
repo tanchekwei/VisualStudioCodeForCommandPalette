@@ -11,11 +11,14 @@ using Microsoft.Data.Sqlite;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Workspaces.Models;
+using System.Collections.Concurrent;
 
 namespace WorkspaceLauncherForVSCode.Workspaces.Readers
 {
     public static class VscdbWorkspaceReader
     {
+        private static readonly ConcurrentDictionary<string, (DateTime LastWriteTime, List<(string Path, WorkspaceType Type)> Entries)> _cache = new();
+
         public static async Task<IEnumerable<VisualStudioCodeWorkspace>> GetWorkspacesAsync(VisualStudioCodeInstance instance, CancellationToken cancellationToken)
         {
             try
@@ -30,6 +33,18 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                 {
                     return workspaces;
                 }
+
+                var lastWriteTime = File.GetLastWriteTimeUtc(dbPath);
+                if (_cache.TryGetValue(dbPath, out var cached) && cached.LastWriteTime == lastWriteTime)
+                {
+                    foreach (var entry in cached.Entries)
+                    {
+                        workspaces.Add(new VisualStudioCodeWorkspace(instance, entry.Path, entry.Type));
+                    }
+                    return workspaces;
+                }
+
+                var cacheEntries = new List<(string Path, WorkspaceType Type)>();
 
                 try
                 {
@@ -62,10 +77,12 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                                     if (!string.IsNullOrEmpty(entry.FolderUri))
                                     {
                                         workspace = new VisualStudioCodeWorkspace(instance, entry.FolderUri, folderType);
+                                        cacheEntries.Add((entry.FolderUri, folderType));
                                     }
                                     else if (entry.Workspace != null && !string.IsNullOrEmpty(entry.Workspace.ConfigPath))
                                     {
                                         workspace = new VisualStudioCodeWorkspace(instance, entry.Workspace.ConfigPath, workspaceType);
+                                        cacheEntries.Add((entry.Workspace.ConfigPath, workspaceType));
                                     }
 
                                     if (workspace != null)
@@ -76,6 +93,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                             }
                         }
                     }
+                    _cache[dbPath] = (lastWriteTime, cacheEntries);
                 }
                 catch (Exception ex)
                 {
