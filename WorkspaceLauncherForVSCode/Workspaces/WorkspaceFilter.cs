@@ -25,7 +25,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 
                 if (isSearching)
                 {
-                    var matchedItems = new List<(VisualStudioCodeWorkspace item, int score)>();
+                    var matchedItems = new List<(VisualStudioCodeWorkspace item, int score)>(allWorkspaces.Count);
 
                     foreach (var item in allWorkspaces)
                     {

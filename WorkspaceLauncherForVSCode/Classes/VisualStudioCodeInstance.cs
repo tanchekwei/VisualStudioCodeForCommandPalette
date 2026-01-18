@@ -19,7 +19,9 @@ public class VisualStudioCodeInstance
     public VisualStudioCodeInstallationType InstallationType { get; set; }
     public VisualStudioCodeType VisualStudioCodeType { get; set; }
     [JsonIgnore]
-    public static IconInfo Icon => GetIcon();
+    public IconInfo CachedIcon { get; private set; }
+    [JsonIgnore]
+    public string DisplayName { get; private set; }
 
     public VisualStudioCodeInstance() { }
     /// <summary>
@@ -39,10 +41,15 @@ public class VisualStudioCodeInstance
             this.StoragePath = storagePath;
             this.InstallationType = installationType;
             this.VisualStudioCodeType = type;
+
+            this.DisplayName = name?.Replace("VS Code", "Visual Studio Code") ?? string.Empty;
+            this.CachedIcon = GetIconForType(type);
         }
         catch (Exception ex)
         {
             ErrorLogger.LogError(ex);
+            this.DisplayName = name ?? string.Empty;
+            this.CachedIcon = Classes.Icon.VisualStudioCode;
         }
     }
 
@@ -50,16 +57,23 @@ public class VisualStudioCodeInstance
     /// Gets the icon associated with the Visual Studio Code instance.
     /// </summary>
     /// <returns>An icon representing the Visual Studio Code instance.</returns>
-    private static IconInfo GetIcon()
+    private static IconInfo GetIconForType(VisualStudioCodeType type)
     {
         try
         {
-            return Classes.Icon.VisualStudioCode;
+            return type switch
+            {
+                VisualStudioCodeType.Insider => Classes.Icon.VisualStudioCodeInsiders,
+                VisualStudioCodeType.Cursor => Classes.Icon.Cursor,
+                VisualStudioCodeType.Antigravity => Classes.Icon.Antigravity,
+                VisualStudioCodeType.Windsurf => Classes.Icon.Windsurf,
+                _ => Classes.Icon.VisualStudioCode
+            };
         }
         catch (Exception ex)
         {
             ErrorLogger.LogError(ex);
-            return null!;
+            return Classes.Icon.VisualStudioCode;
         }
     }
 }

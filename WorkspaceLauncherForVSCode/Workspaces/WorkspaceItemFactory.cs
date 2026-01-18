@@ -174,27 +174,11 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     VisualStudioCodeRemoteUri = workspace.VisualStudioCodeRemoteUri
                 };
 
-                var commandIcon = Icon.VisualStudioCode;
-                if (instance.VisualStudioCodeType == VisualStudioCodeType.Insider)
-                {
-                    commandIcon = Icon.VisualStudioCodeInsiders;
-                }
-                else if (instance.VisualStudioCodeType == VisualStudioCodeType.Cursor)
-                {
-                    commandIcon = Icon.Cursor;
-                }
-                else if (instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity)
-                {
-                    commandIcon = Icon.Antigravity;
-                }
-                else if (instance.VisualStudioCodeType == VisualStudioCodeType.Windsurf)
-                {
-                    commandIcon = Icon.Windsurf;
-                }
+                var commandIcon = instance.CachedIcon;
 
                 var openCommand = new OpenVisualStudioCodeCommand(tempVsCodeWorkspace, page, isFromVisualStudioSolution: true)
                 {
-                    Name = $"Open in {instance.Name.Replace("VS Code", "Visual Studio Code")}",
+                    Name = $"Open in {instance.DisplayName}",
                     Icon = commandIcon
                 };
                 moreCommands.Add(new CommandContextItem(openCommand));
@@ -209,23 +193,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             SettingsManager settingsManager)
         {
             var command = new OpenVisualStudioCodeCommand(workspace, page);
-            var icon = Icon.VisualStudioCode;
-            if (workspace.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Insider)
-            {
-                icon = Icon.VisualStudioCodeInsiders;
-            }
-            else if (workspace.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Cursor)
-            {
-                icon = Icon.Cursor;
-            }
-            else if (workspace.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Antigravity)
-            {
-                icon = Icon.Antigravity;
-            }
-            else if (workspace.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Windsurf)
-            {
-                icon = Icon.Windsurf;
-            }
+            var icon = workspace.VSCodeInstance?.CachedIcon ?? Icon.VisualStudioCode;
             var details = new Details
             {
                 Title = workspace.GetWorkspaceName(),
@@ -318,28 +286,12 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     LastAccessed = workspace.LastAccessed // Preserve last accessed for sorting/display consistency if needed
                 };
 
-                var commandIcon = Icon.VisualStudioCode;
-                if (instance.VisualStudioCodeType == VisualStudioCodeType.Insider)
-                {
-                    commandIcon = Icon.VisualStudioCodeInsiders;
-                }
-                else if (instance.VisualStudioCodeType == VisualStudioCodeType.Cursor)
-                {
-                    commandIcon = Icon.Cursor;
-                }
-                else if (instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity)
-                {
-                    commandIcon = Icon.Antigravity;
-                }
-                else if (instance.VisualStudioCodeType == VisualStudioCodeType.Windsurf)
-                {
-                    commandIcon = Icon.Windsurf;
-                }
+                var commandIcon = instance.CachedIcon;
 
                 var openCommand = new OpenVisualStudioCodeCommand(tempWorkspace, page)
                 {
-                    Name = $"Open in {instance.Name.Replace("VS Code", "Visual Studio Code")}",
-                    Icon = commandIcon 
+                    Name = $"Open in {instance.DisplayName}",
+                    Icon = commandIcon
                 };
                  
                 moreCommands.Add(new CommandContextItem(openCommand));
