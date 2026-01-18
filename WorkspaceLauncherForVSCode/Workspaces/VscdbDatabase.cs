@@ -42,7 +42,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
             try
             {
                 var command = _connection.CreateCommand();
-                command.CommandText = "SELECT value FROM ItemTable WHERE key LIKE 'history.recentlyOpenedPathsList'";
+                command.CommandText = "SELECT value FROM ItemTable WHERE key = 'history.recentlyOpenedPathsList'";
                 var reader = await command.ExecuteReaderAsync(cancellationToken);
                 if (await reader.ReadAsync(cancellationToken))
                 {
