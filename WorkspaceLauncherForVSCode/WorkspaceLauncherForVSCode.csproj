@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <RootNamespace>WorkspaceLauncherForVSCode</RootNamespace>
@@ -8,7 +8,7 @@
     <WindowsPackageType Condition="'$(BuildingInsideVisualStudio)' != 'true'">None</WindowsPackageType>
 
     <WindowsSdkPackageVersion>10.0.26100.38</WindowsSdkPackageVersion>
-    <TargetFramework>net9.0-windows10.0.22621.0</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
@@ -70,6 +70,7 @@
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.WindowsAppSDK" />
+    <PackageReference Include="ToolGood.Words.Pinyin" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resource.Designer.cs">
