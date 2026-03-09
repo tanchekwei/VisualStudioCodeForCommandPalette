@@ -92,58 +92,50 @@ public class SettingsManager : JsonSettingsManager
 
     private readonly ToggleSetting _showTypeTag = new(
         Namespaced(nameof(_showTypeTag)),
-        "Show by Type\n" +
+        "Show by Type",
         "e.g., Workspace, WSL, Codespaces, Dev Container, SSH Remote, Attached Container",
-        "Tags to Show",
         true);
 
     private readonly ToggleSetting _showTargetTag = new(
         Namespaced(nameof(_showTargetTag)),
-        "Show by Target IDE\n" +
+        "Show by Target IDE",
         "e.g., Visual Studio 2022, VS Code, VS Code - Insiders",
-        "",
         false);
 
     private readonly ToggleSetting _enableVisualStudio = new(
         Namespaced(nameof(_enableVisualStudio)),
-        "Enable Visual Studio\n" +
+        "Enable Visual Studio",
         "Loads solutions/projects from Visual Studio",
-        "Enable Installations",
         true);
 
     private readonly ToggleSetting _enableDefault = new(
         Namespaced(nameof(_enableDefault)),
-        "Enable Visual Studio Code (User)\n" +
+        "Enable Visual Studio Code (User)",
         "Loads folders/workspaces from the default Visual Studio Code installation",
-        "",
         true);
 
     private readonly ToggleSetting _enableSystem = new(
         Namespaced(nameof(_enableSystem)),
-        "Enable Visual Studio Code (System)\n" +
+        "Enable Visual Studio Code (System)",
         "Loads folders/workspaces from the system-wide Visual Studio Code installation",
-        "",
         true);
 
     private readonly ToggleSetting _enableInsider = new(
         Namespaced(nameof(_enableInsider)),
-        "Enable Visual Studio Code (Insiders)\n" +
+        "Enable Visual Studio Code (Insiders)",
         "Loads folders/workspaces from the Visual Studio Code Insiders version",
-        "",
         false);
 
     private readonly ToggleSetting _enableCustom = new(
         Namespaced(nameof(_enableCustom)),
-        "Enable Visual Studio Code (Custom)\n" +
+        "Enable Visual Studio Code (Custom)",
         "Loads folders/workspaces from custom Visual Studio Code installations found in your system PATH.",
-        "",
         false);
 
     private readonly ToggleSetting _enableCustomPath = new(
         Namespaced(nameof(_enableCustomPath)),
-        "Enable Visual Studio Code (Custom Path for Portable mode)\n" +
+        "Enable Visual Studio Code (Custom Path for Portable mode)",
         "If enabled, the Custom Visual Studio Code Path below will be used.",
-        "",
         false);
 
     private readonly TextSetting _customPath = new(
@@ -154,9 +146,8 @@ public class SettingsManager : JsonSettingsManager
     
     private readonly ToggleSetting _enableCursor = new(
         Namespaced(nameof(_enableCursor)),
-        "Enable Cursor\n" +
+        "Enable Cursor",
         "Loads folders from Cursor",
-        "",
         false);
 
     private readonly TextSetting _cursorPath = new(
@@ -167,9 +158,8 @@ public class SettingsManager : JsonSettingsManager
 
     private readonly ToggleSetting _enableAntigravity = new(
         Namespaced(nameof(_enableAntigravity)),
-        "Enable Google Antigravity\n" +
+        "Enable Google Antigravity",
         "Loads folders from Google Antigravity",
-        "",
         false);
 
     private readonly TextSetting _antigravityPath = new(
@@ -180,9 +170,8 @@ public class SettingsManager : JsonSettingsManager
 
     private readonly ToggleSetting _enableWindsurf = new(
         Namespaced(nameof(_enableWindsurf)),
-        "Enable Windsurf\n" +
+        "Enable Windsurf",
         "Loads folders from Windsurf",
-        "",
         false);
 
     private readonly TextSetting _windsurfPath = new(
