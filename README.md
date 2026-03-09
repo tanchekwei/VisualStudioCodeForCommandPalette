@@ -8,7 +8,7 @@ This project provides a command palette extension for opening Visual Studio solu
 
 ## Features
 - **Optimized for Performance**: Designed to remain fast and responsive, with a configurable page size. By default, it displays 8 items per page to ensure smooth interaction even with large project histories.
-- **Unified Launcher**: Launch Visual Studio solutions, Visual Studio Code, Cursor, and Google Antigravity workspaces from a single, convenient interface.
+- **Unified Launcher**: Launch Visual Studio solutions, Visual Studio Code, Cursor, Google Antigravity, and Windsurf workspaces from a single, convenient interface.
 - **Window-Switching**: If a Visual Studio solution is already open, the extension will switch to the existing window instead of opening a new instance.
 - **Secondary Actions**: Access additional commands for each entry:
     - **Copy Path**: Copies the full file path of the solution, workspace, or folder to the clipboard.
@@ -81,9 +81,11 @@ This project provides a command palette extension for opening Visual Studio solu
     * **Enable Visual Studio Code (System)**: The system-wide installation.
     * **Enable Visual Studio Code - Insiders**: The Insiders edition.
     * **Enable Visual Studio Code (Custom)**: Custom installations found in the system's `PATH`.
+    * **Enable Visual Studio Code (Custom Path)**: A custom Visual Studio Code installation path. Useful for package managers like Scoop (e.g., `C:\Users\<username>\scoop\apps\vscode\1.110.1`) or a portable mode installation.
     * **Enable Cursor**: The Cursor AI code editor.
     * **Enable Google Antigravity**: The Google Antigravity editor.
-    * **Configurable Paths**: You can specify custom installation paths for Cursor and Antigravity if they are not in the default locations.
+    * **Enable Windsurf**: The Windsurf AI code editor.
+    * **Configurable Paths**: You can specify custom installation paths for Visual Studio Code, Cursor, Antigravity, and Windsurf if they are not in the default locations.
   * **Secondary Command**: Configures the secondary action for Visual Studio Code items.
 
     * `Open in Explorer`: Opens the item's location in File Explorer.
@@ -91,8 +93,8 @@ This project provides a command palette extension for opening Visual Studio solu
 
 ## How It Works
 
-This extension discovers installations of Visual Studio, Visual Studio Code, Cursor, and Google Antigravity on your system.
-- For **Visual Studio Code**, **Cursor**, and **Antigravity**, it reads the workspace history from their respective internal storage files (`state.vscdb` and `storage.json`).
+This extension discovers installations of Visual Studio, Visual Studio Code, Cursor, Google Antigravity, and Windsurf on your system.
+- For **Visual Studio Code**, **Cursor**, **Antigravity**, and **Windsurf**, it reads the workspace history from their respective internal storage files (`state.vscdb` and `storage.json`).
 - For **Visual Studio**, it uses `vswhere.exe` to find installations and then reads their configuration files to discover recent solutions.
 - The extension also includes logic from the **WindowWalker** extension to detect if a solution is already open. If so, it switches to the existing Visual Studio window instead of creating a new one.
 
@@ -102,8 +104,12 @@ For more detailed technical information about the project's architecture and com
 
 ## Changelog
 
+### 1.23.0.0
+- Add support for Visual Studio Code custom installation paths
+- Migrate solution to slnx format
+
 ### 1.22.0.0
-- Add support for Cursor and Google Antigravity editors
+- Add support for Cursor, Windsurf Google Antigravity editors
 - Allow custom installation paths for Cursor and Antigravity
 
 ### 1.21.0.0
