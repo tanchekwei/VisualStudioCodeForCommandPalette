@@ -139,6 +139,18 @@ public class SettingsManager : JsonSettingsManager
         "",
         false);
 
+    private readonly ToggleSetting _enableCustomPath = new(
+        Namespaced(nameof(_enableCustomPath)),
+        "Enable Visual Studio Code (Custom Path for Portable mode)\n" +
+        "If enabled, the Custom Visual Studio Code Path below will be used.",
+        "",
+        false);
+
+    private readonly TextSetting _customPath = new(
+        Namespaced(nameof(_customPath)),
+        "Custom Visual Studio Code Path",
+        "Custom Visual Studio Code Path.\nFull path to Code.exe for your Visual Studio Code installation. (e.g. D:\\VSCode-win32-x64-1.110.1\\Code.exe).",
+        "");
     
     private readonly ToggleSetting _enableCursor = new(
         Namespaced(nameof(_enableCursor)),
@@ -288,6 +300,7 @@ public class SettingsManager : JsonSettingsManager
             if (_enableSystem.Value) editions |= VisualStudioCodeEdition.System;
             if ( _enableInsider.Value) editions |= VisualStudioCodeEdition.Insider;
             if (_enableCustom.Value) editions |= VisualStudioCodeEdition.Custom;
+            if (_enableCustomPath.Value) editions |= VisualStudioCodeEdition.CustomPath;
             if (_enableCursor.Value) editions |= VisualStudioCodeEdition.Cursor;
             if (_enableAntigravity.Value) editions |= VisualStudioCodeEdition.Antigravity;
             if (_enableWindsurf.Value) editions |= VisualStudioCodeEdition.Windsurf;
@@ -295,6 +308,7 @@ public class SettingsManager : JsonSettingsManager
         }
     }
 
+    public string CustomPath => _customPath.Value;
     public string CursorPath => _cursorPath.Value;
     public string AntigravityPath => _antigravityPath.Value;
     public string WindsurfPath => _windsurfPath.Value;
@@ -375,6 +389,8 @@ public class SettingsManager : JsonSettingsManager
             Settings.Add(_enableSystem);
             Settings.Add(_enableInsider);
             Settings.Add(_enableCustom);
+            Settings.Add(_enableCustomPath);
+            Settings.Add(_customPath);
             Settings.Add(_enableCursor);
             Settings.Add(_cursorPath);
             Settings.Add(_enableAntigravity);

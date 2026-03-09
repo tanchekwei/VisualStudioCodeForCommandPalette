@@ -20,13 +20,13 @@ namespace WorkspaceLauncherForVSCode.Services
         {
             _visualStudioService = visualStudioService;
         }
-        public async Task LoadInstancesAsync(VisualStudioCodeEdition enabledEditions, string? cursorPath = null, string? antigravityPath = null, string? windsurfPath = null)
+        public async Task LoadInstancesAsync(VisualStudioCodeEdition enabledEditions, string? customPath = null, string? cursorPath = null, string? antigravityPath = null, string? windsurfPath = null)
         {
 #if DEBUG
             using var logger = new TimeLogger();
 #endif
             await _visualStudioService.InitInstancesAsync([]);
-            Instances = await VisualStudioCodeInstanceProvider.GetInstancesAsync(enabledEditions, cursorPath, antigravityPath, windsurfPath);
+            Instances = await VisualStudioCodeInstanceProvider.GetInstancesAsync(enabledEditions, customPath, cursorPath, antigravityPath, windsurfPath);
         }
 
         public List<VisualStudioCodeInstance> GetInstances()
