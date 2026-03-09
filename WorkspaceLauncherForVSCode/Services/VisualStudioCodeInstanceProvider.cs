@@ -11,12 +11,12 @@ namespace WorkspaceLauncherForVSCode.Services
 {
     public static class VisualStudioCodeInstanceProvider
     {
-        public static async Task<List<VisualStudioCodeInstance>> GetInstancesAsync(VisualStudioCodeEdition enabledEditions, string? cursorPath = null, string? antigravityPath = null, string? windsurfPath = null)
+        public static async Task<List<VisualStudioCodeInstance>> GetInstancesAsync(VisualStudioCodeEdition enabledEditions, string? customPath = null, string? cursorPath = null, string? antigravityPath = null, string? windsurfPath = null)
         {
-            return await Task.Run(() => GetInstances(enabledEditions, cursorPath, antigravityPath, windsurfPath));
+            return await Task.Run(() => GetInstances(enabledEditions, customPath, cursorPath, antigravityPath, windsurfPath));
         }
 
-        public static List<VisualStudioCodeInstance> GetInstances(VisualStudioCodeEdition enabledEditions, string? cursorPath = null, string? antigravityPath = null, string? windsurfPath = null)
+        public static List<VisualStudioCodeInstance> GetInstances(VisualStudioCodeEdition enabledEditions, string? customPath = null, string? cursorPath = null, string? antigravityPath = null, string? windsurfPath = null)
         {
 #if DEBUG
             using var logger = new TimeLogger();
@@ -24,7 +24,7 @@ namespace WorkspaceLauncherForVSCode.Services
             var instances = new List<VisualStudioCodeInstance>();
             try
             {
-                LoadInstances(enabledEditions, instances, cursorPath, antigravityPath, windsurfPath);
+                LoadInstances(enabledEditions, instances, customPath, cursorPath, antigravityPath, windsurfPath);
             }
             catch (Exception ex)
             {
@@ -33,7 +33,7 @@ namespace WorkspaceLauncherForVSCode.Services
             return instances;
         }
 
-        private static void LoadInstances(VisualStudioCodeEdition enabledEditions, List<VisualStudioCodeInstance> instances, string? cursorPathOverride = null, string? antigravityPathOverride = null, string? windsurfPathOverride = null)
+        private static void LoadInstances(VisualStudioCodeEdition enabledEditions, List<VisualStudioCodeInstance> instances, string? customPathOverride = null, string? cursorPathOverride = null, string? antigravityPathOverride = null, string? windsurfPathOverride = null)
         {
 #if DEBUG
             using var logger = new TimeLogger();
@@ -100,6 +100,15 @@ namespace WorkspaceLauncherForVSCode.Services
                         ErrorLogger.LogError(ex);
                     }
                 }
+                if (enabledEditions.HasFlag(VisualStudioCodeEdition.CustomPath))
+                {
+                    if (!string.IsNullOrEmpty(customPathOverride) && File.Exists(customPathOverride))
+                    {
+                        var storagePath = customPathOverride.Contains("Insiders", StringComparison.OrdinalIgnoreCase) ? insiderStoragePath : defaultStoragePath;
+                        var codeType = customPathOverride.Contains("Insiders", StringComparison.OrdinalIgnoreCase) ? VisualStudioCodeType.Insider : VisualStudioCodeType.Default;
+                        AddInstance(instances, "VS Code [Custom Path]", customPathOverride, GetPortableStoragePath(customPathOverride, storagePath), VisualStudioCodeInstallationType.User, codeType);
+                    }
+                }
                 if (enabledEditions.HasFlag(VisualStudioCodeEdition.Cursor))
                 {
                     var cursorStoragePath = Path.Combine(appDataBasePath, "Cursor", "User", "globalStorage");
@@ -150,6 +159,36 @@ namespace WorkspaceLauncherForVSCode.Services
             {
                 ErrorLogger.LogError(ex);
             }
+        }
+
+        private static string GetPortableStoragePath(string executablePath, string defaultStoragePath)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(executablePath))
+                {
+                    return defaultStoragePath;
+                }
+
+                var executableDirectory = Path.GetDirectoryName(executablePath);
+                if (string.IsNullOrEmpty(executableDirectory))
+                {
+                    return defaultStoragePath;
+                }
+
+                // Windows Portable Mode: data/user-data/User/globalStorage
+                var windowsPortablePath = Path.Combine(executableDirectory, "data", "user-data", "User", "globalStorage");
+                if (Directory.Exists(windowsPortablePath))
+                {
+                    return windowsPortablePath;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
+
+            return defaultStoragePath;
         }
 
         private static void AddInstance(List<VisualStudioCodeInstance> instances, string name, string path, string storagePath, VisualStudioCodeInstallationType type, VisualStudioCodeType codeType)
