@@ -160,7 +160,7 @@ public class SettingsManager : JsonSettingsManager
         false);
 
     private readonly TextSetting _cursorPath = new(
-        Namespaced("CursorPath"),
+        Namespaced(nameof(CursorPath)),
         "Cursor Path",
         "The executable path for Cursor. Leave default if installed in the standard location.",
         Path.Combine("C:", "Program Files", "cursor", "Cursor.exe"));
@@ -173,7 +173,7 @@ public class SettingsManager : JsonSettingsManager
         false);
 
     private readonly TextSetting _antigravityPath = new(
-        Namespaced("AntigravityPath"),
+        Namespaced(nameof(AntigravityPath)),
         "Antigravity Path",
         "The executable path for Google Antigravity. Leave default if installed in the standard location.",
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "antigravity", "Antigravity.exe"));
@@ -186,7 +186,7 @@ public class SettingsManager : JsonSettingsManager
         false);
 
     private readonly TextSetting _windsurfPath = new(
-        Namespaced("WindsurfPath"),
+        Namespaced(nameof(WindsurfPath)),
         "Windsurf Path",
         "The executable path for Windsurf. Leave default if installed in the standard location.",
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Windsurf", "Windsurf.exe"));
@@ -308,10 +308,10 @@ public class SettingsManager : JsonSettingsManager
         }
     }
 
-    public string CustomPath => _customPath.Value;
-    public string CursorPath => _cursorPath.Value;
-    public string AntigravityPath => _antigravityPath.Value;
-    public string WindsurfPath => _windsurfPath.Value;
+    public string CustomPath => _customPath.Value ?? string.Empty;
+    public string CursorPath => _cursorPath.Value ?? string.Empty;
+    public string AntigravityPath => _antigravityPath.Value ?? string.Empty;
+    public string WindsurfPath => _windsurfPath.Value ?? string.Empty;
 
     public SearchBy SearchBy
     {
