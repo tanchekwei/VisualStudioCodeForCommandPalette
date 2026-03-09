@@ -23,7 +23,11 @@ public class VisualStudioCodeInstance
     [JsonIgnore]
     public string DisplayName { get; private set; }
 
-    public VisualStudioCodeInstance() { }
+    public VisualStudioCodeInstance()
+    {
+        DisplayName = string.Empty;
+        CachedIcon = Classes.Icon.VisualStudioCode;
+    }
     /// <summary>
     /// Initializes a new instance of the <see cref="VisualStudioCodeInstance"/> class.
     /// </summary>
