@@ -75,7 +75,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             }
         }
 
-        private static (ICommand, IconInfo, Details, List<Tag>, List<CommandContextItem>) CreateSolutionComponents(
+        internal static (ICommand, IconInfo, Details, List<Tag>, List<CommandContextItem>) CreateSolutionComponents(
             VisualStudioCodeWorkspace workspace,
             VisualStudioCodePage page,
             SettingsManager settingsManager,
@@ -187,7 +187,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             return (command, icon, details, tags, moreCommands);
         }
 
-        private static (ICommand, IconInfo, Details, List<Tag>, List<CommandContextItem>) CreateVSCodeComponents(
+        internal static (ICommand, IconInfo, Details, List<Tag>, List<CommandContextItem>) CreateVSCodeComponents(
             VisualStudioCodeWorkspace workspace,
             VisualStudioCodePage page,
             SettingsManager settingsManager)
@@ -300,7 +300,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             return (command, icon, details, tags, moreCommands);
         }
 
-        private static void AddCommonCommands(
+        internal static void AddCommonCommands(
             List<CommandContextItem> moreCommands,
             VisualStudioCodeWorkspace workspace,
             SettingsManager settingsManager,
