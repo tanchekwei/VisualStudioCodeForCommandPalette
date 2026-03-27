@@ -1,26 +1,23 @@
 // Modifications copyright (c) 2025 tanchekwei
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
-using System.Collections.Generic;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Windows.ApplicationModel;
 using WorkspaceLauncherForVSCode.Classes;
-using WorkspaceLauncherForVSCode.Commands;
 using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Interfaces;
-using WorkspaceLauncherForVSCode.Services.VisualStudio.Models;
 using WorkspaceLauncherForVSCode.Workspaces;
 
 namespace WorkspaceLauncherForVSCode.Pages;
 
 internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
 {
-    private const string _id = "tanchekwei.WorkspaceLauncherForVSCode.fallback";
-
     private readonly VisualStudioCodePage _page;
     private readonly SettingsManager _settingsManager;
     private readonly WorkspaceStorage _workspaceStorage;
     private readonly CountTracker _countTracker;
     private readonly CommandContextItem _refreshWorkspacesCommandContextItem;
     private readonly IPinService _pinService;
+    private readonly int _index;
 
     public FallbackWorkspaceItem(
         VisualStudioCodePage page,
@@ -28,8 +25,15 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
         WorkspaceStorage workspaceStorage,
         CountTracker countTracker,
         CommandContextItem refreshWorkspacesCommandContextItem,
-        IPinService pinService)
-        : base(new NoOpCommand(), "Open Recent Visual Studio / Code", _id)
+        IPinService pinService,
+        int index)
+        : base(new NoOpCommand(),
+#if DEBUG
+        "Open Recent Visual Studio / Code (Dev)",
+#else
+        "Open Recent Visual Studio / Code",
+#endif
+        $"{Package.Current.Id.Name}.{nameof(FallbackWorkspaceItem)}")
     {
         Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
         _page = page;
@@ -38,6 +42,7 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
         _countTracker = countTracker;
         _refreshWorkspacesCommandContextItem = refreshWorkspacesCommandContextItem;
         _pinService = pinService;
+        _index = index;
     }
 
     public override void UpdateQuery(string query)
@@ -54,12 +59,12 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
 
         var filtered = WorkspaceFilter.Filter(query, _page.AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy);
 
-        if (filtered.Count == 0)
+        if (filtered.Count <= _index)
         {
             return;
         }
 
-        var best = filtered[0];
+        var best = filtered[_index];
         var isVSSolution = best.WorkspaceType == WorkspaceType.Solution || best.WorkspaceType == WorkspaceType.Solution2026;
         var (command, icon, _, _, moreCommands) = isVSSolution
             ? WorkspaceItemFactory.CreateSolutionComponents(best, _page, _settingsManager, _page.VSCodeService.GetVisualStudioInstances())

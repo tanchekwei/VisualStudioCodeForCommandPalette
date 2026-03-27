@@ -19,6 +19,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
         private SortBy _previousSortBy;
         private bool _prevEnableWorkspaceWatcher;
         private bool _previousUseHelperLauncher;
+        private int _previousFallbackCount;
 
         public event EventHandler? InstanceSettingsChanged;
         public event EventHandler? PageSettingsChanged;
@@ -64,6 +65,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
                 var currentSortBy = _settingsManager.SortBy;
                 var currentEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
                 var currentUseHelperLauncher = _settingsManager.UseHelperLauncher;
+                var currentFallbackCount = _settingsManager.FallbackCount;
 
                 if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand || currentTagTypes != _previousTagTypes)
                 {
@@ -98,6 +100,12 @@ namespace WorkspaceLauncherForVSCode.Listeners
                 if (currentUseHelperLauncher != _previousUseHelperLauncher)
                 {
                     _previousUseHelperLauncher = currentUseHelperLauncher;
+                }
+
+                if (currentFallbackCount != _previousFallbackCount)
+                {
+                    new RestartCommandPaletteMessage().Show();
+                    _previousFallbackCount = currentFallbackCount;
                 }
             }
             catch (Exception ex)
