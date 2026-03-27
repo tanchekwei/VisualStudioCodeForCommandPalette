@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
+using WorkspaceLauncherForVSCode.Helpers;
 using WorkspaceLauncherForVSCode.Interfaces;
+using WyHash;
 
 namespace WorkspaceLauncherForVSCode.Commands;
 
@@ -38,6 +40,7 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
             _elevated = elevated;
             _isFromVisualStudioSolution = isFromVisualStudioSolution;
             this.Icon = Classes.Icon.VisualStudioCode;
+            Id = IdGenerator.GetVisualStudioCodeId(workspace);
 
             if (elevated)
             {
