@@ -216,6 +216,12 @@ public class SettingsManager : JsonSettingsManager
         Resource.setting_pageSize_desc,
         "16");
 
+    private readonly TextSetting _fallbackCount = new(
+        Namespaced(nameof(FallbackCount)),
+        "Fallback Count",
+        "Number of top-level fallback items on the main list page (set 0 to disable).\nRestart Command Palette to apply Fallback Count setting changes.",
+        "16");
+
     private readonly ChoiceSetSetting _sortBy = new(
         Namespaced(nameof(SortBy)),
         "Sort By",
@@ -350,6 +356,18 @@ public class SettingsManager : JsonSettingsManager
         }
     }
 
+    public int FallbackCount
+    {
+        get
+        {
+            if (int.TryParse(_fallbackCount.Value, out int size) && size >= 0)
+            {
+                return size;
+            }
+            return 16;
+        }
+    }
+
     internal static string SettingsJsonPath()
     {
         try
@@ -387,6 +405,7 @@ public class SettingsManager : JsonSettingsManager
             Settings.Add(_enableWindsurf);
             Settings.Add(_windsurfPath);
             Settings.Add(_pageSize);
+            Settings.Add(_fallbackCount);
             Settings.Add(_searchBy);
             Settings.Add(_sortBy);
             Settings.Add(_terminalType);

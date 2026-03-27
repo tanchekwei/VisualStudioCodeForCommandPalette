@@ -18,8 +18,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
     private readonly IVisualStudioCodeService _vscodeService;
     private readonly SettingsListener _settingsListener;
     private readonly VisualStudioCodePage _page;
-    private readonly FallbackWorkspaceItem _fallback;
-
+    private readonly FallbackWorkspaceItem[] _fallbacks;
     public WorkspaceLauncherForVSCodeCommandsProvider(
         SettingsManager settingsManager,
         IVisualStudioCodeService visualStudioCodeService,
@@ -51,7 +50,21 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
             _page = page;
 
             var refreshCommandContextItem = new CommandContextItem(refreshWorkspacesCommand);
-            _fallback = new FallbackWorkspaceItem(_page, _settingsManager, workspaceStorage, countTracker, refreshCommandContextItem, pinService);
+            _fallbacks = new FallbackWorkspaceItem[_settingsManager.FallbackCount];
+            for (int i = 0; i < _fallbacks.Length; i++)
+            {
+                if (_fallbacks[i] == null)
+                {
+                    _fallbacks[i] = new FallbackWorkspaceItem(
+                        _page,
+                        _settingsManager,
+                        workspaceStorage,
+                        countTracker,
+                        refreshCommandContextItem,
+                        pinService,
+                        i);
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -60,7 +73,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
             _vscodeService = null!;
             _settingsListener = null!;
             _page = null!;
-            _fallback = null!;
+            _fallbacks = null!;
             throw;
         }
     }
@@ -99,7 +112,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
             return [];
         }
     }
-    public override IFallbackCommandItem[] FallbackCommands() => [_fallback];
+    public override IFallbackCommandItem[] FallbackCommands() => _fallbacks;
 
     public override ICommandItem? GetCommandItem(string id)
     {
