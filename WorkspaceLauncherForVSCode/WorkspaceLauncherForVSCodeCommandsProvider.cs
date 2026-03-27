@@ -1,10 +1,14 @@
 // Modifications copyright (c) 2025 tanchekwei 
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
-using System;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using System;
+using Windows.ApplicationModel;
 using WorkspaceLauncherForVSCode.Classes;
+using WorkspaceLauncherForVSCode.Commands;
+using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Listeners;
+using WorkspaceLauncherForVSCode.Pages;
 
 namespace WorkspaceLauncherForVSCode;
 
@@ -14,8 +18,17 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
     private readonly IVisualStudioCodeService _vscodeService;
     private readonly SettingsListener _settingsListener;
     private readonly VisualStudioCodePage _page;
+    private readonly FallbackWorkspaceItem _fallback;
 
-    public WorkspaceLauncherForVSCodeCommandsProvider(SettingsManager settingsManager, IVisualStudioCodeService visualStudioCodeService, SettingsListener settingsListener, VisualStudioCodePage page)
+    public WorkspaceLauncherForVSCodeCommandsProvider(
+        SettingsManager settingsManager,
+        IVisualStudioCodeService visualStudioCodeService,
+        SettingsListener settingsListener,
+        VisualStudioCodePage page,
+        WorkspaceStorage workspaceStorage,
+        CountTracker countTracker,
+        RefreshWorkspacesCommand refreshWorkspacesCommand,
+        IPinService pinService)
     {
         try
         {
@@ -35,6 +48,9 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
             _settingsListener.InstanceSettingsChanged += OnInstanceSettingsChanged;
 
             _page = page;
+
+            var refreshCommandContextItem = new CommandContextItem(refreshWorkspacesCommand);
+            _fallback = new FallbackWorkspaceItem(_page, _settingsManager, workspaceStorage, countTracker, refreshCommandContextItem, pinService);
         }
         catch (Exception ex)
         {
@@ -43,6 +59,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
             _vscodeService = null!;
             _settingsListener = null!;
             _page = null!;
+            _fallback = null!;
             throw;
         }
     }
@@ -81,4 +98,5 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
             return [];
         }
     }
+    public override IFallbackCommandItem[] FallbackCommands() => [_fallback];
 }
