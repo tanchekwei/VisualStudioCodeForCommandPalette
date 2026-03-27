@@ -89,21 +89,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             }
             
             workspace.WindowsPath = workspace.Path;
-            var details = new Details
-            {
-                Title = workspace.Name ?? string.Empty,
-                HeroImage = icon,
-            };
-
-            var tags = new List<Tag>();
-            if (settingsManager.TagTypes.HasFlag(TagType.Target))
-            {
-                if (workspace.VSInstance?.Name is string name)
-                {
-                    tags.Add(new Tag(name));
-                }
-            }
-
+            var details = BuildDetails(workspace, icon);
+            var tags = BuildTags(workspace, settingsManager);
             var moreCommands = new List<CommandContextItem>();
             if (settingsManager.VSSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
             {
@@ -194,37 +181,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces
         {
             var command = new OpenVisualStudioCodeCommand(workspace, page);
             var icon = workspace.VSCodeInstance?.CachedIcon ?? Icon.VisualStudioCode;
-            var details = new Details
-            {
-                Title = workspace.GetWorkspaceName(),
-                HeroImage = icon,
-            };
-
-            var tags = new List<Tag>();
-            if (settingsManager.TagTypes.HasFlag(TagType.Type))
-            {
-                if (workspace.VisualStudioCodeRemoteUri != null)
-                {
-                    tags.Add(new Tag(workspace.VisualStudioCodeRemoteUri.Type.ToDisplayName()));
-                }
-                else if (workspace.VisualStudioCodeRemoteUri?.TypeStr != null)
-                {
-                    tags.Add(new Tag(workspace.VisualStudioCodeRemoteUri.TypeStr));
-                }
-                else if (workspace.WorkspaceType == WorkspaceType.Workspace ||
-                         workspace.WorkspaceType == WorkspaceType.WorkspaceInsider)
-                {
-                    tags.Add(new Tag(nameof(WorkspaceType.Workspace)));
-                }
-            }
-            if (settingsManager.TagTypes.HasFlag(TagType.Target))
-            {
-                if (workspace.VSCodeInstance?.Name is string name)
-                {
-                    tags.Add(new Tag(name));
-                }
-            }
-
+            var details = BuildDetails(workspace, icon);
+            var tags = BuildTags(workspace, settingsManager);
             var moreCommands = new List<CommandContextItem>();
             if (workspace.VisualStudioCodeRemoteUri is null)
             {
@@ -365,6 +323,65 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     item.Tags = newTags;
                 }
             }
+        }
+
+        private static Details BuildDetails(VisualStudioCodeWorkspace workspace, IconInfo icon)
+        {
+            var metadata = new List<DetailsElement>
+            {
+              new DetailsElement() { Key = "Tags", Data = new DetailsTags() { Tags = BuildTags(workspace).ToArray() } },
+              new DetailsElement() { Key = "Path", Data = new DetailsLink() { Text = workspace.Path ?? "" } },
+              new DetailsElement() { Key = "Windows Path", Data = new DetailsLink() { Text = workspace.WindowsPath ?? "" } },
+            };
+            return new Details()
+            {
+                HeroImage = icon,
+                Title = workspace.Name ?? "",
+                Metadata = [.. metadata],
+            };
+        }
+
+        private static List<Tag> BuildTags(VisualStudioCodeWorkspace workspace, SettingsManager? settingsManager = null)
+        {
+            var tags = new List<Tag>();
+            var isVSSolution = workspace.WorkspaceType == WorkspaceType.Solution || workspace.WorkspaceType == WorkspaceType.Solution2026;
+            if (isVSSolution)
+            {
+                if (settingsManager == null || settingsManager.TagTypes.HasFlag(TagType.Target))
+                {
+                    if (workspace.VSInstance?.Name is string name)
+                    {
+                        tags.Add(new Tag(name));
+                    }
+                }
+            }
+            else
+            {
+                if (settingsManager == null || settingsManager.TagTypes.HasFlag(TagType.Type))
+                {
+                    if (workspace.VisualStudioCodeRemoteUri != null)
+                    {
+                        tags.Add(new Tag(workspace.VisualStudioCodeRemoteUri.Type.ToDisplayName()));
+                    }
+                    else if (workspace.VisualStudioCodeRemoteUri?.TypeStr != null)
+                    {
+                        tags.Add(new Tag(workspace.VisualStudioCodeRemoteUri.TypeStr));
+                    }
+                    else if (workspace.WorkspaceType == WorkspaceType.Workspace ||
+                            workspace.WorkspaceType == WorkspaceType.WorkspaceInsider)
+                    {
+                        tags.Add(new Tag(nameof(WorkspaceType.Workspace)));
+                    }
+                }
+                if (settingsManager == null || settingsManager.TagTypes.HasFlag(TagType.Target))
+                {
+                    if (workspace.VSCodeInstance?.Name is string name)
+                    {
+                        tags.Add(new Tag(name));
+                    }
+                }
+            }
+            return tags;
         }
     }
 }
