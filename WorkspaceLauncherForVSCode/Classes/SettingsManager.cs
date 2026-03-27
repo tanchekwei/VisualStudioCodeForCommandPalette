@@ -214,7 +214,7 @@ public class SettingsManager : JsonSettingsManager
         Namespaced(nameof(PageSize)),
         Resource.setting_pageSize_label,
         Resource.setting_pageSize_desc,
-        "8");
+        "16");
 
     private readonly ChoiceSetSetting _sortBy = new(
         Namespaced(nameof(SortBy)),
@@ -346,7 +346,7 @@ public class SettingsManager : JsonSettingsManager
             {
                 return size;
             }
-            return 8;
+            return 16;
         }
     }
 
