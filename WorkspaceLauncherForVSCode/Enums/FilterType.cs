@@ -13,6 +13,11 @@ namespace WorkspaceLauncherForVSCode.Enums
         VscodeInsider,
         Cursor,
         Antigravity,
-        Windsurf
+        Windsurf,
+        RemoteWsl,
+        RemoteDevContainer,
+        RemoteCodespaces,
+        RemoteAttachedContainer,
+        RemoteSSHRemote
     }
 }

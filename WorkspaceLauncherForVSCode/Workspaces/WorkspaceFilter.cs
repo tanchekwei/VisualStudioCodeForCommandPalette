@@ -70,6 +70,11 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                         FilterType.Cursor => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Cursor,
                         FilterType.Antigravity => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Antigravity,
                         FilterType.Windsurf => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Windsurf,
+                        FilterType.RemoteWsl => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.WSL,
+                        FilterType.RemoteDevContainer => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.DevContainer,
+                        FilterType.RemoteCodespaces => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.Codespaces,
+                        FilterType.RemoteAttachedContainer => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.AttachedContainer,
+                        FilterType.RemoteSSHRemote => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.SSHRemote,
                         FilterType.Vs => item.VSInstance != null,
                         _ => true,
                     });

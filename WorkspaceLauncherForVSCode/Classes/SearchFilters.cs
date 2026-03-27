@@ -25,6 +25,13 @@ internal sealed partial class SearchFilters : Filters
             new Filter() { Id = nameof(FilterType.Cursor), Name = "Cursor", Icon = Icon.Cursor },
             new Filter() { Id = nameof(FilterType.Antigravity), Name = "Antigravity", Icon = Icon.Antigravity },
             new Filter() { Id = nameof(FilterType.Windsurf), Name = "Windsurf", Icon = Icon.Windsurf },
+            new Separator(),
+            new Filter() { Id = nameof(FilterType.RemoteWsl), Name = "WSL", Icon = Icon.Web },
+            new Filter() { Id = nameof(FilterType.RemoteDevContainer), Name = "Dev Container", Icon = Icon.Web },
+            new Filter() { Id = nameof(FilterType.RemoteCodespaces), Name = "Codespaces", Icon = Icon.Web },
+            new Filter() { Id = nameof(FilterType.RemoteAttachedContainer), Name = "Attached Container", Icon = Icon.Web },
+            new Filter() { Id = nameof(FilterType.RemoteSSHRemote), Name = "SSH Remote", Icon = Icon.Web },
+            new Separator(),
             new Filter() { Id = nameof(FilterType.Vs), Name = "Visual Studio", Icon = Icon.VisualStudio2026 },
             new Separator(),
         ];
