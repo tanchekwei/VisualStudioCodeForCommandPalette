@@ -32,6 +32,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
     {
         try
         {
+            Id = Package.Current.Id.Name;
 #if DEBUG
             using var logger = new TimeLogger();
 #endif
@@ -99,4 +100,17 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
         }
     }
     public override IFallbackCommandItem[] FallbackCommands() => [_fallback];
+
+    public override ICommandItem? GetCommandItem(string id)
+    {
+        var items = _page.GetItems();
+        foreach (var item in items)
+        {
+            if (string.Equals(item.Command.Id, id, StringComparison.Ordinal))
+            {
+                return item;
+            }
+        }
+        return null;
+    }
 }

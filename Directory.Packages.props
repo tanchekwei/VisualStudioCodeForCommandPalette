@@ -10,5 +10,6 @@
     <PackageVersion Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
     <PackageVersion Include="System.Text.Json" Version="9.0.10" />
     <PackageVersion Include="ToolGood.Words.Pinyin" Version="3.1.0.4" />
+    <PackageVersion Include="WyHash" Version="1.0.5" />
   </ItemGroup>
 </Project>

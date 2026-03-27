@@ -25,6 +25,7 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
             Workspace = workspace;
             this.page = page;
             _elevated = elevated;
+            Id = IdGenerator.GetVisualStudioId(workspace);
 
             if (_elevated)
             {
