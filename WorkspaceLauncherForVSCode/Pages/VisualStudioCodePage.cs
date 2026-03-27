@@ -163,10 +163,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 
     public override void UpdateSearchText(string oldSearch, string newSearch)
     {
-        if (oldSearch == newSearch)
-        {
-            return;
-        }
 #if DEBUG
         using var logger = new TimeLogger();
         Logger.Log($"SearchText: {newSearch}");

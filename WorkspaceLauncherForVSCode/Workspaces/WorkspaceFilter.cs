@@ -65,7 +65,11 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 {
                     filteredItems = filteredItems.FindAll(item => filterType switch
                     {
-                        FilterType.Vscode => item.VSInstance == null,
+                        FilterType.Vscode => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Default,
+                        FilterType.VscodeInsider => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Insider,
+                        FilterType.Cursor => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Cursor,
+                        FilterType.Antigravity => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Antigravity,
+                        FilterType.Windsurf => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Windsurf,
                         FilterType.Vs => item.VSInstance != null,
                         _ => true,
                     });

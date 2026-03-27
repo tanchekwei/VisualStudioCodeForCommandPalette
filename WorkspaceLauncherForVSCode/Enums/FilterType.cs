@@ -10,5 +10,9 @@ namespace WorkspaceLauncherForVSCode.Enums
         All,
         Vscode,
         Vs,
+        VscodeInsider,
+        Cursor,
+        Antigravity,
+        Windsurf
     }
 }
