@@ -346,7 +346,7 @@ public class SettingsManager : JsonSettingsManager
             {
                 return size;
             }
-            return 8;
+            return 16;
         }
     }
 
