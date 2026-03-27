@@ -62,11 +62,8 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
 
         var best = filtered[0];
         var isVSSolution = best.WorkspaceType == WorkspaceType.Solution || best.WorkspaceType == WorkspaceType.Solution2026;
-
-        List<VisualStudioInstance> vsInstances = _page.VSCodeService.GetVisualStudioInstances();
-
         var (command, icon, _, _, moreCommands) = isVSSolution
-            ? WorkspaceItemFactory.CreateSolutionComponents(best, _page, _settingsManager, vsInstances)
+            ? WorkspaceItemFactory.CreateSolutionComponents(best, _page, _settingsManager, _page.VSCodeService.GetVisualStudioInstances())
             : WorkspaceItemFactory.CreateVSCodeComponents(best, _page, _settingsManager);
 
         WorkspaceItemFactory.AddCommonCommands(moreCommands, best, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService);
