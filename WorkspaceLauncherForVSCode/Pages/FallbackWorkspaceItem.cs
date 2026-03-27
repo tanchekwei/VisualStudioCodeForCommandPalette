@@ -53,7 +53,7 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
             return;
         }
 
-        var filtered = WorkspaceFilter.Filter(query, _page.AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy);
+        var filtered = WorkspaceFilter.Filter(query, _page.AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, string.Empty);
 
         if (filtered.Count <= _index)
         {

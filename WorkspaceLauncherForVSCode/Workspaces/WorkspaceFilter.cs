@@ -13,7 +13,9 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             string searchText,
             List<VisualStudioCodeWorkspace> allWorkspaces,
             SearchBy searchBy,
-            SortBy sortBy)
+            SortBy sortBy,
+            string filterId
+            )
         {
             try
             {
@@ -55,6 +57,18 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 else
                 {
                     filteredItems = new List<VisualStudioCodeWorkspace>(allWorkspaces);
+                }
+
+                if (!string.IsNullOrWhiteSpace(filterId) &&
+                    Enum.TryParse<FilterType>(filterId, out var filterType) &&
+                    filterType != FilterType.All)
+                {
+                    filteredItems = filteredItems.FindAll(item => filterType switch
+                    {
+                        FilterType.Vscode => item.VSInstance == null,
+                        FilterType.Vs => item.VSInstance != null,
+                        _ => true,
+                    });
                 }
 
                 var pinned = new List<VisualStudioCodeWorkspace>();

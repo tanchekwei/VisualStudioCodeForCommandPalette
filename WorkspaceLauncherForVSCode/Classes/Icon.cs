@@ -25,4 +25,5 @@ public static class Icon
     public static readonly IconInfo Setting = new IconInfo("\uE713");
     public static readonly IconInfo Bug = new IconInfo("\uEBE8");
     public static readonly IconInfo EraseTool = new IconInfo("\uE75C");
+    public static readonly IconInfo FilterIcon = new("\uE71C");
 }

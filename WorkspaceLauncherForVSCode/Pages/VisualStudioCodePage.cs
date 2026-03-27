@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CmdPal.Ext.Indexer.Indexer;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.System;
@@ -68,6 +69,9 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
         Name = Resource.page_command_name;
         Id = "VisualStudioCodePage";
+        var filters = new SearchFilters();
+        filters.PropChanged += Filters_PropChanged;
+        Filters = filters;
 
         _settingsManager = settingsManager;
         SettingsManager = _settingsManager;
@@ -169,7 +173,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 #endif
         lock (_itemsLock)
         {
-            _cachedFilteredWorkspaces = WorkspaceFilter.Filter(newSearch, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy);
+            _cachedFilteredWorkspaces = WorkspaceFilter.Filter(newSearch, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, Filters?.CurrentFilterId ?? string.Empty);
             _visibleItems.Clear();
 
             var itemsToAdd = new List<ListItem>();
@@ -335,7 +339,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             AllWorkspaces.Clear();
             AllWorkspaces.AddRange(workspaces);
 
-            var filtered = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy);
+            var filtered = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, Filters?.CurrentFilterId ?? string.Empty);
             _cachedFilteredWorkspaces = filtered;
             _visibleItems.Clear();
 
@@ -360,7 +364,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 #if DEBUG
         using var logger = new TimeLogger();
 #endif
-        UpdateSearchText(SearchText, SearchText);
+        UpdateSearchText(string.Empty, SearchText);
     }
 
     private void OnSortSettingsChanged(object? sender, EventArgs e)
@@ -403,7 +407,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     {
         lock (_itemsLock)
         {
-            _cachedFilteredWorkspaces = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy);
+            _cachedFilteredWorkspaces = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, Filters?.CurrentFilterId ?? string.Empty);
             _visibleItems.Clear();
 
             var itemsToAdd = new List<ListItem>();
@@ -447,7 +451,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                 itemToUpdate.LastAccessed = DateTime.Now;
 
                 // Re-apply filter and sort
-                _cachedFilteredWorkspaces = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy);
+                _cachedFilteredWorkspaces = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, Filters?.CurrentFilterId ?? string.Empty);
                 _visibleItems.Clear();
 
                 var itemsToAdd = new List<ListItem>();
@@ -463,6 +467,11 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                 HasMoreItems = _cachedFilteredWorkspaces.Count > _settingsManager.PageSize;
             }
         }
+    }
+
+    private void Filters_PropChanged(object sender, IPropChangedEventArgs args)
+    {
+        UpdateSearchText(string.Empty, SearchText);
     }
 
     public void ClearAllItems()
