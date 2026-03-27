@@ -37,7 +37,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
 #endif
             _settingsManager = settingsManager;
             _vscodeService = visualStudioCodeService;
-            DisplayName = "Open Recent Visual Studio / Code";
+            DisplayName = "Visual Studio / Code";
 #if DEBUG
             DisplayName += " (Dev)";
 #endif
@@ -99,7 +99,6 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
         {
             return [
                 new CommandItem(_page) {
-                    Title = DisplayName,
                     MoreCommands = [
                         new CommandContextItem(Settings!.SettingsPage),
                     ],
