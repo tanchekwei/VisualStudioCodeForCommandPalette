@@ -13,7 +13,9 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             string searchText,
             List<VisualStudioCodeWorkspace> allWorkspaces,
             SearchBy searchBy,
-            SortBy sortBy)
+            SortBy sortBy,
+            string filterId
+            )
         {
             try
             {
@@ -55,6 +57,30 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 else
                 {
                     filteredItems = new List<VisualStudioCodeWorkspace>(allWorkspaces);
+                }
+
+                if (!string.IsNullOrWhiteSpace(filterId) &&
+                    Enum.TryParse<FilterType>(filterId, out var filterType) &&
+                    filterType != FilterType.All)
+                {
+                    filteredItems = filteredItems.FindAll(item => filterType switch
+                    {
+                        FilterType.Vscode => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Default,
+                        FilterType.VscodeInsider => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Insider,
+                        FilterType.Cursor => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Cursor,
+                        FilterType.Antigravity => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Antigravity,
+                        FilterType.Windsurf => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Windsurf,
+                        FilterType.Folder => item.WorkspaceType == WorkspaceType.Folder,
+                        FilterType.Workspace => item.WorkspaceType == WorkspaceType.Workspace,
+                        FilterType.RemoteCodespaces => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.Codespaces,
+                        FilterType.RemoteWsl => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.WSL,
+                        FilterType.RemoteDevContainer => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.DevContainer,
+                        FilterType.RemoteAttachedContainer => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.AttachedContainer,
+                        FilterType.RemoteSSHRemote => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.SSHRemote,
+                        FilterType.VisualStudio2026 => item?.WorkspaceType == WorkspaceType.Solution2026,
+                        FilterType.VisualStudio => item?.WorkspaceType == WorkspaceType.Solution,
+                        _ => true,
+                    });
                 }
 
                 var pinned = new List<VisualStudioCodeWorkspace>();
