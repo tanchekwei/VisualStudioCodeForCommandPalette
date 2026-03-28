@@ -1,4 +1,4 @@
-﻿// Modifications copyright (c) 2025 tanchekwei
+// Modifications copyright (c) 2025 tanchekwei
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Collections.Generic;
@@ -28,6 +28,7 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
     public DateTime LastAccessed { get; set; }
     public DateTime VSLastAccessed { get; set; }
     public DateTime? PinDateTime { get; set; }
+    public string Id { get; set; } = string.Empty;
 
     public VisualStudioCodeWorkspace() { }
     /// <summary>

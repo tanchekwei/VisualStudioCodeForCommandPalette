@@ -18,6 +18,7 @@ using WorkspaceLauncherForVSCode.Pages;
 using WorkspaceLauncherForVSCode.Properties;
 using WorkspaceLauncherForVSCode.Services.VisualStudio.Models;
 using WorkspaceLauncherForVSCode.Workspaces;
+using WorkspaceLauncherForVSCode.Helpers;
 
 namespace WorkspaceLauncherForVSCode;
 
@@ -159,6 +160,34 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         finally
         {
         }
+    }
+
+    public IListItem? GetCommandItem(string id)
+    {
+        if (AllWorkspaces.Count == 0 && !IsLoading)
+        {
+            RefreshWorkspacesAsync(isUserInitiated: false).GetAwaiter().GetResult();
+        }
+
+        lock (_itemsLock)
+        {
+            foreach (var item in _visibleItems)
+            {
+                if (string.Equals(item.Command.Id, id, StringComparison.Ordinal))
+                {
+                    return item;
+                }
+            }
+
+            foreach (var workspace in AllWorkspaces)
+            {
+                if (string.Equals(workspace.Id, id, StringComparison.Ordinal))
+                {
+                    return WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList);
+                }
+            }
+        }
+        return null;
     }
 
     public override void UpdateSearchText(string oldSearch, string newSearch)
@@ -331,6 +360,18 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         lock (_itemsLock)
         {
             if (cancellationToken.IsCancellationRequested) return;
+
+            foreach (var workspace in workspaces)
+            {
+                if (workspace.WorkspaceType == WorkspaceType.Solution || workspace.WorkspaceType == WorkspaceType.Solution2026)
+                {
+                    workspace.Id = IdGenerator.GetVisualStudioId(workspace);
+                }
+                else
+                {
+                    workspace.Id = IdGenerator.GetVisualStudioCodeId(workspace);
+                }
+            }
 
             AllWorkspaces.Clear();
             AllWorkspaces.AddRange(workspaces);

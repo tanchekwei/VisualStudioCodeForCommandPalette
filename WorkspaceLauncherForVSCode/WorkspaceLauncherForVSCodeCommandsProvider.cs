@@ -115,14 +115,6 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
 
     public override ICommandItem? GetCommandItem(string id)
     {
-        var items = _page.GetItems();
-        foreach (var item in items)
-        {
-            if (string.Equals(item.Command.Id, id, StringComparison.Ordinal))
-            {
-                return item;
-            }
-        }
-        return null;
+        return _page.GetCommandItem(id);
     }
 }
