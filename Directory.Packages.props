@@ -4,10 +4,10 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.CommandPalette.Extensions" Version="0.9.260303001" />
-    <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6901" />
-    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
+    <PackageVersion Include="Microsoft.WindowsAppSDK" Version="1.8.260317003" />
     <PackageVersion Include="System.Text.Json" Version="9.0.10" />
     <PackageVersion Include="ToolGood.Words.Pinyin" Version="3.1.0.4" />
     <PackageVersion Include="WyHash" Version="1.0.5" />
