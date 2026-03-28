@@ -173,9 +173,33 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         {
             foreach (var item in _visibleItems)
             {
-                if (string.Equals(item.Command.Id, id, StringComparison.Ordinal))
+                if (item.Command != null && string.Equals(item.Command.Id, id, StringComparison.Ordinal))
                 {
-                    return item;
+                    var newMoreCommands = new List<ICommandContextItem>();
+                    if (item.MoreCommands != null)
+                    {
+                        foreach (var mc in item.MoreCommands)
+                        {
+                            if (mc is CommandContextItem cci)
+                            {
+                                if (cci.Command is HelpPage || cci.Command is RefreshWorkspacesCommand || cci.Command is PinWorkspaceCommand)
+                                {
+                                    continue;
+                                }
+                                newMoreCommands.Add(cci);
+                            }
+                        }
+                    }
+
+                    return new ListItem(item.Command)
+                    {
+                        Title = item.Title,
+                        Subtitle = item.Subtitle,
+                        Details = item.Details,
+                        Icon = item.Icon,
+                        Tags = item.Tags,
+                        MoreCommands = newMoreCommands.ToArray()
+                    };
                 }
             }
 
@@ -183,7 +207,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             {
                 if (string.Equals(workspace.Id, id, StringComparison.Ordinal))
                 {
-                    return WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList);
+                    return WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList, true);
                 }
             }
         }

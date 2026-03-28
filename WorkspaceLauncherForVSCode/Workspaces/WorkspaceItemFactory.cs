@@ -31,7 +31,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             CountTracker countTracker,
             CommandContextItem refreshCommandContextItem,
             IPinService pinService,
-            List<VisualStudioInstance> visualStudioInstanceList)
+            List<VisualStudioInstance> visualStudioInstanceList,
+            bool isTopLevelPinCommand = false)
         {
             try
             {
@@ -53,7 +54,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     (command, icon, details, tags, moreCommands) = CreateVSCodeComponents(workspace, page, settingsManager);
                 }
 
-                AddCommonCommands(moreCommands, workspace, settingsManager, countTracker, refreshCommandContextItem, pinService);
+                AddCommonCommands(moreCommands, workspace, settingsManager, countTracker, refreshCommandContextItem, pinService, isTopLevelPinCommand);
 
                 var item = new ListItem(command)
                 {
@@ -264,7 +265,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             SettingsManager settingsManager,
             CountTracker countTracker,
             CommandContextItem refreshCommandContextItem,
-            IPinService pinService)
+            IPinService pinService,
+            bool isTopLevelPinCommand = false)
         {
             bool hasOpenInExplorer = false;
             foreach (var c in moreCommands)
@@ -280,16 +282,22 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 moreCommands.Add(new CommandContextItem(new OpenInTerminalCommand(workspace, settingsManager)));
             }
 
-            moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, countTracker, workspace))
+            if (isTopLevelPinCommand == false)
             {
-                RequestedShortcut = KeyChordHelpers.FromModifiers(false, false, false, false, (int)VirtualKey.F1, 0),
-            });
+                moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, countTracker, workspace))
+                {
+                    RequestedShortcut = KeyChordHelpers.FromModifiers(false, false, false, false, (int)VirtualKey.F1, 0),
+                });
+            }
             moreCommands.Add(new CommandContextItem(new CopyPathCommand(workspace.WindowsPath ?? string.Empty))
             {
                 RequestedShortcut = KeyChordHelpers.FromModifiers(true, false, false, false, (int)VirtualKey.C, 0),
             });
-            moreCommands.Add(refreshCommandContextItem);
-            moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, pinService)));
+            if (isTopLevelPinCommand == false)
+            {
+                moreCommands.Add(refreshCommandContextItem);
+                moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, pinService)));
+            }
         }
 
         private static string GetSubtitle(VisualStudioCodeWorkspace workspace)
