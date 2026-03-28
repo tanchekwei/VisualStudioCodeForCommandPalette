@@ -1,8 +1,5 @@
-# Created using wingetcreate 1.9.4.0
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.9.0.schema.json
-
 PackageIdentifier: 15722UsefulApp.WorkspaceLauncherForVSCode
-PackageVersion: 1.7.1.0
+PackageVersion: __VERSION__
 PackageLocale: en-US
 Publisher: 15722UsefulApp
 PublisherUrl: https://github.com/tanchekwei
@@ -23,7 +20,7 @@ Tags:
 - visual-studio-code
 - vscode
 - vs-code
-ReleaseNotesUrl: https://github.com/tanchekwei/WorkspaceLauncherForVSCode/releases
+ReleaseNotesUrl: https://github.com/tanchekwei/WorkspaceLauncherForVSCode/releases/tag/v__VERSION__
 Documentations:
 - DocumentLabel: Wiki
   DocumentUrl: https://github.com/tanchekwei/WorkspaceLauncherForVSCode

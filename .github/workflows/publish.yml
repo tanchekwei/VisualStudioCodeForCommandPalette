@@ -1,0 +1,49 @@
+name: Publish to package managers
+
+on:
+  release:
+    types: 
+      - published
+
+  workflow_dispatch:
+  
+jobs:
+  publish:
+    if: "!github.event.release.prerelease"
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git clone https://github.com/tanchekwei/VisualStudioCodeForCommandPalette.git --depth 1
+
+      - name: Publish to Package Managers
+        run: |
+          $response = Invoke-RestMethod -Uri https://api.github.com/repos/tanchekwei/VisualStudioCodeForCommandPalette/releases/latest
+          
+          $ver = $response.tag_name.TrimStart('v')
+          
+          $exe = $response.assets | Where-Object { $_.name -like "*x64*" } | Select-Object -ExpandProperty browser_download_url
+          $exeARM = $response.assets | Where-Object { $_.name -like "*arm64*" } | Select-Object -ExpandProperty browser_download_url
+          
+          Invoke-WebRequest -Uri $exe -OutFile .\x64.exe
+          Invoke-WebRequest -Uri $exeARM -OutFile .\arm.exe
+          $exehash = Get-FileHash -Path .\x64.exe -Algorithm SHA256 | Select-Object -ExpandProperty Hash
+          $exeARMhash = Get-FileHash -Path .\arm.exe -Algorithm SHA256 | Select-Object -ExpandProperty Hash
+
+          # Publish to Winget
+          $wingetPackage = "15722UsefulApp.WorkspaceLauncherForVSCode"
+          Invoke-WebRequest -Uri https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+          cd .\VisualStudioCodeForCommandPalette\winget-pkg
+          Get-ChildItem *.* -Recurse | ForEach-Object { 
+            (Get-Content $_.FullName) -replace '__VERSION__', "$ver" `
+                                     -replace '__URL__', "$exe" `
+                                     -replace '__SHA256__', "$exehash" `
+                                     -replace '__armURL__', "$exeARM" `
+                                     -replace '__armSHA256__', "$exeARMhash" | 
+            Set-Content $_.FullName 
+          }
+          echo "Publishing to winget..."
+          ..\..\wingetcreate submit -p "New version: $wingetPackage version $ver" -t ${{ secrets.WINGETCREATE_GITHUB }} .
