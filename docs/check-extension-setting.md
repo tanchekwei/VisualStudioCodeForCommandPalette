@@ -1,13 +1,18 @@
 ## Open Extension Settings
 
-1. Click on the link [ms-settings:appsfeatures](ms-settings:appsfeatures)
+## Open App / Extension Settings (Windows)
 
+
+1. Press `Win + R`
+1. Run:
+   ```
+   ms-settings:appsfeatures
+   ```
 1. In the search box, type:
 
    ```
    Visual Studio / Code for Command Palette
    ```
-
 1. Locate the app in the list
 
 1. Click the **⋯ (three dots)** button next to the app
