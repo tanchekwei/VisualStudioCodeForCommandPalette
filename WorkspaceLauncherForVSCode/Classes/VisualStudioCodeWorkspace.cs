@@ -55,7 +55,6 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
 
             SetName();
             SetWorkspaceType();
-            SetVSCodeMetadata();
             Name = WorkspaceName;
         }
         catch (Exception ex)
@@ -151,30 +150,6 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
         }
     }
 
-    /// <summary>
-    /// Gets the details of the workspace.
-    /// </summary>
-    /// <returns>An array of details elements containing information about the workspace.</returns>
-    public void SetVSCodeMetadata()
-    {
-        try
-        {
-            if (Path == null) return;
-            var typeTags = new List<Tag>() { new Tag(WorkspaceTypeString) };
-            if (VisualStudioCodeRemoteUri != null)
-            {
-                typeTags.Add(new Tag(VisualStudioCodeRemoteUri.Type.ToDisplayName()));
-            }
-            else if (VisualStudioCodeRemoteUri?.TypeStr != null)
-            {
-                typeTags.Add(new Tag(VisualStudioCodeRemoteUri.TypeStr));
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorLogger.LogError(ex);
-        }
-    }
 
     /// <summary>
     /// Gets the details of the workspace.
