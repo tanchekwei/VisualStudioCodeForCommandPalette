@@ -39,6 +39,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
                 _previousSortBy = _settingsManager.SortBy;
                 _prevEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
                 _previousUseHelperLauncher = _settingsManager.UseHelperLauncher;
+                _previousFallbackCount = _settingsManager.FallbackCount;
                 _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
             }
             catch (Exception ex)
