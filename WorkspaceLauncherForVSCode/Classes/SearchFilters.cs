@@ -12,7 +12,7 @@ internal sealed partial class SearchFilters : Filters
 {
     public SearchFilters()
     {
-        CurrentFilterId = "all";
+        CurrentFilterId = nameof(FilterType.All);
     }
 
     public override IFilterItem[] GetFilters()

@@ -37,7 +37,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
 #endif
             _settingsManager = settingsManager;
             _vscodeService = visualStudioCodeService;
-            DisplayName = Classes.Constant.VisualStudioCodeDisplayName;
+            DisplayName = Constant.VisualStudioCodeDisplayName;
             Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
             Settings = _settingsManager.Settings;
 
@@ -47,9 +47,9 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
             _page = page;
 
             var refreshCommandContextItem = new CommandContextItem(refreshWorkspacesCommand);
-            _fallbacks = new IFallbackCommandItem[_settingsManager.FallbackCount + Classes.Constant.FallbackIndex.StartOfDynamicWorkspaces];
-            _fallbacks[Classes.Constant.FallbackIndex.OpenRecentVisualStudioCode] = new FallbackOpenRecentVisualStudioCodeItem(_page);
-            for (int i = Classes.Constant.FallbackIndex.StartOfDynamicWorkspaces; i < _fallbacks.Length; i++)
+            _fallbacks = new IFallbackCommandItem[_settingsManager.FallbackCount + Constant.FallbackIndex.StartOfDynamicFallback];
+            _fallbacks[Constant.FallbackIndex.OpenInVisualStudioCode] = new FallbackOpenRecentVisualStudioCodeItem(_page);
+            for (int i = Constant.FallbackIndex.StartOfDynamicFallback, j = 0; i < _fallbacks.Length; i++, j++)
             {
                 _fallbacks[i] = new FallbackWorkspaceItem(
                     _page,
@@ -58,7 +58,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
                     countTracker,
                     refreshCommandContextItem,
                     pinService,
-                    i);
+                    j); // index start with 0
             }
         }
         catch (Exception ex)

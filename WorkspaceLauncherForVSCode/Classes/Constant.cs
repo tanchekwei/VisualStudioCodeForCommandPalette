@@ -23,7 +23,7 @@ public static class Constant
 
     public static class FallbackIndex
     {
-        public const int OpenRecentVisualStudioCode = 0;
-        public const int StartOfDynamicWorkspaces = 1;
+        public const int OpenInVisualStudioCode = 0;
+        public const int StartOfDynamicFallback = 1;
     }
 }

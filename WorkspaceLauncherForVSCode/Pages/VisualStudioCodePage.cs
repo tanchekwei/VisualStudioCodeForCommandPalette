@@ -40,6 +40,8 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private readonly List<ListItem> _visibleItems = [];
     private readonly Dictionary<string, ListItem> _listItemCache = [];
     private List<VisualStudioCodeWorkspace> _cachedFilteredWorkspaces = [];
+    private string? _lastFallbackQuery;
+    private List<VisualStudioCodeWorkspace> _lastFallbackFilteredWorkspaces = [];
 
     private readonly object _itemsLock = new();
     private readonly SemaphoreSlim _refreshSemaphore = new(1, 1);
@@ -399,6 +401,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                 AllWorkspaces.Clear();
                 _allWorkspacesById.Clear();
                 _listItemCache.Clear();
+                ClearFallbackCache();
                 for (int i = 0; i < workspaces.Count; i++)
                 {
                     var workspace = workspaces[i];
@@ -457,6 +460,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 #if DEBUG
         using var logger = new TimeLogger();
 #endif
+        ClearFallbackCache();
         UpdateSearchText(string.Empty, SearchText);
     }
 
@@ -501,6 +505,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         lock (_itemsLock)
         {
             _listItemCache.Clear();
+            ClearFallbackCache();
 
             _cachedFilteredWorkspaces = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, Filters?.CurrentFilterId ?? string.Empty);
             _visibleItems.Clear();
@@ -566,11 +571,33 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         AllWorkspaces.Clear();
         _allWorkspacesById.Clear();
         _listItemCache.Clear();
+        ClearFallbackCache();
     }
 
     public void SetSearchText(string query)
     {
         SearchText = query;
+    }
+
+    public List<VisualStudioCodeWorkspace> GetFallbackFilteredWorkspaces(string query)
+    {
+        lock (_itemsLock)
+        {
+            if (_lastFallbackQuery != null && _lastFallbackQuery == query)
+            {
+                return _lastFallbackFilteredWorkspaces;
+            }
+
+            _lastFallbackQuery = query;
+            _lastFallbackFilteredWorkspaces = WorkspaceFilter.Filter(query, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, nameof(FilterType.All));
+            return _lastFallbackFilteredWorkspaces;
+        }
+    }
+
+    private void ClearFallbackCache()
+    {
+        _lastFallbackQuery = null;
+        _lastFallbackFilteredWorkspaces = [];
     }
 
     public void Dispose()
