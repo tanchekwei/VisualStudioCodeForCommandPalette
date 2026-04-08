@@ -268,42 +268,45 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         RaiseItemsChanged(_visibleItems.Count);
     }
 
-    private ListItem GetOrCreateListItem(VisualStudioCodeWorkspace workspace, bool isTopLevelPinCommand = false)
+    public ListItem GetOrCreateListItem(VisualStudioCodeWorkspace workspace, bool isTopLevelPinCommand = false)
     {
-        if (!_listItemCache.TryGetValue(workspace.Id, out var listItem))
+        lock (_itemsLock)
         {
-            listItem = WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList);
-            _listItemCache[workspace.Id] = listItem;
-        }
-        if (isTopLevelPinCommand)
-        {
-            var newMoreCommands = new List<ICommandContextItem>();
-            if (listItem.MoreCommands != null)
+            if (!_listItemCache.TryGetValue(workspace.Id, out var listItem))
             {
-                foreach (var mc in listItem.MoreCommands)
+                listItem = WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList);
+                _listItemCache[workspace.Id] = listItem;
+            }
+            if (isTopLevelPinCommand)
+            {
+                var newMoreCommands = new List<ICommandContextItem>();
+                if (listItem.MoreCommands != null)
                 {
-                    if (mc is CommandContextItem cci)
+                    foreach (var mc in listItem.MoreCommands)
                     {
-                        if (cci.Command is HelpPage || cci.Command is RefreshWorkspacesCommand || cci.Command is PinWorkspaceCommand)
+                        if (mc is CommandContextItem cci)
                         {
-                            continue;
+                            if (cci.Command is HelpPage || cci.Command is RefreshWorkspacesCommand || cci.Command is PinWorkspaceCommand)
+                            {
+                                continue;
+                            }
+                            newMoreCommands.Add(cci);
                         }
-                        newMoreCommands.Add(cci);
                     }
                 }
-            }
 
-            return new ListItem(listItem.Command)
-            {
-                Title = listItem.Title,
-                Subtitle = listItem.Subtitle,
-                Details = listItem.Details,
-                Icon = listItem.Icon,
-                Tags = listItem.Tags,
-                MoreCommands = newMoreCommands.ToArray()
-            };
+                return new ListItem(listItem.Command)
+                {
+                    Title = listItem.Title,
+                    Subtitle = listItem.Subtitle,
+                    Details = listItem.Details,
+                    Icon = listItem.Icon,
+                    Tags = listItem.Tags,
+                    MoreCommands = newMoreCommands.ToArray()
+                };
+            }
+            return listItem;
         }
-        return listItem;
     }
 
     private async Task RefreshWorkspacesAsync(bool isUserInitiated, bool isBackground = false)

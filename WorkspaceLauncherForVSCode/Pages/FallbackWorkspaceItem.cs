@@ -12,18 +12,10 @@ namespace WorkspaceLauncherForVSCode.Pages;
 internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
 {
     private readonly VisualStudioCodePage _page;
-    private readonly SettingsManager _settingsManager;
-    private readonly WorkspaceStorage _workspaceStorage;
-    private readonly CommandContextItem _refreshWorkspacesCommandContextItem;
-    private readonly IPinService _pinService;
     private readonly int _index;
 
     public FallbackWorkspaceItem(
         VisualStudioCodePage page,
-        SettingsManager settingsManager,
-        WorkspaceStorage workspaceStorage,
-        CommandContextItem refreshWorkspacesCommandContextItem,
-        IPinService pinService,
         int index)
         : base(new NoOpCommand(),
         $"{Constant.VisualStudioCodeDisplayName} fallback result no. {index + 1}",
@@ -31,10 +23,6 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
     {
         Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
         _page = page;
-        _settingsManager = settingsManager;
-        _workspaceStorage = workspaceStorage;
-        _refreshWorkspacesCommandContextItem = refreshWorkspacesCommandContextItem;
-        _pinService = pinService;
         _index = index;
     }
 
@@ -58,17 +46,12 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
         }
 
         var best = filtered[_index];
-        var isVSSolution = best.WorkspaceType == WorkspaceType.Solution || best.WorkspaceType == WorkspaceType.Solution2026;
-        var (command, icon, _, _, moreCommands) = isVSSolution
-            ? WorkspaceItemFactory.CreateSolutionComponents(best, _page, _settingsManager, _page.VSCodeService.GetVisualStudioInstances())
-            : WorkspaceItemFactory.CreateVSCodeComponents(best, _page, _settingsManager);
+        var listItem = _page.GetOrCreateListItem(best);
 
-        WorkspaceItemFactory.AddCommonCommands(moreCommands, best, _settingsManager, _refreshWorkspacesCommandContextItem, _pinService);
-
-        Title = best.Name ?? string.Empty;
-        Subtitle = best.WindowsPath ?? string.Empty;
-        Icon = icon;
-        Command = command;
-        MoreCommands = moreCommands.ToArray();
+        Title = listItem.Title;
+        Subtitle = listItem.Subtitle;
+        Icon = listItem.Icon;
+        Command = listItem.Command;
+        MoreCommands = listItem.MoreCommands;
     }
 }

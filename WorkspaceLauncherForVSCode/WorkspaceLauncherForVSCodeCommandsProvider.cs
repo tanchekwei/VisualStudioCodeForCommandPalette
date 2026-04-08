@@ -48,15 +48,11 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
             var refreshCommandContextItem = new CommandContextItem(refreshWorkspacesCommand);
             _fallbacks = new IFallbackCommandItem[_settingsManager.FallbackCount + Constant.FallbackIndex.StartOfDynamicFallback];
             _fallbacks[Constant.FallbackIndex.OpenInVisualStudioCode] = new FallbackOpenRecentVisualStudioCodeItem(_page);
-            for (int i = Constant.FallbackIndex.StartOfDynamicFallback, j = 0; i < _fallbacks.Length; i++, j++)
+            for (int i = Constant.FallbackIndex.StartOfDynamicFallback, fallbackResultIndex = 0; i < _fallbacks.Length; i++, fallbackResultIndex++)
             {
                 _fallbacks[i] = new FallbackWorkspaceItem(
                     _page,
-                    _settingsManager,
-                    workspaceStorage,
-                    refreshCommandContextItem,
-                    pinService,
-                    j); // index start with 0
+                    fallbackResultIndex); // index start with 0
             }
         }
         catch (Exception ex)
