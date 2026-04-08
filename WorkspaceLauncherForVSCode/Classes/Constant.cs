@@ -20,4 +20,10 @@ public static class Constant
     public const string VisualStudio2026Version = "18";
     public static readonly string AssemblyVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? string.Empty;
     public static readonly string SettingsFolderPath = Utilities.BaseSettingsPath(AppName);
+
+    public static class FallbackIndex
+    {
+        public const int OpenRecentVisualStudioCode = 0;
+        public const int StartOfDynamicWorkspaces = 1;
+    }
 }

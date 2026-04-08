@@ -31,8 +31,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             CountTracker countTracker,
             CommandContextItem refreshCommandContextItem,
             IPinService pinService,
-            List<VisualStudioInstance> visualStudioInstanceList,
-            bool isTopLevelPinCommand = false)
+            List<VisualStudioInstance> visualStudioInstanceList)
         {
             try
             {
@@ -54,7 +53,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     (command, icon, details, tags, moreCommands) = CreateVSCodeComponents(workspace, page, settingsManager);
                 }
 
-                AddCommonCommands(moreCommands, workspace, settingsManager, countTracker, refreshCommandContextItem, pinService, isTopLevelPinCommand);
+                AddCommonCommands(moreCommands, workspace, settingsManager, countTracker, refreshCommandContextItem, pinService);
 
                 var item = new ListItem(command)
                 {
@@ -92,7 +91,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             workspace.WindowsPath = workspace.Path;
             var details = BuildDetails(workspace, icon);
             var tags = BuildTags(workspace, settingsManager);
-            var moreCommands = new List<CommandContextItem>();
+            List<CommandContextItem> moreCommands = [];
             if (settingsManager.VSSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
             {
                 moreCommands.Add(new CommandContextItem(new OpenSolutionCommand(workspace, page, elevated: true)));
@@ -184,7 +183,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             var icon = workspace.VSCodeInstance?.CachedIcon ?? Icon.VisualStudioCode;
             var details = BuildDetails(workspace, icon);
             var tags = BuildTags(workspace, settingsManager);
-            var moreCommands = new List<CommandContextItem>();
+            List<CommandContextItem> moreCommands = [];
             if (workspace.VisualStudioCodeRemoteUri is null)
             {
                 if (settingsManager.VSCodeSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
@@ -265,8 +264,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             SettingsManager settingsManager,
             CountTracker countTracker,
             CommandContextItem refreshCommandContextItem,
-            IPinService pinService,
-            bool isTopLevelPinCommand = false)
+            IPinService pinService)
         {
             bool hasOpenInExplorer = false;
             foreach (var c in moreCommands)
@@ -282,22 +280,16 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 moreCommands.Add(new CommandContextItem(new OpenInTerminalCommand(workspace, settingsManager)));
             }
 
-            if (isTopLevelPinCommand == false)
+            moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, countTracker, workspace))
             {
-                moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, countTracker, workspace))
-                {
-                    RequestedShortcut = KeyChordHelpers.FromModifiers(false, false, false, false, (int)VirtualKey.F1, 0),
-                });
-            }
+                RequestedShortcut = KeyChordHelpers.FromModifiers(false, false, false, false, (int)VirtualKey.F1, 0),
+            });
             moreCommands.Add(new CommandContextItem(new CopyPathCommand(workspace.WindowsPath ?? string.Empty))
             {
                 RequestedShortcut = KeyChordHelpers.FromModifiers(true, false, false, false, (int)VirtualKey.C, 0),
             });
-            if (isTopLevelPinCommand == false)
-            {
-                moreCommands.Add(refreshCommandContextItem);
-                moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, pinService)));
-            }
+            moreCommands.Add(refreshCommandContextItem);
+            moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, pinService)));
         }
 
         private static string GetSubtitle(VisualStudioCodeWorkspace workspace)
@@ -335,12 +327,12 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 
         private static Details BuildDetails(VisualStudioCodeWorkspace workspace, IconInfo icon)
         {
-            var metadata = new List<DetailsElement>
-            {
-              new DetailsElement() { Key = "Tags", Data = new DetailsTags() { Tags = BuildTags(workspace).ToArray() } },
+            List<DetailsElement> metadata =
+            [
+              new DetailsElement() { Key = "Tags", Data = new DetailsTags() { Tags = [.. BuildTags(workspace)] } },
               new DetailsElement() { Key = "Path", Data = new DetailsLink() { Text = workspace.Path ?? "" } },
               new DetailsElement() { Key = "Windows Path", Data = new DetailsLink() { Text = workspace.WindowsPath ?? "" } },
-            };
+            ];
             return new Details()
             {
                 HeroImage = icon,
@@ -351,7 +343,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 
         private static List<Tag> BuildTags(VisualStudioCodeWorkspace workspace, SettingsManager? settingsManager = null)
         {
-            var tags = new List<Tag>();
+            List<Tag> tags = [];
             var isVSSolution = workspace.WorkspaceType == WorkspaceType.Solution || workspace.WorkspaceType == WorkspaceType.Solution2026;
             if (isVSSolution)
             {
