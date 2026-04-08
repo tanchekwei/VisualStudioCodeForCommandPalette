@@ -26,7 +26,7 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
         IPinService pinService,
         int index)
         : base(new NoOpCommand(),
-        $"Open Recent {Constant.VisualStudioCodeDisplayName}",
+        $"{Constant.VisualStudioCodeDisplayName} fallback result no. {index + 1}",
         $"{Package.Current.Id.Name}.{nameof(FallbackWorkspaceItem)}.{index}")
     {
         Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
