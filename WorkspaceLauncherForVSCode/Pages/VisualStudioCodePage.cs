@@ -37,6 +37,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     public SettingsManager SettingsManager { get; } = new();
     public IVisualStudioCodeService VSCodeService => _vscodeService;
     private readonly List<ListItem> _visibleItems = [];
+    private IListItem[]? _combinedItemsCache;
     private readonly Dictionary<string, ListItem> _listItemCache = [];
     private List<VisualStudioCodeWorkspace> _cachedFilteredWorkspaces = [];
     private string? _lastFallbackQuery;
@@ -143,7 +144,12 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                     return _noResultsRefreshItem;
                 }
 
-                return [.. _visibleItems, .. _refreshSuggestionItem];
+                if (_combinedItemsCache == null)
+                {
+                    _combinedItemsCache = [.. _visibleItems, .. _refreshSuggestionItem];
+                }
+
+                return _combinedItemsCache;
             }
         }
         finally
@@ -176,15 +182,32 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 #endif
         lock (_itemsLock)
         {
-#if DEBUG
-            using (new TimeLogger("WorkspaceFilter.Filter (UpdateSearchText)"))
+            var filterId = Filters?.CurrentFilterId ?? string.Empty;
+            var isAllFilter = filterId == string.Empty || filterId == nameof(FilterType.All);
+
+            if (isAllFilter && _lastFallbackQuery != null && _lastFallbackQuery == newSearch)
             {
-                _cachedFilteredWorkspaces = WorkspaceFilter.Filter(newSearch, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, Filters?.CurrentFilterId ?? string.Empty);
+                _cachedFilteredWorkspaces = _lastFallbackFilteredWorkspaces;
             }
+            else
+            {
+#if DEBUG
+                using (new TimeLogger("WorkspaceFilter.Filter (UpdateSearchText)"))
+                {
+                    _cachedFilteredWorkspaces = WorkspaceFilter.Filter(newSearch, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, filterId);
+                }
 #else
-            _cachedFilteredWorkspaces = WorkspaceFilter.Filter(newSearch, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, Filters?.CurrentFilterId ?? string.Empty);
+                _cachedFilteredWorkspaces = WorkspaceFilter.Filter(newSearch, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, filterId);
 #endif
+                if (isAllFilter)
+                {
+                    _lastFallbackQuery = newSearch;
+                    _lastFallbackFilteredWorkspaces = _cachedFilteredWorkspaces;
+                }
+            }
+
             _visibleItems.Clear();
+            _combinedItemsCache = null;
 
             List<ListItem> itemsToAdd = [];
             int count = 0;
@@ -238,6 +261,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 #endif
 
             _visibleItems.AddRange(itemsToAdd);
+            _combinedItemsCache = null;
             HasMoreItems = _visibleItems.Count < _cachedFilteredWorkspaces.Count;
         }
 
@@ -411,17 +435,33 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             }
 #endif
 
-#if DEBUG
+            var filterId = Filters?.CurrentFilterId ?? string.Empty;
+            var isAllFilter = filterId == string.Empty || filterId == nameof(FilterType.All);
             List<VisualStudioCodeWorkspace> filtered;
-            using (new TimeLogger("WorkspaceFilter.Filter"))
+
+            if (isAllFilter && _lastFallbackQuery != null && _lastFallbackQuery == SearchText)
             {
-                filtered = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, Filters?.CurrentFilterId ?? string.Empty);
+                filtered = _lastFallbackFilteredWorkspaces;
             }
+            else
+            {
+#if DEBUG
+                using (new TimeLogger("WorkspaceFilter.Filter"))
+                {
+                    filtered = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, filterId);
+                }
 #else
-            var filtered = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, Filters?.CurrentFilterId ?? string.Empty);
+                filtered = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, filterId);
 #endif
+                if (isAllFilter)
+                {
+                    _lastFallbackQuery = SearchText;
+                    _lastFallbackFilteredWorkspaces = filtered;
+                }
+            }
             _cachedFilteredWorkspaces = filtered;
             _visibleItems.Clear();
+            _combinedItemsCache = null;
 
             List<ListItem> itemsToAdd = [];
             int count = 0;
@@ -498,8 +538,17 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             _listItemCache.Clear();
             ClearFallbackCache();
 
-            _cachedFilteredWorkspaces = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, Filters?.CurrentFilterId ?? string.Empty);
+            var filterId = Filters?.CurrentFilterId ?? string.Empty;
+            _cachedFilteredWorkspaces = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, filterId);
+
+            if (filterId == string.Empty || filterId == nameof(FilterType.All))
+            {
+                _lastFallbackQuery = SearchText;
+                _lastFallbackFilteredWorkspaces = _cachedFilteredWorkspaces;
+            }
+
             _visibleItems.Clear();
+            _combinedItemsCache = null;
 
             List<ListItem> itemsToAdd = [];
             int count = 0;
