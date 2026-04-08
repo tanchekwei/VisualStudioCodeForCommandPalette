@@ -147,7 +147,7 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
 
             Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path, Workspace.WorkspaceType));
 
-            return PageCommandResultHandler.HandleCommandResult(page);
+            return CommandResult.Dismiss();
         }
         catch (Exception ex)
         {

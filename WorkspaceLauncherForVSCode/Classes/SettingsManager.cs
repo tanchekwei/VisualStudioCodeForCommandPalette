@@ -186,12 +186,6 @@ public class SettingsManager : JsonSettingsManager
         $"Automatically refreshes the workspace list when changes are detected in {Constant.VisualStudioCodeDisplayName}'s recent list.",
         true);
 
-    private readonly ToggleSetting _clearSearchOnExecute = new(
-        Namespaced(nameof(ClearSearchOnExecute)),
-        $"Clear search text after executing open {Constant.VisualStudioCodeDisplayName} command",
-        $"If checked, the search text will be cleared after the open {Constant.VisualStudioCodeDisplayName} command is executed.",
-        false);
-
     private readonly ChoiceSetSetting _searchBy = new(
         Namespaced(nameof(SearchBy)),
         "Search By",
@@ -262,7 +256,6 @@ public class SettingsManager : JsonSettingsManager
     public bool UseHelperLauncher => _useHelperLauncher.Value;
     public bool EnableVisualStudio => _enableVisualStudio.Value;
     public bool EnableWorkspaceWatcher => _enableWorkspaceWatcher.Value;
-    public bool ClearSearchOnExecute => _clearSearchOnExecute.Value;
 
     public TagType TagTypes
     {
@@ -411,7 +404,6 @@ public class SettingsManager : JsonSettingsManager
             Settings.Add(_terminalType);
             Settings.Add(_vsSecondaryCommand);
             Settings.Add(_vscodeSecondaryCommand);
-            Settings.Add(_clearSearchOnExecute);
             Settings.Add(_useHelperLauncher);
             // Settings.Add(_enableWorkspaceWatcher);
 #if DEBUG
