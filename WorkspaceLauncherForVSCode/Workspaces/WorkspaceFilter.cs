@@ -22,8 +22,12 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 #if DEBUG
                 using var logger = new TimeLogger();
 #endif
-                List<VisualStudioCodeWorkspace> filteredItems;
                 var isSearching = !string.IsNullOrWhiteSpace(searchText);
+                var filterType = FilterType.All;
+                var hasFilter = !string.IsNullOrWhiteSpace(filterId) && Enum.TryParse(filterId, out filterType) && filterType != FilterType.All;
+
+                List<VisualStudioCodeWorkspace> pinned = new List<VisualStudioCodeWorkspace>();
+                List<VisualStudioCodeWorkspace> unpinned = new List<VisualStudioCodeWorkspace>();
 
                 if (isSearching)
                 {
@@ -32,6 +36,12 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     for (int i = 0; i < allWorkspaces.Count; i++)
                     {
                         var item = allWorkspaces[i];
+
+                        if (hasFilter && !MatchesFilter(item, filterType))
+                        {
+                            continue;
+                        }
+
                         var titleScore = (searchBy is SearchBy.Title or SearchBy.Both)
                             ? FuzzyStringMatcher.ScoreFuzzy(searchText, item.Name ?? string.Empty)
                             : 0;
@@ -49,81 +59,41 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 
                     matchedItems.Sort((a, b) => b.score.CompareTo(a.score));
 
-                    filteredItems = new List<VisualStudioCodeWorkspace>(matchedItems.Count);
                     for (int i = 0; i < matchedItems.Count; i++)
                     {
-                        filteredItems.Add(matchedItems[i].item);
+                        var item = matchedItems[i].item;
+                        if (item.PinDateTime != null)
+                        {
+                            pinned.Add(item);
+                        }
+                        else
+                        {
+                            unpinned.Add(item);
+                        }
                     }
                 }
                 else
                 {
-                    filteredItems = new List<VisualStudioCodeWorkspace>(allWorkspaces);
-                }
-
-                if (!string.IsNullOrWhiteSpace(filterId) &&
-                    Enum.TryParse<FilterType>(filterId, out var filterType) &&
-                    filterType != FilterType.All)
-                {
-                    var filteredList = new List<VisualStudioCodeWorkspace>(filteredItems.Count);
-                    for (int i = 0; i < filteredItems.Count; i++)
+                    for (int i = 0; i < allWorkspaces.Count; i++)
                     {
-                        var item = filteredItems[i];
-                        var matches = filterType switch
+                        var item = allWorkspaces[i];
+                        if (hasFilter && !MatchesFilter(item, filterType))
                         {
-                            FilterType.Vscode => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Default,
-                            FilterType.VscodeInsider => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Insider,
-                            FilterType.Cursor => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Cursor,
-                            FilterType.Antigravity => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Antigravity,
-                            FilterType.Windsurf => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Windsurf,
-                            FilterType.Folder => item.WorkspaceType == WorkspaceType.Folder,
-                            FilterType.Workspace => item.WorkspaceType == WorkspaceType.Workspace,
-                            FilterType.RemoteCodespaces => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.Codespaces,
-                            FilterType.RemoteWsl => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.WSL,
-                            FilterType.RemoteDevContainer => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.DevContainer,
-                            FilterType.RemoteAttachedContainer => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.AttachedContainer,
-                            FilterType.RemoteSSHRemote => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.SSHRemote,
-                            FilterType.VisualStudio2026 => item?.WorkspaceType == WorkspaceType.Solution2026,
-                            FilterType.VisualStudio => item?.WorkspaceType == WorkspaceType.Solution,
-                            _ => true,
-                        };
+                            continue;
+                        }
 
-                        if (matches)
+                        if (item.PinDateTime != null)
                         {
-                            filteredList.Add(item);
+                            pinned.Add(item);
+                        }
+                        else
+                        {
+                            unpinned.Add(item);
                         }
                     }
-                    filteredItems = filteredList;
                 }
 
-                List<VisualStudioCodeWorkspace> pinned = [];
-                List<VisualStudioCodeWorkspace> unpinned = [];
-
-                for (int i = 0; i < filteredItems.Count; i++)
-                {
-                    var item = filteredItems[i];
-                    if (item.PinDateTime != null)
-                    {
-                        pinned.Add(item);
-                    }
-                    else
-                    {
-                        unpinned.Add(item);
-                    }
-                }
-
-                if (isSearching)
-                {
-                    unpinned.Sort((a, b) =>
-                    {
-                        int result = b.LastAccessed.CompareTo(a.LastAccessed);
-                        if (result == 0)
-                        {
-                            result = b.Frequency.CompareTo(a.Frequency);
-                        }
-                        return result;
-                    });
-                }
-                else
+                if (!isSearching)
                 {
                     switch (sortBy)
                     {
@@ -170,6 +140,28 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 ErrorLogger.LogError(ex);
                 return new List<VisualStudioCodeWorkspace>();
             }
+        }
+
+        private static bool MatchesFilter(VisualStudioCodeWorkspace item, FilterType filterType)
+        {
+            return filterType switch
+            {
+                FilterType.Vscode => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Default,
+                FilterType.VscodeInsider => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Insider,
+                FilterType.Cursor => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Cursor,
+                FilterType.Antigravity => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Antigravity,
+                FilterType.Windsurf => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Windsurf,
+                FilterType.Folder => item.WorkspaceType == WorkspaceType.Folder,
+                FilterType.Workspace => item.WorkspaceType == WorkspaceType.Workspace,
+                FilterType.RemoteCodespaces => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.Codespaces,
+                FilterType.RemoteWsl => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.WSL,
+                FilterType.RemoteDevContainer => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.DevContainer,
+                FilterType.RemoteAttachedContainer => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.AttachedContainer,
+                FilterType.RemoteSSHRemote => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.SSHRemote,
+                FilterType.VisualStudio2026 => item?.WorkspaceType == WorkspaceType.Solution2026,
+                FilterType.VisualStudio => item?.WorkspaceType == WorkspaceType.Solution,
+                _ => true,
+            };
         }
     }
 }
