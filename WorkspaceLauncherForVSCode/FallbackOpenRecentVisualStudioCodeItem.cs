@@ -24,7 +24,7 @@ internal sealed partial class FallbackOpenRecentVisualStudioCodeItem : FallbackC
     {
         Command = new NoOpCommand();
         Title = string.Empty;
-        Subtitle = string.Empty;
+        Subtitle = Classes.Constant.VisualStudioCodeDisplayName;
         Icon = null;
 
         if (string.IsNullOrWhiteSpace(query) || _page.AllWorkspaces.Count == 0)
@@ -33,8 +33,7 @@ internal sealed partial class FallbackOpenRecentVisualStudioCodeItem : FallbackC
         }
 
         _page.SetSearchText(query);
-        var displayName = Classes.Constant.VisualStudioCodeDisplayName;
-        Title = $"Search for \"{query}\" in {displayName}";
+        Title = $"Search for \"{query}\"";
         Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
         Command = _page;
     }
