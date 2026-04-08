@@ -86,7 +86,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             {
                 icon = Icon.VisualStudio2026;
             }
-            
+
             workspace.WindowsPath = workspace.Path;
             var details = BuildDetails(workspace, icon);
             var tags = BuildTags(workspace, settingsManager);
@@ -250,7 +250,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     Name = $"Open in {instance.DisplayName}",
                     Icon = commandIcon
                 };
-                 
+
                 moreCommands.Add(new CommandContextItem(openCommand));
             }
 

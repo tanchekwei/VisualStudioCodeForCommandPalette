@@ -143,7 +143,7 @@ public class SettingsManager : JsonSettingsManager
         "Custom Visual Studio Code Path",
         "Custom Visual Studio Code Path.\nFull path to Code.exe for your Visual Studio Code installation. (e.g. D:\\VSCode-win32-x64-1.110.1\\Code.exe).",
         "");
-    
+
     private readonly ToggleSetting _enableCursor = new(
         Namespaced(nameof(_enableCursor)),
         "Enable Cursor",
@@ -286,7 +286,7 @@ public class SettingsManager : JsonSettingsManager
             var editions = VisualStudioCodeEdition.None;
             if (_enableDefault.Value) editions |= VisualStudioCodeEdition.Default;
             if (_enableSystem.Value) editions |= VisualStudioCodeEdition.System;
-            if ( _enableInsider.Value) editions |= VisualStudioCodeEdition.Insider;
+            if (_enableInsider.Value) editions |= VisualStudioCodeEdition.Insider;
             if (_enableCustom.Value) editions |= VisualStudioCodeEdition.Custom;
             if (_enableCustomPath.Value) editions |= VisualStudioCodeEdition.CustomPath;
             if (_enableCursor.Value) editions |= VisualStudioCodeEdition.Cursor;

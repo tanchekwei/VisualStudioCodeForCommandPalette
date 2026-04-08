@@ -26,7 +26,7 @@ public class VisualStudioCodeInstance
     public VisualStudioCodeInstance()
     {
         DisplayName = string.Empty;
-        CachedIcon = Classes.Icon.VisualStudioCode;
+        CachedIcon = Icon.VisualStudioCode;
     }
     /// <summary>
     /// Initializes a new instance of the <see cref="VisualStudioCodeInstance"/> class.
@@ -53,7 +53,7 @@ public class VisualStudioCodeInstance
         {
             ErrorLogger.LogError(ex);
             this.DisplayName = name ?? string.Empty;
-            this.CachedIcon = Classes.Icon.VisualStudioCode;
+            this.CachedIcon = Icon.VisualStudioCode;
         }
     }
 
@@ -67,17 +67,17 @@ public class VisualStudioCodeInstance
         {
             return type switch
             {
-                VisualStudioCodeType.Insider => Classes.Icon.VisualStudioCodeInsiders,
-                VisualStudioCodeType.Cursor => Classes.Icon.Cursor,
-                VisualStudioCodeType.Antigravity => Classes.Icon.Antigravity,
-                VisualStudioCodeType.Windsurf => Classes.Icon.Windsurf,
-                _ => Classes.Icon.VisualStudioCode
+                VisualStudioCodeType.Insider => Icon.VisualStudioCodeInsiders,
+                VisualStudioCodeType.Cursor => Icon.Cursor,
+                VisualStudioCodeType.Antigravity => Icon.Antigravity,
+                VisualStudioCodeType.Windsurf => Icon.Windsurf,
+                _ => Icon.VisualStudioCode
             };
         }
         catch (Exception ex)
         {
             ErrorLogger.LogError(ex);
-            return Classes.Icon.VisualStudioCode;
+            return Icon.VisualStudioCode;
         }
     }
 }

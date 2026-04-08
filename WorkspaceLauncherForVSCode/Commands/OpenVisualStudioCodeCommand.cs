@@ -7,9 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
-using WorkspaceLauncherForVSCode.Helpers;
 using WorkspaceLauncherForVSCode.Interfaces;
-using WyHash;
 
 namespace WorkspaceLauncherForVSCode.Commands;
 

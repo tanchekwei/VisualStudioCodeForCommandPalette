@@ -1,8 +1,8 @@
 // Modifications copyright (c) 2025 tanchekwei 
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
+using System;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using System;
 using Windows.ApplicationModel;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;

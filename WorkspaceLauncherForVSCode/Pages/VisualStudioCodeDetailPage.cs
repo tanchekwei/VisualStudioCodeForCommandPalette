@@ -2,12 +2,9 @@
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
-using WorkspaceLauncherForVSCode.Enums;
-using WorkspaceLauncherForVSCode.Services.VisualStudio;
 
 namespace WorkspaceLauncherForVSCode.Pages
 {

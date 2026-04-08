@@ -69,7 +69,7 @@ namespace WorkspaceLauncherForVSCode.Services
                             }
                             _isWatching = true;
                         }
-                        catch (Exception ex) 
+                        catch (Exception ex)
                         {
                             ErrorLogger.LogError(ex);
                         }

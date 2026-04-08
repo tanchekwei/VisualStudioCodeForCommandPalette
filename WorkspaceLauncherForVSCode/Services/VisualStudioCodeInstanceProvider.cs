@@ -127,8 +127,8 @@ namespace WorkspaceLauncherForVSCode.Services
                 }
                 if (enabledEditions.HasFlag(VisualStudioCodeEdition.Antigravity))
                 {
-                     var antigravityStoragePath = Path.Combine(appDataBasePath, "Antigravity", "User", "globalStorage");
-                     if (!string.IsNullOrEmpty(antigravityPathOverride) && File.Exists(antigravityPathOverride))
+                    var antigravityStoragePath = Path.Combine(appDataBasePath, "Antigravity", "User", "globalStorage");
+                    if (!string.IsNullOrEmpty(antigravityPathOverride) && File.Exists(antigravityPathOverride))
                     {
                         AddInstance(instances, "Antigravity", antigravityPathOverride, antigravityStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Antigravity);
                     }

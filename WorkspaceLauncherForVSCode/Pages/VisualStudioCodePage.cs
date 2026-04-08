@@ -12,13 +12,12 @@ using Windows.System;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
 using WorkspaceLauncherForVSCode.Enums;
+using WorkspaceLauncherForVSCode.Helpers;
 using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Listeners;
 using WorkspaceLauncherForVSCode.Pages;
-using WorkspaceLauncherForVSCode.Properties;
 using WorkspaceLauncherForVSCode.Services.VisualStudio.Models;
 using WorkspaceLauncherForVSCode.Workspaces;
-using WorkspaceLauncherForVSCode.Helpers;
 
 namespace WorkspaceLauncherForVSCode;
 
