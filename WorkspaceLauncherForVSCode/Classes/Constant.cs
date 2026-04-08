@@ -11,6 +11,11 @@ public static class Constant
 #else
     public const string AppName = "WorkspaceLauncherForVSCode";
 #endif
+#if DEBUG
+    public const string VisualStudioCodeDisplayName = "Visual Studio / Code (Dev)";
+#else
+    public const string VisualStudioCodeDisplayName = "Visual Studio / Code";
+#endif
     public const string VscodeRemoteScheme = "vscode-remote://";
     public const string VisualStudio2026Version = "18";
     public static readonly string AssemblyVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? string.Empty;

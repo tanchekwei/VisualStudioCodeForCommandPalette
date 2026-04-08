@@ -183,13 +183,13 @@ public class SettingsManager : JsonSettingsManager
     private readonly ToggleSetting _enableWorkspaceWatcher = new(
         Namespaced(nameof(EnableWorkspaceWatcher)),
         "Enable Workspace Watcher",
-        "Automatically refreshes the workspace list when changes are detected in Visual Studio / Code's recent list.",
+        $"Automatically refreshes the workspace list when changes are detected in {Constant.VisualStudioCodeDisplayName}'s recent list.",
         true);
 
     private readonly ToggleSetting _clearSearchOnExecute = new(
         Namespaced(nameof(ClearSearchOnExecute)),
-        "Clear search text after executing open Visual Studio / Code command",
-        "If checked, the search text will be cleared after the open Visual Studio / Code command is executed.",
+        $"Clear search text after executing open {Constant.VisualStudioCodeDisplayName} command",
+        $"If checked, the search text will be cleared after the open {Constant.VisualStudioCodeDisplayName} command is executed.",
         false);
 
     private readonly ChoiceSetSetting _searchBy = new(

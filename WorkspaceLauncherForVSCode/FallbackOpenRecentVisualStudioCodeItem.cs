@@ -33,12 +33,7 @@ internal sealed partial class FallbackOpenRecentVisualStudioCodeItem : FallbackC
         }
 
         _page.SetSearchText(query);
-        var displayName = string.Empty;
-#if DEBUG
-        displayName = "Visual Studio / Code (Dev)";
-#else
-        displayName = "Visual Studio / Code";
-#endif
+        var displayName = Classes.Constant.VisualStudioCodeDisplayName;
         Title = $"Search for \"{query}\" in {displayName}";
         Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
         Command = _page;

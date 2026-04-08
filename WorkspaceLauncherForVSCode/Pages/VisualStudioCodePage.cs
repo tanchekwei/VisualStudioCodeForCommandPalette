@@ -64,10 +64,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         IPinService pinService
     )
     {
-        Name = "Open Recent Visual Studio / Code";
-#if DEBUG
-        Name += " (Dev)";
-#endif
+        Name = $"Open Recent {Constant.VisualStudioCodeDisplayName}";
         Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
         Id = $"{Package.Current.Id.Name}.{nameof(VisualStudioCodePage)}";
         var filters = new SearchFilters();

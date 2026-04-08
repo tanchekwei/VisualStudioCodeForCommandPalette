@@ -37,10 +37,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
 #endif
             _settingsManager = settingsManager;
             _vscodeService = visualStudioCodeService;
-            DisplayName = "Visual Studio / Code";
-#if DEBUG
-            DisplayName += " (Dev)";
-#endif
+            DisplayName = Classes.Constant.VisualStudioCodeDisplayName;
             Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
             Settings = _settingsManager.Settings;
 
