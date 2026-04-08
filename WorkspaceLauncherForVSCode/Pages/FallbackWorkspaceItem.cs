@@ -33,7 +33,7 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
 #else
         "Open Recent Visual Studio / Code",
 #endif
-        $"{Package.Current.Id.Name}.{nameof(FallbackWorkspaceItem)}")
+        $"{Package.Current.Id.Name}.{nameof(FallbackWorkspaceItem)}.{index}")
     {
         Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
         _page = page;

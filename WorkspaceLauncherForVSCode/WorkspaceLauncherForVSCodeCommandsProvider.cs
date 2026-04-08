@@ -18,7 +18,7 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
     private readonly IVisualStudioCodeService _vscodeService;
     private readonly SettingsListener _settingsListener;
     private readonly VisualStudioCodePage _page;
-    private readonly FallbackWorkspaceItem[] _fallbacks;
+    private readonly IFallbackCommandItem[] _fallbacks;
     public WorkspaceLauncherForVSCodeCommandsProvider(
         SettingsManager settingsManager,
         IVisualStudioCodeService visualStudioCodeService,
@@ -50,20 +50,18 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
             _page = page;
 
             var refreshCommandContextItem = new CommandContextItem(refreshWorkspacesCommand);
-            _fallbacks = new FallbackWorkspaceItem[_settingsManager.FallbackCount];
-            for (int i = 0; i < _fallbacks.Length; i++)
+            _fallbacks = new IFallbackCommandItem[_settingsManager.FallbackCount + 1];
+            _fallbacks[0] = new FallbackOpenRecentVisualStudioCodeItem(_page);
+            for (int i = 1; i < _fallbacks.Length; i++)
             {
-                if (_fallbacks[i] == null)
-                {
-                    _fallbacks[i] = new FallbackWorkspaceItem(
-                        _page,
-                        _settingsManager,
-                        workspaceStorage,
-                        countTracker,
-                        refreshCommandContextItem,
-                        pinService,
-                        i);
-                }
+                _fallbacks[i] = new FallbackWorkspaceItem(
+                    _page,
+                    _settingsManager,
+                    workspaceStorage,
+                    countTracker,
+                    refreshCommandContextItem,
+                    pinService,
+                    i);
             }
         }
         catch (Exception ex)

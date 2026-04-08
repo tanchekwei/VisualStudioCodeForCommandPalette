@@ -540,6 +540,11 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         AllWorkspaces.Clear();
     }
 
+    public void SetSearchText(string query)
+    {
+        SearchText = query;
+    }
+
     public void Dispose()
     {
         _cancellationTokenSource.Cancel();
