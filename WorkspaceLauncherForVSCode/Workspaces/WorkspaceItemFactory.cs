@@ -306,20 +306,27 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             if (item.Command is IHasWorkspace { Workspace.PinDateTime: not null })
             {
                 bool hasPinTag = false;
-                foreach (var tag in item.Tags)
+                if (item.Tags != null && item.Tags.Length > 0)
                 {
-                    if (tag == PinTag)
+                    foreach (var tag in item.Tags)
                     {
-                        hasPinTag = true;
-                        break;
+                        if (ReferenceEquals(tag, PinTag))
+                        {
+                            hasPinTag = true;
+                            break;
+                        }
                     }
                 }
 
                 if (!hasPinTag)
                 {
-                    var newTags = new Tag[item.Tags.Length + 1];
-                    item.Tags.CopyTo(newTags, 0);
-                    newTags[item.Tags.Length] = PinTag;
+                    var originalLength = item.Tags?.Length ?? 0;
+                    var newTags = new Tag[originalLength + 1];
+                    if (item.Tags != null)
+                    {
+                        item.Tags.CopyTo(newTags, 0);
+                    }
+                    newTags[originalLength] = PinTag;
                     item.Tags = newTags;
                 }
             }

@@ -134,7 +134,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 #endif
             if (AllWorkspaces.Count == 0 && !IsLoading)
             {
-                RefreshWorkspacesAsync(isUserInitiated: false).GetAwaiter().GetResult();
+                _ = RefreshWorkspacesAsync(isUserInitiated: false);
             }
 
             lock (_itemsLock)
@@ -156,7 +156,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     {
         if (AllWorkspaces.Count == 0 && !IsLoading)
         {
-            RefreshWorkspacesAsync(isUserInitiated: false).GetAwaiter().GetResult();
+            _ = RefreshWorkspacesAsync(isUserInitiated: false);
         }
 
         lock (_itemsLock)
@@ -500,6 +500,8 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     {
         lock (_itemsLock)
         {
+            _listItemCache.Clear();
+
             _cachedFilteredWorkspaces = WorkspaceFilter.Filter(SearchText, AllWorkspaces, _settingsManager.SearchBy, _settingsManager.SortBy, Filters?.CurrentFilterId ?? string.Empty);
             _visibleItems.Clear();
 
@@ -526,6 +528,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 
         await _workspaceStorage.UpdateWorkspaceFrequencyAsync(path, type);
 
+        bool needsRefresh = false;
         lock (_itemsLock)
         {
             VisualStudioCodeWorkspace? itemToUpdate = null;
@@ -543,9 +546,13 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             {
                 itemToUpdate.Frequency++;
                 itemToUpdate.LastAccessed = DateTime.Now;
-
-                RefreshList();
+                needsRefresh = true;
             }
+        }
+
+        if (needsRefresh)
+        {
+            RefreshList();
         }
     }
 
@@ -558,6 +565,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     {
         AllWorkspaces.Clear();
         _allWorkspacesById.Clear();
+        _listItemCache.Clear();
     }
 
     public void SetSearchText(string query)
