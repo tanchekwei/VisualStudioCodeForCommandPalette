@@ -13,69 +13,19 @@ namespace WorkspaceLauncherForVSCode.Pages
 {
     public sealed partial class VisualStudioCodeDetailPage : ListPage
     {
-        private readonly CountTracker _countTracker;
-        private readonly VisualStudioCodePage _page;
         private readonly IVisualStudioCodeService _visualStudioCodeService;
-        private readonly VisualStudioService _visualStudioService;
         public VisualStudioCodeDetailPage(Dependencies deps)
         {
             Name = "Visual Studio Code Detail";
             Icon = Classes.Icon.Help;
             Id = "VisualStudioCodeDetailPage";
-            _countTracker = deps.Get<CountTracker>();
-            _page = deps.Get<VisualStudioCodePage>();
             _visualStudioCodeService = deps.Get<IVisualStudioCodeService>();
-            _visualStudioService = deps.Get<VisualStudioService>();
         }
 
         public override IListItem[] GetItems()
         {
             try
             {
-                _countTracker.Reset();
-                foreach (var workspace in _page.AllWorkspaces)
-                {
-                    if (workspace is null)
-                    {
-                        continue;
-                    }
-                    _countTracker.Increment(CountType.Total);
-                    switch (workspace.WorkspaceType)
-                    {
-                        case WorkspaceType.Workspace:
-                        case WorkspaceType.Folder:
-                            _countTracker.Increment(CountType.VisualStudioCode);
-                            if (workspace?.VisualStudioCodeRemoteUri?.Type != null)
-                            {
-                                _countTracker.Increment((VisualStudioCodeRemoteType)workspace.VisualStudioCodeRemoteUri.Type);
-                            }
-                            else
-                            {
-                                _countTracker.Increment(workspace!.WorkspaceType);
-                            }
-                            break;
-                        case WorkspaceType.Solution:
-                            _countTracker.Increment(WorkspaceType.Solution);
-                            _countTracker.Increment(CountType.VisualStudio);
-                            break;
-                        case WorkspaceType.Solution2026:
-                            _countTracker.Increment(WorkspaceType.Solution2026);
-                            _countTracker.Increment(CountType.VisualStudio);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                StaticHelpItems.CountDetailItems[0].Title = _countTracker[WorkspaceType.Folder].ToString(CultureInfo.InvariantCulture);
-                StaticHelpItems.CountDetailItems[1].Title = _countTracker[WorkspaceType.Workspace].ToString(CultureInfo.InvariantCulture);
-                StaticHelpItems.CountDetailItems[2].Title = _countTracker[VisualStudioCodeRemoteType.Codespaces].ToString(CultureInfo.InvariantCulture);
-                StaticHelpItems.CountDetailItems[3].Title = _countTracker[VisualStudioCodeRemoteType.WSL].ToString(CultureInfo.InvariantCulture);
-                StaticHelpItems.CountDetailItems[4].Title = _countTracker[VisualStudioCodeRemoteType.DevContainer].ToString(CultureInfo.InvariantCulture);
-                StaticHelpItems.CountDetailItems[5].Title = _countTracker[VisualStudioCodeRemoteType.AttachedContainer].ToString(CultureInfo.InvariantCulture);
-                StaticHelpItems.CountDetailItems[6].Title = _countTracker[VisualStudioCodeRemoteType.SSHRemote].ToString(CultureInfo.InvariantCulture);
-                StaticHelpItems.CountDetailItems[7].Title = _countTracker[CountType.VisualStudioCode].ToString(CultureInfo.InvariantCulture);
-
                 List<ListItem> instancesDetails = new();
                 foreach (var instance in _visualStudioCodeService.GetInstances())
                 {
@@ -86,10 +36,7 @@ namespace WorkspaceLauncherForVSCode.Pages
                         Icon = Classes.Icon.VisualStudioCode,
                     });
                 }
-                return [
-                    ..instancesDetails,
-            ..StaticHelpItems.CountDetailItems.ToArray(),
-        ];
+                return instancesDetails.ToArray();
             }
             catch (Exception ex)
             {

@@ -12,9 +12,8 @@ namespace WorkspaceLauncherForVSCode.Pages
     public sealed partial class HelpPage : ListPage
     {
         private readonly ListItem _settingsItem;
-        private readonly CountTracker _countTracker;
         private readonly VisualStudioCodeWorkspace? _workspace;
-        public HelpPage(SettingsManager settingsManager, CountTracker countTracker, VisualStudioCodeWorkspace? workspace)
+        public HelpPage(SettingsManager settingsManager, VisualStudioCodeWorkspace? workspace)
         {
             try
             {
@@ -22,7 +21,6 @@ namespace WorkspaceLauncherForVSCode.Pages
                 Icon = Classes.Icon.Help;
                 Id = "HelpPage";
                 _settingsItem = new ListItem(settingsManager.Settings.SettingsPage) { Title = "Setting", Icon = Classes.Icon.Setting };
-                _countTracker = countTracker;
                 _workspace = workspace;
             }
             catch (Exception ex)
@@ -36,17 +34,11 @@ namespace WorkspaceLauncherForVSCode.Pages
         {
             try
             {
-                StaticHelpItems.CountItems[0].Title = _countTracker[CountType.VisualStudio].ToString(CultureInfo.InvariantCulture);
-                StaticHelpItems.CountItems[1].Title = _countTracker[CountType.VisualStudioCode].ToString(CultureInfo.InvariantCulture);
-                StaticHelpItems.CountItems[2].Title = _countTracker[CountType.Total].ToString(CultureInfo.InvariantCulture);
-
                 var items = new List<IListItem>
                 {
                     StaticHelpItems.ReportBug,
                     StaticHelpItems.ViewSource,
                 };
-
-                items.AddRange(StaticHelpItems.CountItems);
 
                 items.Add(StaticHelpItems.ExtensionVersion);
                 items.Add(StaticHelpItems.SettingsItem);

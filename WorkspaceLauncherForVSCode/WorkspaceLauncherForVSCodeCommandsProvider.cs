@@ -25,7 +25,6 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
         SettingsListener settingsListener,
         VisualStudioCodePage page,
         WorkspaceStorage workspaceStorage,
-        CountTracker countTracker,
         RefreshWorkspacesCommand refreshWorkspacesCommand,
         IPinService pinService)
     {
@@ -55,7 +54,6 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
                     _page,
                     _settingsManager,
                     workspaceStorage,
-                    countTracker,
                     refreshCommandContextItem,
                     pinService,
                     j); // index start with 0

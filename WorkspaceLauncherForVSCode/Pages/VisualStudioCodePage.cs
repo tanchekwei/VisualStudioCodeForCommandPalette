@@ -28,7 +28,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private readonly IVisualStudioCodeService _vscodeService;
     private readonly SettingsListener _settingsListener;
     private readonly WorkspaceStorage _workspaceStorage;
-    private readonly CountTracker _countTracker;
     private readonly IVSCodeWorkspaceWatcherService _vscodeWatcherService;
     private readonly IVSWorkspaceWatcherService _vsWatcherService;
     private readonly IPinService _pinService;
@@ -62,7 +61,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         SettingsListener settingsListener,
         WorkspaceStorage workspaceStorage,
         RefreshWorkspacesCommand refreshWorkspacesCommand,
-        CountTracker countTracker,
         IVSCodeWorkspaceWatcherService vscodeWatcherService,
         IVSWorkspaceWatcherService vsWatcherService,
         IPinService pinService
@@ -79,7 +77,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         SettingsManager = _settingsManager;
         _vscodeService = vscodeService;
         _workspaceStorage = workspaceStorage;
-        _countTracker = countTracker;
         _vscodeWatcherService = vscodeWatcherService;
         _vsWatcherService = vsWatcherService;
         _pinService = pinService;
@@ -87,7 +84,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _vscodeWatcherService.TriggerRefresh += (s, e) => RefreshWorkspacesInBackground();
         _vsWatcherService.TriggerRefresh += (s, e) => RefreshWorkspacesInBackground();
 
-        _helpCommandContextItem = new CommandContextItem(new HelpPage(settingsManager, countTracker, null));
+        _helpCommandContextItem = new CommandContextItem(new HelpPage(settingsManager, null));
         _refreshWorkspacesCommand = refreshWorkspacesCommand;
         _refreshWorkspacesCommand.TriggerRefresh += (s, e) => StartRefresh();
         _refreshWorkspacesCommandContextItem = new CommandContextItem(_refreshWorkspacesCommand)
@@ -252,7 +249,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     {
         if (!_listItemCache.TryGetValue(workspace.Id, out var listItem))
         {
-            listItem = WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList);
+            listItem = WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList);
             _listItemCache[workspace.Id] = listItem;
         }
         if (isTopLevelPinCommand)
@@ -339,7 +336,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _cancellationTokenSource.Cancel();
         _cancellationTokenSource = new CancellationTokenSource();
         IsLoading = true;
-        _countTracker.Reset();
         return _cancellationTokenSource.Token;
     }
 
@@ -366,12 +362,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 
     private async Task<List<VisualStudioCodeWorkspace>> ProcessAndSaveWorkspaces(List<VisualStudioCodeWorkspace> workspaces, List<VisualStudioCodeWorkspace> solutions)
     {
-        _countTracker.Update(CountType.VisualStudioCode, workspaces.Count);
-        _countTracker.Update(CountType.VisualStudio, solutions.Count);
-
         workspaces.AddRange(solutions);
-
-        _countTracker.Update(CountType.Total, workspaces.Count);
 
         await _workspaceStorage.SaveWorkspacesAsync(workspaces);
         return workspaces;

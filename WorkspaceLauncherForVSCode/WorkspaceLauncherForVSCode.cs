@@ -41,7 +41,6 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
             services.AddSingleton<VisualStudioCodePage>();
             services.AddSingleton<WorkspaceStorage>();
             services.AddSingleton<RefreshWorkspacesCommand>();
-            services.AddSingleton<CountTracker>();
             services.AddSingleton<IPinService, PinService>();
             services.AddSingleton<IVSCodeWorkspaceWatcherService, VSCodeWorkspaceWatcherService>();
             services.AddSingleton<IVSWorkspaceWatcherService, VSWorkspaceWatcherService>();

@@ -28,7 +28,6 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             VisualStudioCodePage page,
             WorkspaceStorage workspaceStorage,
             SettingsManager settingsManager,
-            CountTracker countTracker,
             CommandContextItem refreshCommandContextItem,
             IPinService pinService,
             List<VisualStudioInstance> visualStudioInstanceList)
@@ -53,7 +52,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     (command, icon, details, tags, moreCommands) = CreateVSCodeComponents(workspace, page, settingsManager);
                 }
 
-                AddCommonCommands(moreCommands, workspace, settingsManager, countTracker, refreshCommandContextItem, pinService);
+                AddCommonCommands(moreCommands, workspace, settingsManager, refreshCommandContextItem, pinService);
 
                 var item = new ListItem(command)
                 {
@@ -262,7 +261,6 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             List<CommandContextItem> moreCommands,
             VisualStudioCodeWorkspace workspace,
             SettingsManager settingsManager,
-            CountTracker countTracker,
             CommandContextItem refreshCommandContextItem,
             IPinService pinService)
         {
@@ -280,7 +278,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 moreCommands.Add(new CommandContextItem(new OpenInTerminalCommand(workspace, settingsManager)));
             }
 
-            moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, countTracker, workspace))
+            moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, workspace))
             {
                 RequestedShortcut = KeyChordHelpers.FromModifiers(false, false, false, false, (int)VirtualKey.F1, 0),
             });

@@ -14,7 +14,6 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
     private readonly VisualStudioCodePage _page;
     private readonly SettingsManager _settingsManager;
     private readonly WorkspaceStorage _workspaceStorage;
-    private readonly CountTracker _countTracker;
     private readonly CommandContextItem _refreshWorkspacesCommandContextItem;
     private readonly IPinService _pinService;
     private readonly int _index;
@@ -23,7 +22,6 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
         VisualStudioCodePage page,
         SettingsManager settingsManager,
         WorkspaceStorage workspaceStorage,
-        CountTracker countTracker,
         CommandContextItem refreshWorkspacesCommandContextItem,
         IPinService pinService,
         int index)
@@ -35,7 +33,6 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
         _page = page;
         _settingsManager = settingsManager;
         _workspaceStorage = workspaceStorage;
-        _countTracker = countTracker;
         _refreshWorkspacesCommandContextItem = refreshWorkspacesCommandContextItem;
         _pinService = pinService;
         _index = index;
@@ -66,7 +63,7 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
             ? WorkspaceItemFactory.CreateSolutionComponents(best, _page, _settingsManager, _page.VSCodeService.GetVisualStudioInstances())
             : WorkspaceItemFactory.CreateVSCodeComponents(best, _page, _settingsManager);
 
-        WorkspaceItemFactory.AddCommonCommands(moreCommands, best, _settingsManager, _countTracker, _refreshWorkspacesCommandContextItem, _pinService);
+        WorkspaceItemFactory.AddCommonCommands(moreCommands, best, _settingsManager, _refreshWorkspacesCommandContextItem, _pinService);
 
         Title = best.Name ?? string.Empty;
         Subtitle = best.WindowsPath ?? string.Empty;

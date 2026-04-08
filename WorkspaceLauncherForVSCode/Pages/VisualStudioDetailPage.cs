@@ -12,7 +12,6 @@ namespace WorkspaceLauncherForVSCode.Pages
 {
     public sealed partial class VisualStudioDetailPage : ListPage
     {
-        private readonly CountTracker _countTracker;
         private readonly VisualStudioService _visualStudioService;
         public VisualStudioDetailPage(Dependencies deps)
         {
@@ -21,13 +20,11 @@ namespace WorkspaceLauncherForVSCode.Pages
                 Name = "Visual Studio Detail";
                 Icon = Classes.Icon.Help;
                 Id = "VisualStudioDetailPage";
-                _countTracker = deps.Get<CountTracker>();
                 _visualStudioService = deps.Get<VisualStudioService>();
             }
             catch (Exception ex)
             {
                 ErrorLogger.LogError(ex);
-                _countTracker = null!;
                 _visualStudioService = null!;
                 throw;
             }
@@ -56,15 +53,7 @@ namespace WorkspaceLauncherForVSCode.Pages
                         });
                     }
                 }
-                return [
-                    .. instancesDetails,
-                    new ListItem
-                    {
-                        Title = _countTracker[CountType.VisualStudio].ToString(CultureInfo.InvariantCulture),
-                        Subtitle = "Total",
-                        Icon = Classes.Icon.VisualStudio2026,
-                    }
-                ];
+                return instancesDetails.ToArray();
             }
             catch (Exception ex)
             {

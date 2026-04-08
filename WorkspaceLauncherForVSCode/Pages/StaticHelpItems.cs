@@ -29,54 +29,10 @@ namespace WorkspaceLauncherForVSCode.Pages
             Icon = Icon.Extension
         };
 
-        public static readonly List<ListItem> CountDetailItems = new()
-        {
-            new ListItem
-            {
-                Subtitle = "Folder",
-                Icon = Icon.VisualStudioCode,
-            },
-            new ListItem
-            {
-                Subtitle = "Workspace",
-                Icon = Icon.VisualStudioCode,
-            },
-            new ListItem
-            {
-                Subtitle = "Codespaces",
-                Icon = Icon.VisualStudioCode,
-            },
-            new ListItem
-            {
-                Subtitle = "WSL",
-                Icon = Icon.VisualStudioCode,
-            },
-            new ListItem
-            {
-                Subtitle = "Dev Container",
-                Icon = Icon.VisualStudioCode,
-            },
-            new ListItem
-            {
-                Subtitle = "Attached Container",
-                Icon = Icon.VisualStudioCode,
-            },
-            new ListItem
-            {
-                Subtitle = "SSH Remote",
-                Icon = Icon.VisualStudioCode,
-            },
-            new ListItem
-            {
-                Subtitle = "Total",
-                Icon = Icon.VisualStudioCode,
-            }
-        };
-
         public static ListItem SettingsItem { get; private set; } = null!;
         public static CommandContextItem VisualStudioCodeDetailPage { get; private set; } = null!;
         public static CommandContextItem VisualStudioDetailPage { get; private set; } = null!;
-        public static List<ListItem> CountItems { get; private set; } = null!;
+
         public static void Initialize(Dependencies deps)
         {
             try
@@ -88,24 +44,6 @@ namespace WorkspaceLauncherForVSCode.Pages
                 };
                 VisualStudioCodeDetailPage = new(new VisualStudioCodeDetailPage(deps));
                 VisualStudioDetailPage = new(new VisualStudioDetailPage(deps));
-                CountItems = new()
-                {
-                    new ListItem(VisualStudioDetailPage)
-                    {
-                        Subtitle = "Visual Studio",
-                        Icon = Icon.VisualStudio2026,
-                    },
-                    new ListItem(VisualStudioCodeDetailPage)
-                    {
-                        Subtitle = "Visual Studio Code",
-                        Icon = Icon.VisualStudioCode,
-                    },
-                    new ListItem()
-                    {
-                        Subtitle = "Total",
-                        Icon = Icon.VisualStudioAndVisualStudioCode,
-                    }
-                };
             }
             catch (Exception ex)
             {
