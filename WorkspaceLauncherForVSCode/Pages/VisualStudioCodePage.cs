@@ -268,7 +268,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         RaiseItemsChanged(_visibleItems.Count);
     }
 
-    public ListItem GetOrCreateListItem(VisualStudioCodeWorkspace workspace, bool isTopLevelPinCommand = false)
+    public ListItem GetOrCreateListItem(VisualStudioCodeWorkspace workspace, bool isTopLevelCommand = false)
     {
         lock (_itemsLock)
         {
@@ -277,7 +277,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                 listItem = WorkspaceItemFactory.Create(workspace, this, _workspaceStorage, _settingsManager, _refreshWorkspacesCommandContextItem, _pinService, _visualStudioInstanceList);
                 _listItemCache[workspace.Id] = listItem;
             }
-            if (isTopLevelPinCommand)
+            if (isTopLevelCommand)
             {
                 var newMoreCommands = new List<ICommandContextItem>();
                 if (listItem.MoreCommands != null)

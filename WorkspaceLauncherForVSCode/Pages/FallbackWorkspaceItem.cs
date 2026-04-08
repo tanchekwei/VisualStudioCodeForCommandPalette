@@ -46,7 +46,7 @@ internal sealed partial class FallbackWorkspaceItem : FallbackCommandItem
         }
 
         var best = filtered[_index];
-        var listItem = _page.GetOrCreateListItem(best);
+        var listItem = _page.GetOrCreateListItem(best, true);
 
         Title = listItem.Title;
         Subtitle = listItem.Subtitle;
