@@ -29,8 +29,6 @@ namespace WorkspaceLauncherForVSCode.Pages
         };
 
         public static ListItem SettingsItem { get; private set; } = null!;
-        public static CommandContextItem VisualStudioCodeDetailPage { get; private set; } = null!;
-        public static CommandContextItem VisualStudioDetailPage { get; private set; } = null!;
 
         public static void Initialize(Dependencies deps)
         {
@@ -41,8 +39,6 @@ namespace WorkspaceLauncherForVSCode.Pages
                     Title = "Setting",
                     Icon = Icon.Setting
                 };
-                VisualStudioCodeDetailPage = new(new VisualStudioCodeDetailPage(deps));
-                VisualStudioDetailPage = new(new VisualStudioDetailPage(deps));
             }
             catch (Exception ex)
             {
