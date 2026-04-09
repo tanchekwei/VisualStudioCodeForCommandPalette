@@ -7,8 +7,10 @@ This project provides a command palette extension for opening Visual Studio solu
 ![Visual Studio / Code for Command Palette](./Assets/screenshot1.png)
 
 ## Features
-- **Optimized for Performance**: Designed to remain fast and responsive, with a configurable page size. By default, it displays 8 items per page to ensure smooth interaction even with large project histories.
+- **Optimized for Performance**: Designed to remain fast and responsive, with a configurable page size and caching.
 - **Unified Launcher**: Launch Visual Studio solutions, Visual Studio Code, Cursor, Google Antigravity, and Windsurf workspaces from a single, convenient interface.
+- **Top-level Search Integration**: Extension results are integrated directly into the Command Palette's main search list. Configure the number of fallback results or use the "Search for..." item to jump into the extension's page with your query.
+- **Advanced Pinning**: Keep your most important projects accessible with support for **Pin to Home** and **Pin to Dock**.
 - **Window-Switching**: If a Visual Studio solution is already open, the extension will switch to the existing window instead of opening a new instance.
 - **Secondary Actions**: Access additional commands for each entry:
     - **Copy Path**: Copies the full file path of the solution, workspace, or folder to the clipboard.
@@ -52,8 +54,10 @@ This project provides a command palette extension for opening Visual Studio solu
 * **General**
 
   * **Show Details Panel**: Toggles the visibility of the details panel on the right.
-  * **Page Size**: Sets the number of items to display per page. (Default: `8`)
+  * **Page Size**: Sets the number of items to display per page. (Default: `16`)
+  * **Fallback Count**: Sets the number of top-level fallback items on the main list page. (Default: `8`)
   * **Enable Logging**: Enables diagnostic logging for troubleshooting purposes.
+  * **Use Helper Launcher**: Launches Visual Studio Code via a helper executable to ensure it comes to the foreground.
 
 * **Search & Appearance**
   * **Search By**: Determines which properties to use when searching (`Title`, `Path`, or `Both`).
@@ -61,7 +65,8 @@ This project provides a command palette extension for opening Visual Studio solu
       * `Last Used, Usage Count`: The default sort order.
       * `Last Used`: Sorts by most recently used.
       * `Usage Count`: Sorts by most frequently used.
-      * `Alphabetical by Title`: Sorts alphabetically by title.
+      * `Recent from Visual Studio`: Sorts based on Visual Studio's recent solution list.
+      * `Recent from Visual Studio Code`: Matches the order in VS Code's 'Open Recent' list.
   * **Tags**: Configure which informational tags are displayed for each item.
     * **Show 'Type' tag**: Displays whether the item is a `Workspace` or `Folder`.
     * **Show 'Target' tag**: Displays the target application, like `Visual Studio Code` or `Insiders`.
@@ -103,6 +108,22 @@ The results are then combined into a single, unified list for easy access.
 For more detailed technical information about the project's architecture and components, please see the [Project Guide](./GUIDE.md).
 
 ## Changelog
+
+### 1.26.0.0
+- Performance: Implement ListItem caching and optimize workspace lookup for faster loading.
+- Search: Cache filtered results between fallback items to improve UI responsiveness during search.
+- Fallback: Fallback items now support pinning and retrieve data from the primary cache.
+- UI: Updated display name and subtitle logic for better clarity of workspace types.
+
+### 1.25.0.0
+- Pinning: Support for "Pin to Home" and "Pin to Dock".
+- Detail: Added "Show Detail" command and enhanced the details panel.
+
+### 1.24.0.0
+- Customization: Added "Fallback Count" setting to configure top-level items.
+- Search: Added filters for editor type and remote type.
+- Sorting: Added "Recent from Visual Studio" and "Recent from Visual Studio Code" options.
+- Focus: Added "Use Helper Launcher" setting to fix focus issues on some systems.
 
 ### 1.23.0.0
 - Add support for Visual Studio Code custom installation paths
