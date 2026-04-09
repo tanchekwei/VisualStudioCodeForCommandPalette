@@ -31,7 +31,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 
                 if (isSearching)
                 {
-                    var matchedItems = new List<(VisualStudioCodeWorkspace item, int score)>(allWorkspaces.Count);
+                    var matchedUnpinned = new List<(VisualStudioCodeWorkspace item, int score)>(allWorkspaces.Count);
 
                     for (int i = 0; i < allWorkspaces.Count; i++)
                     {
@@ -53,23 +53,21 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                         var bestScore = Math.Max(titleScore, subtitleScore);
                         if (bestScore > 0)
                         {
-                            matchedItems.Add((item, bestScore));
+                            if (item.PinDateTime != null)
+                            {
+                                pinned.Add(item);
+                            }
+                            else
+                            {
+                                matchedUnpinned.Add((item, bestScore));
+                            }
                         }
                     }
 
-                    matchedItems.Sort((a, b) => b.score.CompareTo(a.score));
-
-                    for (int i = 0; i < matchedItems.Count; i++)
+                    matchedUnpinned.Sort((a, b) => b.score.CompareTo(a.score));
+                    for (int i = 0; i < matchedUnpinned.Count; i++)
                     {
-                        var item = matchedItems[i].item;
-                        if (item.PinDateTime != null)
-                        {
-                            pinned.Add(item);
-                        }
-                        else
-                        {
-                            unpinned.Add(item);
-                        }
+                        unpinned.Add(matchedUnpinned[i].item);
                     }
                 }
                 else

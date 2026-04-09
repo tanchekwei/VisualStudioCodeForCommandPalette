@@ -333,14 +333,18 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
             _visualStudioInstanceList = _vscodeService.GetVisualStudioInstances();
             if (cancellationToken.IsCancellationRequested) return;
 
-            var allWorkspaces = await ProcessAndSaveWorkspaces(workspaces, solutions);
+            workspaces.AddRange(solutions);
+
+            // Save to storage in the background to avoid blocking UI update
+            _ = Task.Run(async () => await _workspaceStorage.SaveWorkspacesAsync(workspaces), CancellationToken.None);
+
             if (!isBackground)
             {
-                FinalizeRefresh(allWorkspaces, cancellationToken);
+                FinalizeRefresh(workspaces, cancellationToken);
             }
             else
             {
-                UpdateWorkspaceList(allWorkspaces, cancellationToken);
+                UpdateWorkspaceList(workspaces, cancellationToken);
             }
         }
         catch (OperationCanceledException)
@@ -384,14 +388,6 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         await Task.WhenAll(workspacesTask, solutionsTask);
 
         return (await workspacesTask, await solutionsTask);
-    }
-
-    private async Task<List<VisualStudioCodeWorkspace>> ProcessAndSaveWorkspaces(List<VisualStudioCodeWorkspace> workspaces, List<VisualStudioCodeWorkspace> solutions)
-    {
-        workspaces.AddRange(solutions);
-
-        await _workspaceStorage.SaveWorkspacesAsync(workspaces);
-        return workspaces;
     }
 
     private void FinalizeRefresh(List<VisualStudioCodeWorkspace> workspaces, CancellationToken cancellationToken)
