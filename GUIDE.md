@@ -15,106 +15,93 @@ The extension is designed following SOLID principles to ensure it is maintainabl
 
 The project is organized into the following key directories within the `WorkspaceLauncherForVSCode` project:
 
-- **`/`**:
-  - [`WorkspaceLauncherForVSCode.cs`](./WorkspaceLauncherForVSCode.cs) - The main extension implementation.
+- **`WorkspaceLauncherForVSCode/`**:
+  - [`WorkspaceLauncherForVSCode.cs`](./WorkspaceLauncherForVSCode/WorkspaceLauncherForVSCode.cs) - The main extension implementation and Dependency Injection container setup.
+  - [`WorkspaceLauncherForVSCodeCommandsProvider.cs`](./WorkspaceLauncherForVSCode/WorkspaceLauncherForVSCodeCommandsProvider.cs) - The entry point for providing commands and fallback items to the Command Palette.
+  - [`FallbackOpenRecentVisualStudioCodeItem.cs`](./WorkspaceLauncherForVSCode/FallbackOpenRecentVisualStudioCodeItem.cs) - A fallback command item that allows searching and jumping to the extension's page.
 - **`/Classes`**: Contains core data models and helper classes.
-  - [`SettingsManager.cs`](./Classes/SettingsManager.cs) - Manages user-configurable settings.
-  - `VisualStudioCodeInstance.cs`, `VisualStudioCodeWorkspace.cs` - Core data models.
-- **`/Commands`**: Contains command implementations that are executed by the user.
-    - `OpenVisualStudioCodeCommand.cs` - The primary command for launching a selected VS Code workspace.
-    - `OpenSolutionCommand.cs` - The primary command for launching a selected Visual Studio solution.
-    - `CopyPathCommand.cs` - Copies the workspace or solution path to the clipboard.
-    - `RemoveWorkspaceCommand.cs` - Removes a workspace from the recently opened list.
-    - `PinWorkspaceCommand.cs` - Pins or unpins a workspace.
-    - `RefreshWorkspacesCommand.cs` - Manually refreshes the workspace list.
-    - `OpenInTerminalCommand.cs` - Opens the workspace location in a terminal.
+  - [`SettingsManager.cs`](./WorkspaceLauncherForVSCode/Classes/SettingsManager.cs) - Manages user-configurable settings using the Command Palette's settings API.
+  - `VisualStudioCodeInstance.cs`, `VisualStudioCodeWorkspace.cs` - Core data models representing editor installations and workspaces/solutions.
+  - `WorkspaceStorage.cs` - Manages persistence of workspace history, usage frequency, and manual pinning.
+  - `Constant.cs` - Centralized constants for the project.
+- **`/Commands`**: Contains command implementations for various actions.
+    - `OpenVisualStudioCodeCommand.cs` - Launches a selected VS Code (or Cursor/Windsurf/Antigravity) workspace.
+    - `OpenSolutionCommand.cs` - Launches a selected Visual Studio solution.
+    - `OpenInTerminalCommand.cs` - Opens the workspace location in the configured terminal.
+    - `OpenInExplorerCommand.cs` - Opens the folder in File Explorer.
+    - `PinWorkspaceCommand.cs` - (Un)pins a workspace to the list.
+    - `RefreshWorkspacesCommand.cs` - Manually triggers a workspace list refresh.
+    - `SwitchWindowCommand.cs` - Switches to an existing window if the solution is already open.
     - `ResetFrequencyCommand.cs` - Resets the usage frequency of a workspace.
-- **`/Components`**: Contains components for window management, adapted from the WindowWalker extension.
-    - `Window.cs` - Represents a single open window.
-    - `WindowProcess.cs` - Manages process information for a window.
-    - `OpenWindows.cs` - Manages the collection of open windows.
-- **`/Helpers`**: Contains helper classes, including `NativeMethods.cs` for P/Invoke signatures.
-- **`/Interfaces`**: Defines the contracts for services.
-  - `IVisualStudioCodeService.cs` - The contract for the main service.
+    - `OpenUrlCommand.cs` - Opens a URL (used for Codespaces).
+- **`/Components`**: Contains window management logic (WindowWalker integration).
+    - `OpenWindows.cs`, `Window.cs`, `WindowProcess.cs` - Enumerate and manage open application windows to support window switching.
+- **`/Enums`**: Defines various enumerations used throughout the app (e.g., `WorkspaceType`, `VisualStudioCodeEdition`, `SortBy`, `FilterType`).
+- **`/Helpers`**: Contains utility classes.
+  - `IdGenerator.cs` - Utility for generating unique, stable IDs for workspaces and solutions.
+  - `NativeMethods.cs`, `WslPathHelper.cs`, `FileUriParser.cs` - System-level integration and path parsing utilities.
+- **`/Interfaces`**: Defines service contracts (`IVisualStudioCodeService`, `IPinService`, `IVSCodeWorkspaceWatcherService`, etc.).
+- **`/Listeners`**:
+  - [`SettingsListener.cs`](./WorkspaceLauncherForVSCode/Listeners/SettingsListener.cs) - Monitors for setting changes to trigger UI updates and re-discovery.
 - **`/Pages`**: Contains UI components.
-  - [`VisualStudioCodePage.cs`](./Pages/VisualStudioCodePage.cs) - A dynamic list page that displays discovered workspaces and solutions.
-- **`/Services`**: Contains the primary service implementations.
-  - [`WorkspaceLauncherForVSCodeCommandsProvider.cs`](./Services/WorkspaceLauncherForVSCodeCommandsProvider.cs) - The entry point for providing commands to the Command Palette.
-  - [`VisualStudioCodeService.cs`](./Services/VisualStudioCodeService.cs) - Acts as a facade, orchestrating calls to more specialized provider classes.
-  - [`VisualStudioCodeInstanceProvider.cs`](./Services/VisualStudioCodeInstanceProvider.cs) - Discovers all installed instances of Visual Studio Code.
-  - [`VisualStudioCodeWorkspaceProvider.cs`](./Services/VisualStudioCodeWorkspaceProvider.cs) - Orchestrates the process of finding recent VS Code workspaces.
-  - [`VisualStudioProvider.cs`](./Services/VisualStudioProvider.cs) - Orchestrates the process of finding recent Visual Studio solutions.
-  - [`PinService.cs`](./Services/PinService.cs) - Manages the pinned state of workspaces.
-  - [`VSWorkspaceWatcherService.cs`](./Services/VSWorkspaceWatcherService.cs) - Monitors Visual Studio settings files for changes to trigger auto-refresh.
-  - [`VSCodeWorkspaceWatcherService.cs`](./Services/VSCodeWorkspaceWatcherService.cs) - Monitors Visual Studio Code storage for changes to trigger auto-refresh.
-  - **`/Services/VisualStudio`**: Contains the integrated source code for discovering Visual Studio instances and their recent items.
-- **`/Workspaces`**: Contains workspace-related logic.
-    - **`/Models`**: C# models that map to the JSON structures of Visual Studio Code's workspace storage.
-    - **`/Readers`**: Specialized classes for reading and parsing workspace data.
-        - [`VscdbWorkspaceReader.cs`](./Workspaces/Readers/VscdbWorkspaceReader.cs) - Reads workspace data from the `state.vscdb` SQLite database.
-        - [`StorageJsonWorkspaceReader.cs`](./Workspaces/Readers/StorageJsonWorkspaceReader.cs) - Reads workspace data from the `storage.json` file.
+  - [`VisualStudioCodePage.cs`](./WorkspaceLauncherForVSCode/Pages/VisualStudioCodePage.cs) - The main dynamic list page with search, filtering, and caching.
+  - [`FallbackWorkspaceItem.cs`](./WorkspaceLauncherForVSCode/Pages/FallbackWorkspaceItem.cs) - Individual fallback results that appear in the main Command Palette search.
+  - `HelpPage.cs` & `StaticHelpItems.cs` - Provides contextual help and shortcuts documentation.
+  - `DetailPage.cs` - Provides a detailed view for a selected workspace.
+- **`/Services`**: Primary service implementations.
+  - [`VisualStudioCodeService.cs`](./WorkspaceLauncherForVSCode/Services/VisualStudioCodeService.cs) - Orchestrates instance and workspace discovery.
+  - `VisualStudioCodeInstanceProvider.cs` - Scans for editor installations (VS Code, Cursor, etc.).
+  - `VisualStudioCodeWorkspaceProvider.cs` - Finds recent VS Code workspaces via internal readers.
+  - `VisualStudioProvider.cs` - Discovers Visual Studio solutions.
+  - `PinService.cs` - Manages workspace pinning logic.
+  - `VSWorkspaceWatcherService.cs` & `VSCodeWorkspaceWatcherService.cs` - File system watchers for real-time updates when recent project files change.
+  - **`/Services/VisualStudio`**: Core logic for Visual Studio version and solution discovery.
+    - `VisualStudioService.cs` - Primary service for interacting with Visual Studio installations.
+- **`/Workspaces`**: Workspace-specific logic.
+    - `WorkspaceFilter.cs` - Implements searching, filtering (by type/remote), and sorting logic.
+    - [`WorkspaceItemFactory.cs`](./WorkspaceLauncherForVSCode/Workspaces/WorkspaceItemFactory.cs) - Constructs UI `ListItem` objects from workspace models.
+    - `VscdbDatabase.cs` - Handles SQLite interaction for VS Code's `state.vscdb`.
+    - **`/Readers`**: Parsers for editor-specific metadata (SQLite and JSON).
 
-## Core Components
+## Core Components and Features
 
-### WindowWalker Integration
+### Performance and Caching
 
-The extension integrates logic from the **WindowWalker** extension to provide window-switching functionality. When a user attempts to open a Visual Studio solution, the extension first checks if that solution is already open in an existing Visual Studio instance.
+To ensure the extension remains responsive even with hundreds of projects:
+- **ListItem Caching**: `VisualStudioCodePage` maintains a cache of `ListItem` objects to avoid re-constructing them during search or scroll.
+- **Search Caching**: Results of the last search query are cached and reused by fallback items to prevent redundant filtering operations.
+- **Asynchronous Loading**: All I/O and process execution (like `vswhere.exe`) are handled off the UI thread.
+- **Native AOT**: The project is optimized for Ahead-of-Time compilation, resulting in faster startup and lower memory usage.
 
-- The `OpenWindows` class enumerates all open windows on the system.
-- The `Window` and `WindowProcess` classes gather information about each window, including its title and process name.
-- The `OpenSolutionCommand` checks the titles of open `devenv.exe` processes to see if the solution is already open. If a match is found, the extension switches to that window instead of launching a new process.
+### Search and Fallback Integration
 
-### Services and Providers
+The extension integrates deeply with the Command Palette through **Fallback Commands**:
+- **Direct Results**: A configurable number of top-matching workspaces are injected directly into the main Command Palette search list via `FallbackWorkspaceItem`. This allows users to launch their most relevant projects instantly from the global search.
+- **Search-to-Page**: The `FallbackOpenRecentVisualStudioCodeItem` provides a "Search for..." command that opens the extension's dedicated page pre-filtered with the current query.
+- **Advanced Filtering**: Users can filter the list by workspace type (Local, WSL, SSH, Dev Container) or editor type via the UI filters.
 
-*   **`IVisualStudioCodeService` / `VisualStudioCodeService`**: This service acts as the primary entry point for interacting with local Visual Studio and Visual Studio Code data. It delegates the complex tasks of instance and workspace/solution discovery to specialized provider classes.
-*   **`VisualStudioCodeInstanceProvider`**: A static provider class responsible for discovering all installed instances of Visual Studio Code (Stable, Insiders, User, System) by scanning known locations and the system's PATH environment variable.
-*   **`VisualStudioCodeWorkspaceProvider`**: This static provider orchestrates the process of finding recently opened VS Code workspaces. It doesn't perform the reading itself but delegates the task to specialized reader classes.
-*   **`VisualStudioProvider`**: This static provider orchestrates the process of finding recently opened Visual Studio solutions. It uses the integrated `VisualStudioService` to discover Visual Studio instances and their recent items.
+### Pinning and Persistence
 
-### Watcher Services
+The `PinService` and `WorkspaceStorage` work together to manage project metadata:
+- **Advanced Pinning**: Supports **Pin to List**, **Pin to Home**, and **Pin to Dock**. Pinned projects are highlighted with a tag and remain easily accessible across sessions. The extension integrates with Command Palette's pinning system by providing stable identifiers.
+- **Frequency Tracking**: The extension tracks how often projects are opened through it, allowing for "Usage Count" sorting.
+- **External Recent Lists**: The extension can also sort items to match the internal "Open Recent" order of VS Code or Visual Studio by reading their respective metadata.
 
-*   **`VSWorkspaceWatcherService` & `VSCodeWorkspaceWatcherService`**: These services provide real-time updates by monitoring the underlying configuration files (`ApplicationPrivateSettings.xml` for VS, `storage.json` / `state.vscdb` for VS Code). When a change is detected (e.g., a new solution is opened), the extension automatically refreshes the list.
+### Visual Studio & Editor Support
 
-### Pin Service
+- **Broad Compatibility**: Supports VS Code (User/System/Insiders), Cursor, Windsurf, and Google Antigravity.
+- **Visual Studio 2026**: Preliminary support for the next version of Visual Studio.
+- **Helper Launcher**: An optional `VisualStudioCodeForCommandPaletteLauncher.exe` is used to ensure editors come to the foreground when launched from the background extension process.
+- **Window Switching**: Uses window enumeration to detect already-open solutions and switches focus instead of opening duplicate instances.
 
-*   **`PinService`**: Manages the pinning functionality, allowing users to keep frequently used workspaces at the top of the list. It persists the pinned state across sessions.
+### UI and Contextual Actions
 
-### Visual Studio Integration
-
-The extension now includes the core logic from the `PowerToys-Run-VisualStudio` project to discover Visual Studio installations and their recent solutions. This is accomplished by:
-1.  Using `vswhere.exe` to find all Visual Studio installations on the system.
-2.  Parsing the `ApplicationPrivateSettings.xml` file for each installation to find the location of the `CodeContainers.json` file.
-3.  Reading and deserializing the `CodeContainers.json` file to get a list of recent solutions.
-
-This integration provides a seamless experience, allowing users to access both Visual Studio solutions and VS Code workspaces from a single interface.
-
-**Asynchronous Initialization**:
-To prevent UI freezing, the discovery of Visual Studio instances (which involves running `vswhere.exe`) and the scanning of their settings files are performed asynchronously in the background. The `InitInstancesAsync` method ensures that the heavy lifting is done without blocking the main thread, providing a responsive user experience even during startup.
-
-### Workspace Readers and Performance
-
-To ensure high performance and low memory usage, the extension uses the `System.Text.Json` source generator for deserializing workspace data. This avoids runtime reflection and minimizes allocations.
-
-*   **Native AOT**: The application supports Native AOT (Ahead-of-Time) compilation, which significantly reduces startup time and memory footprint (introduced in version 1.9.0.0).
-*   **Asynchronous Loading**: All heavy I/O operations, including reading workspace databases and running external processes, are fully asynchronous to maintain UI responsiveness.
-*   **`VscdbWorkspaceReader` & `StorageJsonWorkspaceReader`**: These static reader classes are responsible for retrieving workspace information from Visual Studio Code's two primary data sources: the `state.vscdb` SQLite database and the `storage.json` file. Each reader is optimized to read its specific source and deserialize the data efficiently using source-generated models.
-
-### Settings
-
-*   **`SettingsManager`**: Manages all user-configurable settings for the extension. It loads settings from a JSON file and provides them to the rest of the application. It raises an event when settings are changed, allowing other components to react accordingly.
-
-### UI and Commands
-
-*   **`WorkspaceLauncherForVSCodeCommandsProvider`**: The main entry point for providing commands to the Command Palette. It initializes the required services and creates the top-level command items.
-*   **`VisualStudioCodePage`**: A dynamic list page that displays the discovered workspaces and solutions. It receives the `IVisualStudioCodeService` to fetch data asynchronously and handles user interactions like searching and scrolling.
-*   **`OpenVisualStudioCodeCommand` & `OpenSolutionCommand`**: The primary commands responsible for launching a selected VS Code workspace or Visual Studio solution.
-
-#### Secondary Commands
-Beyond the primary action of opening a workspace or solution, the extension provides secondary commands for managing the list:
-
-*   **`CopyPathCommand`**: This command allows the user to copy the full file path of a workspace, solution, or folder directly to the clipboard.
-*   **`RemoveWorkspaceCommand`**: This command provides the functionality to remove a workspace entry from the Visual Studio Code's list of recently opened items (not applicable to Visual Studio solutions).
-*   **`PinWorkspaceCommand`**: (Un)pins a workspace or solution.
-*   **`OpenInTerminalCommand`**: Opens the selected workspace's folder in the configured terminal.
+- **Rich Details**: Workspaces provide a details panel (built via `WorkspaceItemFactory`) that provides a rich preview of the project, including its type, path, and metadata.
+- **Contextual Commands**: Every item supports a suite of secondary actions:
+    - Open as Administrator.
+    - Open in Explorer / Terminal.
+    - Copy Path.
+    - Contextual Help (F1).
+- **Shortcuts**: Common actions support keyboard shortcuts (e.g., Ctrl+C for Copy Path, F5 for Refresh).
 
 This architecture ensures a clean separation of concerns, making the codebase easier to understand, extend, and debug.
