@@ -8,6 +8,7 @@ using Microsoft.CmdPal.Ext.Indexer.Indexer;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.ApplicationModel;
+using Windows.Foundation;
 using Windows.System;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
@@ -21,7 +22,7 @@ using WorkspaceLauncherForVSCode.Workspaces;
 
 namespace WorkspaceLauncherForVSCode;
 
-public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
+public sealed partial class VisualStudioCodePage : DynamicListPage, INotifyItemsChanged, IDisposable
 {
     private readonly SettingsManager _settingsManager;
     private readonly IVisualStudioCodeService _vscodeService;
@@ -53,7 +54,34 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
     private readonly IListItem[] _noResultsRefreshItem;
     private readonly IListItem[] _refreshSuggestionItem;
     private List<VisualStudioInstance> _visualStudioInstanceList = new();
-
+    event TypedEventHandler<object, IItemsChangedEventArgs> INotifyItemsChanged.ItemsChanged
+    {
+        add
+        {
+#if DEBUG
+            using var logger = new TimeLogger();
+#endif
+            lock (_itemsLock)
+            {
+                ItemsChanged += value;
+            }
+        }
+        remove
+        {
+#if DEBUG
+            using var logger = new TimeLogger();
+#endif
+            lock (_itemsLock)
+            {
+                ItemsChanged -= value;
+                if (_visibleItems.Count > _settingsManager.PageSize)
+                {
+                    _visibleItems.RemoveRange(_settingsManager.PageSize, _visibleItems.Count - _settingsManager.PageSize);
+                    _combinedItemsCache = null;
+                }
+            }
+        }
+    }
     public VisualStudioCodePage
     (
         SettingsManager settingsManager,
