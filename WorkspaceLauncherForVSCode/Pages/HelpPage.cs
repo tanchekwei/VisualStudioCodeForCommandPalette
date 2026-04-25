@@ -36,7 +36,6 @@ namespace WorkspaceLauncherForVSCode.Pages
                 var items = new List<IListItem>
                 {
                     StaticHelpItems.ReportBug,
-                    StaticHelpItems.ViewSource,
                 };
 
                 items.Add(StaticHelpItems.ExtensionVersion);

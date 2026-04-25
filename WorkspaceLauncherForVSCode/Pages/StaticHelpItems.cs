@@ -14,10 +14,6 @@ namespace WorkspaceLauncherForVSCode.Pages
             new OpenInExplorerCommand(Constant.SettingsFolderPath, null, "Open extension settings / logs folder")
         );
 
-        public static readonly ListItem ViewSource = new(
-            new Commands.OpenUrlCommand("https://github.com/tanchekwei/VisualStudioCodeForCommandPalette", "View source code", Icon.GitHub)
-        );
-
         public static readonly ListItem ReportBug = new(
             new OpenUrlCommand(
                 $"https://github.com/tanchekwei/VisualStudioCodeForCommandPalette/issues/new?template=bug_report.yml&extension-version={Uri.EscapeDataString(Constant.AssemblyVersion)}",
