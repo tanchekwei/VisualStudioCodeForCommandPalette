@@ -4,6 +4,7 @@ using System;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
+using OpenUrlCommand = WorkspaceLauncherForVSCode.Commands.OpenUrlCommand;
 
 namespace WorkspaceLauncherForVSCode.Pages
 {
@@ -18,7 +19,10 @@ namespace WorkspaceLauncherForVSCode.Pages
         );
 
         public static readonly ListItem ReportBug = new(
-            new Commands.OpenUrlCommand("https://github.com/tanchekwei/VisualStudioCodeForCommandPalette/issues/new", "Report issue", Icon.GitHub)
+            new OpenUrlCommand(
+                $"https://github.com/tanchekwei/VisualStudioCodeForCommandPalette/issues/new?template=bug_report.yml&extension-version={Uri.EscapeDataString(Constant.AssemblyVersion)}",
+                "Report issue",
+                Icon.GitHub)
         );
 
         public static readonly ListItem ExtensionVersion = new()

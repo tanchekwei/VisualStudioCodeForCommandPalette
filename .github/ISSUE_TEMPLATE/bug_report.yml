@@ -61,28 +61,30 @@ body:
     attributes:
       label: settings.json
       description: |
-        Please provide the content of your `settings.json`.
+        Please provide the content of your `settings.json` if relevant.
         You can find it by following [these steps](https://github.com/tanchekwei/VisualStudioCodeForCommandPalette/blob/main/docs/locate-settings-json.md).
+        **Privacy Warning:** Please review the content and remove any sensitive information (e.g., your Windows username in file paths) before pasting.
       placeholder: |
         ```json
-        // paste here
+        // paste here (ensure no sensitive info)
         ```
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: error-log
     attributes:
       label: error.log
       description: |
-        Please provide the content of your `error.log`.
+        Please provide the content of your `error.log` if relevant.
         You can find it by following [these steps](https://github.com/tanchekwei/VisualStudioCodeForCommandPalette/blob/main/docs/locate-error-log.md).
+        **Privacy Warning:** Please review the content and remove any sensitive information before pasting.
       placeholder: |
         ```text
-        // paste here
+        // paste here (ensure no sensitive info)
         ```
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: additional-context
