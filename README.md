@@ -144,3 +144,5 @@ For more detailed technical information about the project's architecture and com
 ## Contributing
 
 Contributions are welcome! If you have suggestions for improvements or new features, please open an issue or submit a pull request.
+
+If you are reporting a bug, please refer to our [Troubleshooting and Version Check Guide](./docs/troubleshooting-and-version-check.md) to provide the necessary information.

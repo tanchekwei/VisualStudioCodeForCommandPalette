@@ -1,0 +1,91 @@
+name: Bug Report
+description: Report a bug to help us improve.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe what happened...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: How do we reproduce the issue?
+      placeholder: |
+        1. Open Command Palette...
+        2. Run '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: I expected the following to happen...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: Instead, this happened...
+    validations:
+      required: true
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: Extension Version
+      description: |
+        Refer to [How to check extension version](https://github.com/tanchekwei/VisualStudioCodeForCommandPalette/blob/main/docs/check-extension-version.md)
+      placeholder: e.g., 1.26.0.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: settings-json
+    attributes:
+      label: settings.json
+      description: |
+        Please provide the content of your `settings.json`.
+        You can find it by following [these steps](https://github.com/tanchekwei/VisualStudioCodeForCommandPalette/blob/main/docs/locate-settings-json.md).
+      placeholder: |
+        ```json
+        // paste here
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-log
+    attributes:
+      label: error.log
+      description: |
+        Please provide the content of your `error.log`.
+        You can find it by following [these steps](https://github.com/tanchekwei/VisualStudioCodeForCommandPalette/blob/main/docs/locate-error-log.md).
+      placeholder: |
+        ```text
+        // paste here
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here (e.g., OS version, VS Code version).
