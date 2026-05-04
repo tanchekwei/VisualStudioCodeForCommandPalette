@@ -27,9 +27,9 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                 using var logger = new TimeLogger();
 #endif
                 var workspaces = new List<VisualStudioCodeWorkspace>();
-                var dbPath = Path.Combine(instance.StoragePath, "state.vscdb");
+                var dbPath = GetDatabasePath(instance);
 
-                if (!File.Exists(dbPath))
+                if (string.IsNullOrEmpty(dbPath) || !File.Exists(dbPath))
                 {
                     return workspaces;
                 }
@@ -113,12 +113,12 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
         {
             try
             {
-                if (workspace.VSCodeInstance?.StoragePath is null)
+                if (workspace.VSCodeInstance is null)
                 {
                     return 0;
                 }
-                var dbPath = Path.Combine(workspace.VSCodeInstance.StoragePath, "state.vscdb");
-                if (!File.Exists(dbPath)) return 0;
+                var dbPath = GetDatabasePath(workspace.VSCodeInstance);
+                if (string.IsNullOrEmpty(dbPath) || !File.Exists(dbPath)) return 0;
 
                 await using var connection = new SqliteConnection($"Data Source={dbPath};");
                 await connection.OpenAsync();
@@ -159,6 +159,31 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                 ErrorLogger.LogError(ex);
                 return 0;
             }
+        }
+
+        private static string GetDatabasePath(VisualStudioCodeInstance instance)
+        {
+            if (instance?.StoragePath == null) return string.Empty;
+
+            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string? sharedFolder = instance.VisualStudioCodeType switch
+            {
+                VisualStudioCodeType.Default => ".vscode-shared",
+                VisualStudioCodeType.Insider => ".vscode-insiders-shared",
+                _ => null
+            };
+
+            if (sharedFolder != null)
+            {
+                var sharedDbPath = Path.Combine(userProfile, sharedFolder, "sharedStorage", "state.vscdb");
+                if (File.Exists(sharedDbPath))
+                {
+                    return sharedDbPath;
+                }
+            }
+
+            // Fallback to legacy path
+            return Path.Combine(instance.StoragePath, "state.vscdb");
         }
     }
 }

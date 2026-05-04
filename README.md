@@ -109,6 +109,9 @@ For more detailed technical information about the project's architecture and com
 
 ## Changelog
 
+### 1.27.0.0
+- Support: Added support for Visual Studio Code 1.118+ shared storage location (`.vscode-shared`) to ensure compatibility with recent recent folders/files storage changes.
+
 ### 1.26.0.0
 - Performance: Implement ListItem caching and optimize workspace lookup for faster loading.
 - Search: Cache filtered results between fallback items to improve UI responsiveness during search.
