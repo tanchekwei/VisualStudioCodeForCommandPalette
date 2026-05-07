@@ -69,12 +69,14 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         Name = $"Open Recent {Constant.VisualStudioCodeDisplayName}";
         Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
         Id = $"{Package.Current.Id.Name}.{nameof(VisualStudioCodePage)}";
-        var filters = new SearchFilters();
-        filters.PropChanged += Filters_PropChanged;
-        Filters = filters;
 
         _settingsManager = settingsManager;
         SettingsManager = _settingsManager;
+
+        var filters = new SearchFilters(_settingsManager);
+        filters.PropChanged += Filters_PropChanged;
+        Filters = filters;
+
         _vscodeService = vscodeService;
         _workspaceStorage = workspaceStorage;
         _vscodeWatcherService = vscodeWatcherService;
