@@ -4,7 +4,7 @@
 
 This project provides a command palette extension for opening Visual Studio solutions and Visual Studio Code workspaces from a single, unified interface.
 
-![Visual Studio / Code for Command Palette](./Assets/screenshot1.png)
+![Visual Studio / Code for Command Palette](Assets/01-screenshot1.png)
 
 ## Features
 - **Optimized for Performance**: Designed to remain fast and responsive, with a configurable page size and caching.
@@ -16,7 +16,7 @@ This project provides a command palette extension for opening Visual Studio solu
     - **Copy Path**: Copies the full file path of the solution, workspace, or folder to the clipboard.
     - **Pin to List / Unpin from List**: Pins or unpins a workspace to keep it at the top of the list.
     - **Open in Explorer**: Opens the solution, workspace, or folder location in the default file explorer.
-    - **Open in Terminal**: Opens the solution, workspace, or folder location in your preferred terminal (Command Prompt or PowerShell).
+    - **Open in Terminal**: Opens the solution, workspace, or folder location in your preferred terminal (Command Prompt, PowerShell, or Windows Terminal).
     - **Run as Administrator**: Open the solution, workspace, or folder with administrative privileges.
     - **Refresh Workspaces**: Manually reloads the list of solutions and workspaces to reflect any recent changes.
 
@@ -75,6 +75,7 @@ This project provides a command palette extension for opening Visual Studio solu
   * **Terminal Type**: Choose the terminal to be opened with the "Open in Terminal" command.
       * `PowerShell`
       * `Command Prompt`
+      * `Windows Terminal`
 
 * **Visual Studio**
   * **Enable Visual Studio**: Enables searching for Visual Studio solutions.
@@ -108,6 +109,10 @@ The results are then combined into a single, unified list for easy access.
 For more detailed technical information about the project's architecture and components, please see the [Project Guide](./GUIDE.md).
 
 ## Changelog
+
+### 1.28.0.0
+- Feature: Added support for Windows Terminal in the "Open in Terminal" command.
+- UX: Added informational reminders when selecting search filters for editors or environments that are currently disabled in settings.
 
 ### 1.27.0.0
 - Support: Added support for Visual Studio Code 1.118+ shared storage location (`.vscode-shared`) to ensure compatibility with recent recent folders/files storage changes.
