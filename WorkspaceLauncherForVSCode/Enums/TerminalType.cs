@@ -5,6 +5,7 @@ namespace WorkspaceLauncherForVSCode.Enums
     public enum TerminalType
     {
         Cmd,
-        PowerShell
+        PowerShell,
+        WindowsTerminal
     }
 }

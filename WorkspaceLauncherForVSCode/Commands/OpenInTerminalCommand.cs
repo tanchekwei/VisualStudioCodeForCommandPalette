@@ -57,8 +57,24 @@ namespace WorkspaceLauncherForVSCode.Commands
                         return pathNotFoundResult;
                     }
 
-                    var terminal = _settingsManager.TerminalType == TerminalType.PowerShell ? "powershell.exe" : "cmd.exe";
-                    ShellHelpers.OpenInShell(terminal, workingDir: directoryPath);
+                    string terminal;
+                    string? arguments = null;
+                    switch (_settingsManager.TerminalType)
+                    {
+                        case TerminalType.Cmd:
+                            terminal = "cmd.exe";
+                            break;
+                        case TerminalType.WindowsTerminal:
+                            terminal = "wt.exe";
+                            arguments = $"-d \"{directoryPath}\"";
+                            break;
+                        case TerminalType.PowerShell:
+                        default:
+                            terminal = "powershell.exe";
+                            break;
+                    }
+
+                    ShellHelpers.OpenInShell(terminal, arguments: arguments, workingDir: directoryPath);
                 }
 
                 return CommandResult.Dismiss();
