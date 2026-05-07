@@ -74,9 +74,9 @@ public class SettingsManager : JsonSettingsManager
 
     private static readonly List<ChoiceSetSetting.Choice> _terminalTypeChoices =
     [
+        new ChoiceSetSetting.Choice("Windows Terminal (Default Profile)", nameof(TerminalType.WindowsTerminal)),
         new ChoiceSetSetting.Choice("PowerShell", nameof(TerminalType.PowerShell)),
         new ChoiceSetSetting.Choice("Command Prompt", nameof(TerminalType.Cmd)),
-        new ChoiceSetSetting.Choice("Windows Terminal (Default Profile)", nameof(TerminalType.WindowsTerminal)),
     ];
 
     private readonly ToggleSetting _enableLogging = new(
