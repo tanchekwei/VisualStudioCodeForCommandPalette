@@ -32,9 +32,26 @@ internal sealed partial class FallbackOpenRecentVisualStudioCodeItem : FallbackC
             return;
         }
 
-        _page.SetSearchText(query);
         Title = $"Search for \"{query}\"";
         Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
-        Command = _page;
+        Command = new FallbackOpenRecentVisualStudioCodeCommand(_page, query);
+    }
+}
+
+internal sealed partial class FallbackOpenRecentVisualStudioCodeCommand : InvokableCommand
+{
+    private readonly VisualStudioCodePage _page;
+    private readonly string _query;
+
+    public FallbackOpenRecentVisualStudioCodeCommand(VisualStudioCodePage page, string query)
+    {
+        _page = page;
+        _query = query;
+    }
+
+    public override CommandResult Invoke()
+    {
+        _page.SetSearchText(_query);
+        return CommandResult.GoToPage(new GoToPageArgs() { PageId = _page.Id });
     }
 }
