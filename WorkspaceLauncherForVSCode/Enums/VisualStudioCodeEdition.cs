@@ -15,6 +15,7 @@ namespace WorkspaceLauncherForVSCode.Enums
         Cursor = 16,
         Antigravity = 32,
         Windsurf = 64,
-        CustomPath = 128
+        CustomPath = 128,
+        Vscodium = 256
     }
 }

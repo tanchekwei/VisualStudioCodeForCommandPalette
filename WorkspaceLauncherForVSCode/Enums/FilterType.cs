@@ -15,6 +15,7 @@ namespace WorkspaceLauncherForVSCode.Enums
         Cursor,
         Antigravity,
         Windsurf,
+        Vscodium,
         Folder,
         Workspace,
         RemoteWsl,

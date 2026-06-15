@@ -1,4 +1,4 @@
-﻿// Modifications copyright (c) 2025 tanchekwei 
+// Modifications copyright (c) 2025 tanchekwei 
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Collections.Generic;
@@ -181,6 +181,18 @@ public class SettingsManager : JsonSettingsManager
         "The executable path for Windsurf. Leave default if installed in the standard location.",
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Windsurf", "Windsurf.exe"));
 
+    private readonly ToggleSetting _enableVscodium = new(
+        Namespaced(nameof(_enableVscodium)),
+        "Enable VSCodium",
+        "Loads folders from VSCodium",
+        false);
+
+    private readonly TextSetting _vscodiumPath = new(
+        Namespaced(nameof(VscodiumPath)),
+        "VSCodium Path",
+        "The executable path for VSCodium. Leave default if installed in the standard location.",
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "VSCodium", "VSCodium.exe"));
+
     private readonly ToggleSetting _enableWorkspaceWatcher = new(
         Namespaced(nameof(EnableWorkspaceWatcher)),
         "Enable Workspace Watcher",
@@ -293,6 +305,7 @@ public class SettingsManager : JsonSettingsManager
             if (_enableCursor.Value) editions |= VisualStudioCodeEdition.Cursor;
             if (_enableAntigravity.Value) editions |= VisualStudioCodeEdition.Antigravity;
             if (_enableWindsurf.Value) editions |= VisualStudioCodeEdition.Windsurf;
+            if (_enableVscodium.Value) editions |= VisualStudioCodeEdition.Vscodium;
             return editions;
         }
     }
@@ -301,6 +314,7 @@ public class SettingsManager : JsonSettingsManager
     public string CursorPath => _cursorPath.Value ?? string.Empty;
     public string AntigravityPath => _antigravityPath.Value ?? string.Empty;
     public string WindsurfPath => _windsurfPath.Value ?? string.Empty;
+    public string VscodiumPath => _vscodiumPath.Value ?? string.Empty;
 
     public SearchBy SearchBy
     {
@@ -392,6 +406,8 @@ public class SettingsManager : JsonSettingsManager
             Settings.Add(_enableCustom);
             Settings.Add(_enableCustomPath);
             Settings.Add(_customPath);
+            Settings.Add(_enableVscodium);
+            Settings.Add(_vscodiumPath);
             Settings.Add(_enableCursor);
             Settings.Add(_cursorPath);
             Settings.Add(_enableAntigravity);

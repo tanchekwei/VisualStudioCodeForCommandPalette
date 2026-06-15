@@ -1,4 +1,4 @@
-﻿// Modifications copyright (c) 2025 tanchekwei 
+// Modifications copyright (c) 2025 tanchekwei 
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Text.Json.Serialization;
@@ -71,6 +71,7 @@ public class VisualStudioCodeInstance
                 VisualStudioCodeType.Cursor => Icon.Cursor,
                 VisualStudioCodeType.Antigravity => Icon.Antigravity,
                 VisualStudioCodeType.Windsurf => Icon.Windsurf,
+                VisualStudioCodeType.Vscodium => Icon.Vscodium,
                 _ => Icon.VisualStudioCode
             };
         }

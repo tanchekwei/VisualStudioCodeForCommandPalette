@@ -19,4 +19,6 @@ public enum WorkspaceType
     AntigravityWorkspace,
     WindsurfFolder,
     WindsurfWorkspace,
+    VscodiumFolder,
+    VscodiumWorkspace,
 }

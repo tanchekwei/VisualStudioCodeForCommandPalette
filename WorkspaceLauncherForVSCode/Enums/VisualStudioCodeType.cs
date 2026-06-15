@@ -11,5 +11,6 @@ public enum VisualStudioCodeType
   Insider,
   Cursor,
   Antigravity,
-  Windsurf
+  Windsurf,
+  Vscodium
 }

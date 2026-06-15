@@ -11,12 +11,12 @@ namespace WorkspaceLauncherForVSCode.Services
 {
     public static class VisualStudioCodeInstanceProvider
     {
-        public static async Task<List<VisualStudioCodeInstance>> GetInstancesAsync(VisualStudioCodeEdition enabledEditions, string? customPath = null, string? cursorPath = null, string? antigravityPath = null, string? windsurfPath = null)
+        public static async Task<List<VisualStudioCodeInstance>> GetInstancesAsync(VisualStudioCodeEdition enabledEditions, string? customPath = null, string? cursorPath = null, string? antigravityPath = null, string? windsurfPath = null, string? vscodiumPath = null)
         {
-            return await Task.Run(() => GetInstances(enabledEditions, customPath, cursorPath, antigravityPath, windsurfPath));
+            return await Task.Run(() => GetInstances(enabledEditions, customPath, cursorPath, antigravityPath, windsurfPath, vscodiumPath));
         }
 
-        public static List<VisualStudioCodeInstance> GetInstances(VisualStudioCodeEdition enabledEditions, string? customPath = null, string? cursorPath = null, string? antigravityPath = null, string? windsurfPath = null)
+        public static List<VisualStudioCodeInstance> GetInstances(VisualStudioCodeEdition enabledEditions, string? customPath = null, string? cursorPath = null, string? antigravityPath = null, string? windsurfPath = null, string? vscodiumPath = null)
         {
 #if DEBUG
             using var logger = new TimeLogger();
@@ -24,7 +24,7 @@ namespace WorkspaceLauncherForVSCode.Services
             var instances = new List<VisualStudioCodeInstance>();
             try
             {
-                LoadInstances(enabledEditions, instances, customPath, cursorPath, antigravityPath, windsurfPath);
+                LoadInstances(enabledEditions, instances, customPath, cursorPath, antigravityPath, windsurfPath, vscodiumPath);
             }
             catch (Exception ex)
             {
@@ -33,7 +33,7 @@ namespace WorkspaceLauncherForVSCode.Services
             return instances;
         }
 
-        private static void LoadInstances(VisualStudioCodeEdition enabledEditions, List<VisualStudioCodeInstance> instances, string? customPathOverride = null, string? cursorPathOverride = null, string? antigravityPathOverride = null, string? windsurfPathOverride = null)
+        private static void LoadInstances(VisualStudioCodeEdition enabledEditions, List<VisualStudioCodeInstance> instances, string? customPathOverride = null, string? cursorPathOverride = null, string? antigravityPathOverride = null, string? windsurfPathOverride = null, string? vscodiumPathOverride = null)
         {
 #if DEBUG
             using var logger = new TimeLogger();
@@ -151,6 +151,28 @@ namespace WorkspaceLauncherForVSCode.Services
                         if (File.Exists(windsurfPath))
                         {
                             AddInstance(instances, "Windsurf", windsurfPath, windsurfStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Windsurf);
+                        }
+                    }
+                }
+                if (enabledEditions.HasFlag(VisualStudioCodeEdition.Vscodium))
+                {
+                    var vscodiumStoragePath = Path.Combine(appDataBasePath, "VSCodium", "User", "globalStorage");
+                    if (!string.IsNullOrEmpty(vscodiumPathOverride) && File.Exists(vscodiumPathOverride))
+                    {
+                        AddInstance(instances, "VSCodium", vscodiumPathOverride, vscodiumStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Vscodium);
+                    }
+                    else
+                    {
+                        var vscodiumUserPath = Path.Combine(appdataProgramFilesPath, "Programs", "VSCodium", "VSCodium.exe");
+                        if (File.Exists(vscodiumUserPath))
+                        {
+                            AddInstance(instances, "VSCodium", vscodiumUserPath, vscodiumStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Vscodium);
+                        }
+
+                        var vscodiumSystemPath = Path.Combine(programsFolderPathBase, "VSCodium", "VSCodium.exe");
+                        if (File.Exists(vscodiumSystemPath))
+                        {
+                            AddInstance(instances, "VSCodium [System]", vscodiumSystemPath, vscodiumStoragePath, VisualStudioCodeInstallationType.System, VisualStudioCodeType.Vscodium);
                         }
                     }
                 }

@@ -151,6 +151,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 FilterType.Cursor => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Cursor,
                 FilterType.Antigravity => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Antigravity,
                 FilterType.Windsurf => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Windsurf,
+                FilterType.Vscodium => item.VSCodeInstance?.VisualStudioCodeType == VisualStudioCodeType.Vscodium,
                 FilterType.Folder => item.WorkspaceType == WorkspaceType.Folder,
                 FilterType.Workspace => item.WorkspaceType == WorkspaceType.Workspace,
                 FilterType.RemoteCodespaces => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.Codespaces,

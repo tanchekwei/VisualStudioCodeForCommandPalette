@@ -137,6 +137,10 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
                 case WorkspaceType.WindsurfWorkspace:
                     WorkspaceTypeString = "Windsurf";
                     break;
+                case WorkspaceType.VscodiumFolder:
+                case WorkspaceType.VscodiumWorkspace:
+                    WorkspaceTypeString = "VSCodium";
+                    break;
                 default:
                     WorkspaceTypeString = "Unknown Type";
                     break;
