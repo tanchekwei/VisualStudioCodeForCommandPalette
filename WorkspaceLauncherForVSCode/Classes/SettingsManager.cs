@@ -1,4 +1,4 @@
-// Modifications copyright (c) 2025 tanchekwei 
+﻿// Modifications copyright (c) 2025 tanchekwei 
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Collections.Generic;
@@ -227,7 +227,7 @@ public class SettingsManager : JsonSettingsManager
         Namespaced(nameof(FallbackCount)),
         "Fallback Count",
         "Number of top-level fallback items on the main list page (set 0 to disable).\nRestart Command Palette to apply Fallback Count setting changes.",
-        "8");
+        "3");
 
     private readonly ChoiceSetSetting _sortBy = new(
         Namespaced(nameof(SortBy)),
@@ -372,7 +372,7 @@ public class SettingsManager : JsonSettingsManager
             {
                 return size;
             }
-            return 8;
+            return 3;
         }
     }
 
