@@ -118,4 +118,32 @@ internal sealed partial class SearchFilters : Filters
             new Separator(),
         ];
     }
+
+    public static bool IsWorkspaceEnabled(VisualStudioCodeWorkspace workspace, VisualStudioCodeEdition enabledEditions, bool enableVisualStudio)
+    {
+        if (workspace.WorkspaceType == WorkspaceType.Solution || workspace.WorkspaceType == WorkspaceType.Solution2026)
+        {
+            return enableVisualStudio;
+        }
+
+        return workspace.WorkspaceType switch
+        {
+            WorkspaceType.Folder or WorkspaceType.Workspace =>
+                enabledEditions.HasFlag(VisualStudioCodeEdition.Default) ||
+                enabledEditions.HasFlag(VisualStudioCodeEdition.System) ||
+                enabledEditions.HasFlag(VisualStudioCodeEdition.Custom) ||
+                enabledEditions.HasFlag(VisualStudioCodeEdition.CustomPath),
+            WorkspaceType.FolderInsider or WorkspaceType.WorkspaceInsider =>
+                enabledEditions.HasFlag(VisualStudioCodeEdition.Insider),
+            WorkspaceType.CursorFolder or WorkspaceType.CursorWorkspace =>
+                enabledEditions.HasFlag(VisualStudioCodeEdition.Cursor),
+            WorkspaceType.AntigravityFolder or WorkspaceType.AntigravityWorkspace =>
+                enabledEditions.HasFlag(VisualStudioCodeEdition.Antigravity),
+            WorkspaceType.WindsurfFolder or WorkspaceType.WindsurfWorkspace =>
+                enabledEditions.HasFlag(VisualStudioCodeEdition.Windsurf),
+            WorkspaceType.VscodiumFolder or WorkspaceType.VscodiumWorkspace =>
+                enabledEditions.HasFlag(VisualStudioCodeEdition.Vscodium),
+            _ => true
+        };
+    }
 }

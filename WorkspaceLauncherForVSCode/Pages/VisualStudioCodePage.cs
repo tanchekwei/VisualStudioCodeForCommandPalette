@@ -421,9 +421,15 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                 _allWorkspacesById.Clear();
                 _listItemCache.Clear();
                 ClearFallbackCache();
+                var enabledEditions = _settingsManager.EnabledEditions;
+                var enableVisualStudio = _settingsManager.EnableVisualStudio;
                 for (int i = 0; i < workspaces.Count; i++)
                 {
                     var workspace = workspaces[i];
+                    if (!SearchFilters.IsWorkspaceEnabled(workspace, enabledEditions, enableVisualStudio))
+                    {
+                        continue;
+                    }
                     if (workspace.WorkspaceType == WorkspaceType.Solution || workspace.WorkspaceType == WorkspaceType.Solution2026)
                     {
                         workspace.Id = IdGenerator.GetVisualStudioId(workspace);
