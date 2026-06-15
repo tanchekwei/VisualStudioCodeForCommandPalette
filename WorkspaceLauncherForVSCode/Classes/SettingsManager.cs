@@ -215,7 +215,7 @@ public class SettingsManager : JsonSettingsManager
         Namespaced(nameof(FallbackCount)),
         "Fallback Count",
         "Number of top-level fallback items on the main list page (set 0 to disable).\nRestart Command Palette to apply Fallback Count setting changes.",
-        "8");
+        "3");
 
     private readonly ChoiceSetSetting _sortBy = new(
         Namespaced(nameof(SortBy)),
@@ -358,7 +358,7 @@ public class SettingsManager : JsonSettingsManager
             {
                 return size;
             }
-            return 8;
+            return 3;
         }
     }
 
