@@ -55,12 +55,14 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                                          instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.CursorFolder :
                                          instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.AntigravityFolder :
                                          instance.VisualStudioCodeType == VisualStudioCodeType.Windsurf ? WorkspaceType.WindsurfFolder :
+                                         instance.VisualStudioCodeType == VisualStudioCodeType.Vscodium ? WorkspaceType.VscodiumFolder :
                                          WorkspaceType.Folder;
 
                         var workspaceType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.WorkspaceInsider :
                                             instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.CursorWorkspace :
                                             instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.AntigravityWorkspace :
                                             instance.VisualStudioCodeType == VisualStudioCodeType.Windsurf ? WorkspaceType.WindsurfWorkspace :
+                                            instance.VisualStudioCodeType == VisualStudioCodeType.Vscodium ? WorkspaceType.VscodiumWorkspace :
                                             WorkspaceType.Workspace;
 
                         if (root.BackupWorkspaces.Workspaces != null)
@@ -126,7 +128,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                     workspace.WorkspaceType == WorkspaceType.WorkspaceInsider ||
                     workspace.WorkspaceType == WorkspaceType.CursorWorkspace ||
                     workspace.WorkspaceType == WorkspaceType.AntigravityWorkspace ||
-                    workspace.WorkspaceType == WorkspaceType.WindsurfWorkspace)
+                    workspace.WorkspaceType == WorkspaceType.WindsurfWorkspace ||
+                    workspace.WorkspaceType == WorkspaceType.VscodiumWorkspace)
                 {
                     removedCount = root.BackupWorkspaces.Workspaces?.RemoveAll(w => w.ConfigURIPath == workspace.Path) ?? 0;
                 }

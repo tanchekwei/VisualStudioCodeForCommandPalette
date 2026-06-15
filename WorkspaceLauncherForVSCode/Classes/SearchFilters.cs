@@ -69,6 +69,13 @@ internal sealed partial class SearchFilters : Filters
                 new ToastStatusMessage("Windsurf is disabled in settings").Show();
             }
         }
+        else if (filterId == nameof(FilterType.Vscodium))
+        {
+            if (!editions.HasFlag(VisualStudioCodeEdition.Vscodium))
+            {
+                new ToastStatusMessage("VSCodium is disabled in settings").Show();
+            }
+        }
         else if (filterId == nameof(FilterType.Folder) ||
                  filterId == nameof(FilterType.Workspace) ||
                  filterId == nameof(FilterType.RemoteWsl) ||
@@ -107,6 +114,7 @@ internal sealed partial class SearchFilters : Filters
             new Filter() { Id = nameof(FilterType.Antigravity), Name = "Antigravity", Icon = Icon.Antigravity },
             new Filter() { Id = nameof(FilterType.Cursor), Name = "Cursor", Icon = Icon.Cursor },
             new Filter() { Id = nameof(FilterType.Windsurf), Name = "Windsurf", Icon = Icon.Windsurf },
+            new Filter() { Id = nameof(FilterType.Vscodium), Name = "VSCodium", Icon = Icon.Vscodium },
             new Separator(),
         ];
     }
