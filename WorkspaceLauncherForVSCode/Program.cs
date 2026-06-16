@@ -35,7 +35,10 @@ public class Program
             }
             else
             {
-                Console.WriteLine("Not being launched as a Extension... exiting.");
+                string productName = Constant.VisualStudioCodeDisplayName;
+                NativeDialog.Show(
+                    productName,
+                    $"{productName} is a PowerToys Command Palette extension.\n\nInstall and enable PowerToys Command Palette,\n\nthen open {productName} extension from Command Palette.");
             }
         }
         catch (Exception ex)
