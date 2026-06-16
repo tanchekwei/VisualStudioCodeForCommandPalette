@@ -20,7 +20,6 @@ public sealed partial class DetailPage : ContentPage
 
     private const string TitleText = "Detail";
     private const string NameText = "Detail";
-    private const string IdText = "Detail";
     private const string MarkdownPrefix = "```json\n";
     private const string MarkdownSuffix = "\n```";
 
@@ -32,7 +31,6 @@ public sealed partial class DetailPage : ContentPage
         {
             Title = TitleText;
             Name = NameText;
-            Id = IdText;
             Icon = Classes.Icon.Bug;
             Workspace = workspace;
         }
