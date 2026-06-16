@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
@@ -117,7 +118,15 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
 
                 arguments = $"--folder-uri \"{path}\"";
             }
-
+            if (Workspace.WorkspaceType == WorkspaceType.AntigravityFolder || Workspace.WorkspaceType == WorkspaceType.AntigravityWorkspace)
+            {
+                Workspace.VSCodeInstance.ExecutablePath = Regex.Replace(
+                    Workspace.VSCodeInstance.ExecutablePath,
+                    "Antigravity",
+                    "Antigravity IDE",
+                    RegexOptions.IgnoreCase
+                );
+            }
             if (page.SettingsManager.UseHelperLauncher)
             {
                 var launcherPath = Path.Combine(AppContext.BaseDirectory, "VisualStudioCodeForCommandPaletteLauncher.exe");
