@@ -86,7 +86,10 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
         _vscodeWatcherService.TriggerRefresh += (s, e) => RefreshWorkspacesInBackground();
         _vsWatcherService.TriggerRefresh += (s, e) => RefreshWorkspacesInBackground();
 
-        _helpCommandContextItem = new CommandContextItem(new HelpPage(settingsManager, null));
+        _helpCommandContextItem = new CommandContextItem(new HelpPage(settingsManager, null))
+        {
+            RequestedShortcut = KeyChordHelpers.FromModifiers(false, false, false, false, (int)VirtualKey.F1, 0),
+        };
         _refreshWorkspacesCommand = refreshWorkspacesCommand;
         _refreshWorkspacesCommand.TriggerRefresh += (s, e) => StartRefresh();
         _refreshWorkspacesCommandContextItem = new CommandContextItem(_refreshWorkspacesCommand)
