@@ -52,7 +52,7 @@ body:
       label: Extension Version
       description: |
         Refer to [How to check extension version](https://github.com/tanchekwei/VisualStudioCodeForCommandPalette/blob/main/docs/check-extension-version.md)
-      placeholder: e.g., 1.28.0.0
+      placeholder: e.g., 1.29.0.0
     validations:
       required: true
 

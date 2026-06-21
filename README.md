@@ -110,6 +110,17 @@ For more detailed technical information about the project's architecture and com
 
 ## Changelog
 
+### 1.29.0.0
+- Feature: Updated Google Antigravity support to use Antigravity IDE naming.
+- Feature: Added manual launch message support.
+- Compatibility: Added support for VSCodium.
+- UX: Added Help page shortcut with F1 key.
+- UX: Removed ID display from detail page and avoided "Pin to Home" command when not applicable.
+- Fix: Fixed disabled type entries appearing in search results.
+- Performance: Reduced fallback default handling.
+- Settings: Set Windows Terminal as the default terminal option.
+- Maintenance: Updated packages.
+
 ### 1.28.0.0
 - Feature: Added support for Windows Terminal in the "Open in Terminal" command.
 - UX: Added informational reminders when selecting search filters for editors or environments that are currently disabled in settings.
