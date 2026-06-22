@@ -122,7 +122,7 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
             {
                 Workspace.VSCodeInstance.ExecutablePath = Regex.Replace(
                     Workspace.VSCodeInstance.ExecutablePath,
-                    "Antigravity",
+                    @"Antigravity(?! IDE)",
                     "Antigravity IDE",
                     RegexOptions.IgnoreCase
                 );
