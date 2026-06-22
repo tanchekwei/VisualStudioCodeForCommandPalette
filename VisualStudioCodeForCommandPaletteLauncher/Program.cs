@@ -5,7 +5,7 @@ if (args.Length == 0)
     Console.Error.WriteLine("Error: No executable specified.");
     return 1;
 }
-
+    
 try
 {
     string targetExe = args[0].Trim('"');

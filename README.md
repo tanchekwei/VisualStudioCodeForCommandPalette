@@ -110,6 +110,9 @@ For more detailed technical information about the project's architecture and com
 
 ## Changelog
 
+### 1.30.0.0
+- Fix: Antigravity unable to open.
+
 ### 1.29.0.0
 - Feature: Updated Google Antigravity support to use Antigravity IDE naming.
 - Feature: Added manual launch message support.
