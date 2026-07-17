@@ -111,6 +111,9 @@ For more detailed technical information about the project's architecture and com
 ## Changelog
 
 ### 1.30.0.0
+- Fix #36: Assume the first visible item was previously selected and remove it from the cache to prevent the stale selection from being reused after the search results change.
+
+### 1.30.0.0
 - Fix: Antigravity unable to open.
 
 ### 1.29.0.0
