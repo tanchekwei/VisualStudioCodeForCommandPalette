@@ -210,6 +210,10 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                 }
             }
 
+            if (_visibleItems.Count > 0)
+            {
+                _listItemCache.Remove(_visibleItems[0].Command!.Id);
+            }
             _visibleItems.Clear();
             _combinedItemsCache = null;
 
