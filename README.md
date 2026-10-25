@@ -110,7 +110,11 @@ For more detailed technical information about the project's architecture and com
 
 ## Changelog
 
-### 1.30.0.0
+### 1.32.0.0
+- Fix #40: Antigravity IDE
+- Fix #38: Add Hide Invalid Paths settings
+
+### 1.31.0.0
 - Fix #36: Assume the first visible item was previously selected and remove it from the cache to prevent the stale selection from being reused after the search results change.
 
 ### 1.30.0.0
