@@ -131,7 +131,7 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
                     break;
                 case WorkspaceType.AntigravityFolder:
                 case WorkspaceType.AntigravityWorkspace:
-                    WorkspaceTypeString = "Antigravity";
+                    WorkspaceTypeString = "Antigravity IDE";
                     break;
                 case WorkspaceType.WindsurfFolder:
                 case WorkspaceType.WindsurfWorkspace:

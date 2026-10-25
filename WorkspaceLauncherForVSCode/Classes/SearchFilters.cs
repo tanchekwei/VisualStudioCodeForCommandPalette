@@ -59,7 +59,7 @@ internal sealed partial class SearchFilters : Filters
         {
             if (!editions.HasFlag(VisualStudioCodeEdition.Antigravity))
             {
-                new ToastStatusMessage("Antigravity is disabled in settings").Show();
+                new ToastStatusMessage("Antigravity IDE is disabled in settings").Show();
             }
         }
         else if (filterId == nameof(FilterType.Windsurf))
@@ -112,7 +112,7 @@ internal sealed partial class SearchFilters : Filters
             new Filter() { Id = nameof(FilterType.RemoteSSHRemote), Name = "SSH Remote", Icon = Icon.Web },
             new Separator("Visual Studio Code Forks"),
             new Filter() { Id = nameof(FilterType.Vscodium), Name = "VSCodium", Icon = Icon.Vscodium },
-            new Filter() { Id = nameof(FilterType.Antigravity), Name = "Antigravity", Icon = Icon.Antigravity },
+            new Filter() { Id = nameof(FilterType.Antigravity), Name = "Antigravity IDE", Icon = Icon.Antigravity },
             new Filter() { Id = nameof(FilterType.Cursor), Name = "Cursor", Icon = Icon.Cursor },
             new Filter() { Id = nameof(FilterType.Windsurf), Name = "Windsurf", Icon = Icon.Windsurf },
             new Separator(),

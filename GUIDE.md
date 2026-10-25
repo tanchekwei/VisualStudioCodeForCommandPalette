@@ -25,7 +25,7 @@ The project is organized into the following key directories within the `Workspac
   - `WorkspaceStorage.cs` - Manages persistence of workspace history, usage frequency, and manual pinning.
   - `Constant.cs` - Centralized constants for the project.
 - **`/Commands`**: Contains command implementations for various actions.
-    - `OpenVisualStudioCodeCommand.cs` - Launches a selected VS Code (or Cursor/Windsurf/Antigravity) workspace.
+    - `OpenVisualStudioCodeCommand.cs` - Launches a selected VS Code (or Cursor/Windsurf/Antigravity IDE) workspace.
     - `OpenSolutionCommand.cs` - Launches a selected Visual Studio solution.
     - `OpenInTerminalCommand.cs` - Opens the workspace location in the configured terminal.
     - `OpenInExplorerCommand.cs` - Opens the folder in File Explorer.
@@ -89,7 +89,7 @@ The `PinService` and `WorkspaceStorage` work together to manage project metadata
 
 ### Visual Studio & Editor Support
 
-- **Broad Compatibility**: Supports VS Code (User/System/Insiders), Cursor, Windsurf, and Google Antigravity.
+- **Broad Compatibility**: Supports VS Code (User/System/Insiders), Cursor, Windsurf, and Google Antigravity IDE.
 - **Visual Studio 2026**: Preliminary support for the next version of Visual Studio.
 - **Helper Launcher**: An optional `VisualStudioCodeForCommandPaletteLauncher.exe` is used to ensure editors come to the foreground when launched from the background extension process.
 - **Window Switching**: Uses window enumeration to detect already-open solutions and switches focus instead of opening duplicate instances.

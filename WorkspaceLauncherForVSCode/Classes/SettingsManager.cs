@@ -165,15 +165,15 @@ public class SettingsManager : JsonSettingsManager
 
     private readonly ToggleSetting _enableAntigravity = new(
         Namespaced(nameof(_enableAntigravity)),
-        "Enable Google Antigravity",
-        "Loads folders from Google Antigravity",
+        "Enable Google Antigravity IDE",
+        "Loads folders from Google Antigravity IDE",
         false);
 
     private readonly TextSetting _antigravityPath = new(
         Namespaced(nameof(AntigravityPath)),
-        "Antigravity Path",
-        "The executable path for Google Antigravity. Leave default if installed in the standard location.",
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "antigravity", "Antigravity.exe"));
+        "Antigravity IDE Path",
+        "The executable path for Google Antigravity IDE. Leave default if installed in the standard location.",
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity IDE", "Antigravity IDE.exe"));
 
     private readonly ToggleSetting _enableWindsurf = new(
         Namespaced(nameof(_enableWindsurf)),
