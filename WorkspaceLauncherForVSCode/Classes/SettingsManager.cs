@@ -430,9 +430,7 @@ public class SettingsManager : JsonSettingsManager
             Settings.Add(_vscodeSecondaryCommand);
             Settings.Add(_useHelperLauncher);
             Settings.Add(_hideInvalidPaths);
-#if DEBUG
             Settings.Add(_enableLogging);
-#endif
             // Load settings from file upon initialization
             LoadSettings();
 
