@@ -19,6 +19,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
         private SortBy _previousSortBy;
         private bool _prevEnableWorkspaceWatcher;
         private bool _previousUseHelperLauncher;
+        private bool _previousHideInvalidPaths;
         private int _previousFallbackCount;
 
         public event EventHandler? InstanceSettingsChanged;
@@ -39,6 +40,7 @@ namespace WorkspaceLauncherForVSCode.Listeners
                 _previousSortBy = _settingsManager.SortBy;
                 _prevEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
                 _previousUseHelperLauncher = _settingsManager.UseHelperLauncher;
+                _previousHideInvalidPaths = _settingsManager.HideInvalidPaths;
                 _previousFallbackCount = _settingsManager.FallbackCount;
                 _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
             }
@@ -66,15 +68,17 @@ namespace WorkspaceLauncherForVSCode.Listeners
                 var currentSortBy = _settingsManager.SortBy;
                 var currentEnableWorkspaceWatcher = _settingsManager.EnableWorkspaceWatcher;
                 var currentUseHelperLauncher = _settingsManager.UseHelperLauncher;
+                var currentHideInvalidPaths = _settingsManager.HideInvalidPaths;
                 var currentFallbackCount = _settingsManager.FallbackCount;
 
-                if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand || currentTagTypes != _previousTagTypes)
+                if (currentEditions != _previousEditions || currentVsSecondaryCommand != _previousVsSecondaryCommand || currentVscodeSecondaryCommand != _previousVscodeSecondaryCommand || currentTagTypes != _previousTagTypes || currentHideInvalidPaths != _previousHideInvalidPaths)
                 {
                     InstanceSettingsChanged?.Invoke(this, EventArgs.Empty);
                     _previousEditions = currentEditions;
                     _previousVsSecondaryCommand = currentVsSecondaryCommand;
                     _previousVscodeSecondaryCommand = currentVscodeSecondaryCommand;
                     _previousTagTypes = currentTagTypes;
+                    _previousHideInvalidPaths = currentHideInvalidPaths;
                 }
 
                 if (currentSearchBy != _previousSearchBy)

@@ -445,6 +445,10 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
                     {
                         workspace.Id = IdGenerator.GetVisualStudioCodeId(workspace);
                     }
+                    if (_settingsManager.HideInvalidPaths && !WorkspaceStorage.IsWorkspacePathValid(workspace))
+                    {
+                        continue;
+                    }
                     AllWorkspaces.Add(workspace);
                     _allWorkspacesById[workspace.Id] = workspace;
                 }

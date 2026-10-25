@@ -260,6 +260,44 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
             }
         }
 
+        public static bool PathExists(string? path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return false;
+            }
+
+            try
+            {
+                if (Uri.TryCreate(path, UriKind.Absolute, out var uri) && uri.IsFile)
+                {
+                    path = uri.LocalPath;
+                }
+
+                return File.Exists(path) || Directory.Exists(path);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool IsWorkspacePathValid(VisualStudioCodeWorkspace workspace)
+        {
+            if (workspace == null)
+            {
+                return false;
+            }
+
+            if (workspace.VisualStudioCodeRemoteUri != null)
+            {
+                return true;
+            }
+
+            var path = !string.IsNullOrWhiteSpace(workspace.WindowsPath) ? workspace.WindowsPath : workspace.Path;
+            return PathExists(path);
+        }
+
         public void Dispose()
         {
             _saveWorkspaceCommand?.Dispose();

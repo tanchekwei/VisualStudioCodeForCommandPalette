@@ -79,6 +79,12 @@ public class SettingsManager : JsonSettingsManager
         new ChoiceSetSetting.Choice("Command Prompt", nameof(TerminalType.Cmd)),
     ];
 
+    private readonly ToggleSetting _hideInvalidPaths = new(
+        Namespaced(nameof(HideInvalidPaths)),
+        "Hide Invalid Paths",
+        "Hide workspaces and solutions whose files or folders no longer exist on disk.",
+        true);
+
     private readonly ToggleSetting _enableLogging = new(
         Namespaced(nameof(EnableLogging)),
         "Enable Logging",
@@ -265,6 +271,7 @@ public class SettingsManager : JsonSettingsManager
         }
     }
 
+    public bool HideInvalidPaths => _hideInvalidPaths.Value;
     public bool EnableLogging => _enableLogging.Value;
     public bool UseHelperLauncher => _useHelperLauncher.Value;
     public bool EnableVisualStudio => _enableVisualStudio.Value;
@@ -422,7 +429,7 @@ public class SettingsManager : JsonSettingsManager
             Settings.Add(_vsSecondaryCommand);
             Settings.Add(_vscodeSecondaryCommand);
             Settings.Add(_useHelperLauncher);
-            // Settings.Add(_enableWorkspaceWatcher);
+            Settings.Add(_hideInvalidPaths);
 #if DEBUG
             Settings.Add(_enableLogging);
 #endif
