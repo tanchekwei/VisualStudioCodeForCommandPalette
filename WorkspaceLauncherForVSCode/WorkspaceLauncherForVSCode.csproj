@@ -19,29 +19,6 @@
 
     <AssemblyVersion>1.31.0.0</AssemblyVersion>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Assets\LargeTile.scale-125.png" />
-    <None Remove="Assets\LargeTile.scale-150.png" />
-    <None Remove="Assets\SmallTile.scale-125.png" />
-    <None Remove="Assets\SmallTile.scale-150.png" />
-    <None Remove="Assets\SplashScreen.scale-125.png" />
-    <None Remove="Assets\SplashScreen.scale-150.png" />
-    <None Remove="Assets\Square150x150Logo.scale-125.png" />
-    <None Remove="Assets\Square150x150Logo.scale-150.png" />
-    <None Remove="Assets\Square44x44Logo.altform-lightunplated_targetsize-24.png" />
-    <None Remove="Assets\Square44x44Logo.altform-lightunplated_targetsize-32.png" />
-    <None Remove="Assets\Square44x44Logo.altform-unplated_targetsize-24.png" />
-    <None Remove="Assets\Square44x44Logo.altform-unplated_targetsize-32.png" />
-    <None Remove="Assets\Square44x44Logo.scale-125.png" />
-    <None Remove="Assets\Square44x44Logo.scale-150.png" />
-    <None Remove="Assets\Square44x44Logo.targetsize-24.png" />
-    <None Remove="Assets\Square44x44Logo.targetsize-32.png" />
-    <None Remove="Assets\StoreLogo.scale-125.png" />
-    <None Remove="Assets\StoreLogo.scale-150.png" />
-    <None Remove="Assets\VisualStudioCodeIcon.svg" />
-    <None Remove="Assets\Wide310x150Logo.scale-125.png" />
-    <None Remove="Assets\Wide310x150Logo.scale-150.png" />
-  </ItemGroup>
 
   <ItemGroup>
     <Manifest Condition="'$(BuildingInsideVisualStudio)' == 'true'" Include="$(ApplicationManifest)" />
