@@ -92,6 +92,10 @@
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
     <AppxPackageDir>..\AppPackages\</AppxPackageDir>
+
+    <!-- Enable Dynamic Adaptation to Application Sizes (DATAS) for lower working set and latency in .NET 9/10 -->
+    <GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
   </PropertyGroup>
 
   <!-- Native AOT compiler, runtime size, and symbol optimizations for Release -->

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,25 +25,26 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
 #if DEBUG
                 using var logger = new TimeLogger();
 #endif
-                var workspaces = new List<VisualStudioCodeWorkspace>();
                 var dbPath = GetDatabasePath(instance);
 
                 if (string.IsNullOrEmpty(dbPath) || !File.Exists(dbPath))
                 {
-                    return workspaces;
+                    return [];
                 }
 
                 var lastWriteTime = File.GetLastWriteTimeUtc(dbPath);
                 if (_cache.TryGetValue(dbPath, out var cached) && cached.LastWriteTime == lastWriteTime)
                 {
+                    var cachedWorkspaces = new List<VisualStudioCodeWorkspace>(cached.Entries.Count);
                     foreach (var entry in cached.Entries)
                     {
-                        workspaces.Add(new VisualStudioCodeWorkspace(instance, entry.Path, entry.Type));
+                        cachedWorkspaces.Add(new VisualStudioCodeWorkspace(instance, entry.Path, entry.Type));
                     }
-                    return workspaces;
+                    return cachedWorkspaces;
                 }
 
                 var cacheEntries = new List<(string Path, WorkspaceType Type)>();
+                var workspaces = new List<VisualStudioCodeWorkspace>();
 
                 try
                 {
@@ -54,27 +54,28 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
                         var jsonString = await db.ReadWorkspacesJsonAsync(cancellationToken);
                         if (!string.IsNullOrEmpty(jsonString))
                         {
-                            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonString));
-                            var root = await JsonSerializer.DeserializeAsync(stream, WorkspaceJsonContext.Default.VscdbRoot, cancellationToken);
+                            var root = JsonSerializer.Deserialize(jsonString, WorkspaceJsonContext.Default.VscdbRoot);
 
                             if (root?.Entries != null)
                             {
+                                var folderType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.FolderInsider :
+                                                 instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.CursorFolder :
+                                                 instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.AntigravityFolder :
+                                                 instance.VisualStudioCodeType == VisualStudioCodeType.Windsurf ? WorkspaceType.WindsurfFolder :
+                                                 instance.VisualStudioCodeType == VisualStudioCodeType.Vscodium ? WorkspaceType.VscodiumFolder :
+                                                 WorkspaceType.Folder;
+
+                                var workspaceType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.WorkspaceInsider :
+                                                    instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.CursorWorkspace :
+                                                    instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.AntigravityWorkspace :
+                                                    instance.VisualStudioCodeType == VisualStudioCodeType.Windsurf ? WorkspaceType.WindsurfWorkspace :
+                                                    instance.VisualStudioCodeType == VisualStudioCodeType.Vscodium ? WorkspaceType.VscodiumWorkspace :
+                                                    WorkspaceType.Workspace;
+
+                                workspaces = new List<VisualStudioCodeWorkspace>(root.Entries.Count);
                                 foreach (var entry in root.Entries)
                                 {
                                     VisualStudioCodeWorkspace? workspace = null;
-                                    var folderType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.FolderInsider :
-                                                     instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.CursorFolder :
-                                                     instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.AntigravityFolder :
-                                                     instance.VisualStudioCodeType == VisualStudioCodeType.Windsurf ? WorkspaceType.WindsurfFolder :
-                                                     instance.VisualStudioCodeType == VisualStudioCodeType.Vscodium ? WorkspaceType.VscodiumFolder :
-                                                     WorkspaceType.Folder;
-
-                                    var workspaceType = instance.VisualStudioCodeType == VisualStudioCodeType.Insider ? WorkspaceType.WorkspaceInsider :
-                                                        instance.VisualStudioCodeType == VisualStudioCodeType.Cursor ? WorkspaceType.CursorWorkspace :
-                                                        instance.VisualStudioCodeType == VisualStudioCodeType.Antigravity ? WorkspaceType.AntigravityWorkspace :
-                                                        instance.VisualStudioCodeType == VisualStudioCodeType.Windsurf ? WorkspaceType.WindsurfWorkspace :
-                                                        instance.VisualStudioCodeType == VisualStudioCodeType.Vscodium ? WorkspaceType.VscodiumWorkspace :
-                                                        WorkspaceType.Workspace;
 
                                     if (!string.IsNullOrEmpty(entry.FolderUri))
                                     {
@@ -107,7 +108,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
             catch (Exception ex)
             {
                 ErrorLogger.LogError(ex);
-                return new List<VisualStudioCodeWorkspace>();
+                return [];
             }
         }
 

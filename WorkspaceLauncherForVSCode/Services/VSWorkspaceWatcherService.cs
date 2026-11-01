@@ -94,6 +94,7 @@ namespace WorkspaceLauncherForVSCode.Services
                 }
                 _watchers.Clear();
                 _debounceTimer?.Dispose();
+                _debounceTimer = null;
                 _isWatching = false;
             }
             catch (Exception ex)
@@ -106,8 +107,14 @@ namespace WorkspaceLauncherForVSCode.Services
         {
             try
             {
-                _debounceTimer?.Dispose();
-                _debounceTimer = new Timer(TriggerRefreshCallback, null, DEBOUNCE_MILLISECONDS, Timeout.Infinite);
+                if (_debounceTimer == null)
+                {
+                    _debounceTimer = new Timer(TriggerRefreshCallback, null, DEBOUNCE_MILLISECONDS, Timeout.Infinite);
+                }
+                else
+                {
+                    _debounceTimer.Change(DEBOUNCE_MILLISECONDS, Timeout.Infinite);
+                }
             }
             catch (Exception ex)
             {

@@ -72,26 +72,29 @@ public class VisualStudioCodeWorkspace : IEquatable<VisualStudioCodeWorkspace>
             if (Path == null) return;
             WorkspaceName = "";
 
-            // split name by / and get last part
-            var nameParts = Uri.UnescapeDataString(Path).Split('/');
-            if (nameParts.Length == 0)
-            {
-                return;
-            }
-
-            WorkspaceName = nameParts[nameParts.Length - 1];
+            var unescaped = Uri.UnescapeDataString(Path);
+            ReadOnlySpan<char> span = unescaped.AsSpan();
+            int lastSlash = span.LastIndexOf('/');
+            ReadOnlySpan<char> nameSpan = lastSlash >= 0 ? span[(lastSlash + 1)..] : span;
 
             if (WorkspaceType == WorkspaceType.Workspace)
             {
-                // remove .code-workspace
-                WorkspaceName = WorkspaceName.Replace(".code-workspace", "", StringComparison.OrdinalIgnoreCase);
-
-                // if the workspace name is "workspace", use the folder name instead
-                if (WorkspaceName.Equals("workspace", StringComparison.OrdinalIgnoreCase) && nameParts.Length >= 2)
+                if (nameSpan.EndsWith(".code-workspace", StringComparison.OrdinalIgnoreCase))
                 {
-                    WorkspaceName = nameParts[nameParts.Length - 2];
+                    nameSpan = nameSpan[..^15];
+                }
+
+                if (nameSpan.Equals("workspace", StringComparison.OrdinalIgnoreCase) && lastSlash >= 0)
+                {
+                    int prevSlash = span[..lastSlash].LastIndexOf('/');
+                    if (prevSlash >= 0)
+                    {
+                        nameSpan = span[(prevSlash + 1)..lastSlash];
+                    }
                 }
             }
+
+            WorkspaceName = nameSpan.ToString();
         }
         catch (Exception ex)
         {

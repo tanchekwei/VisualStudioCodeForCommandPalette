@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
 using WorkspaceLauncherForVSCode.Services.VisualStudio;
+using WorkspaceLauncherForVSCode.Services.VisualStudio.Models;
 
 namespace WorkspaceLauncherForVSCode.Services
 {
@@ -22,7 +23,7 @@ namespace WorkspaceLauncherForVSCode.Services
                 await visualStudioService.InitInstancesAsync([]);
                 var results = visualStudioService.GetResults(showPrerelease);
 
-                var workspaceMap = new Dictionary<(string, WorkspaceType), VisualStudioCodeWorkspace>();
+                var workspaceMap = new Dictionary<(string, WorkspaceType), VisualStudioCodeWorkspace>(dbWorkspaces.Count);
                 foreach (var w in dbWorkspaces)
                 {
                     if (w.Path != null)
@@ -31,7 +32,8 @@ namespace WorkspaceLauncherForVSCode.Services
                     }
                 }
 
-                var list = new List<VisualStudioCodeWorkspace>();
+                var count = results is ICollection<CodeContainer> col ? col.Count : 0;
+                var list = new List<VisualStudioCodeWorkspace>(count);
                 foreach (var r in results)
                 {
                     var workspaceType = WorkspaceType.Solution;
@@ -64,7 +66,7 @@ namespace WorkspaceLauncherForVSCode.Services
             catch (Exception ex)
             {
                 ErrorLogger.LogError(ex);
-                return new List<VisualStudioCodeWorkspace>();
+                return [];
             }
         }
     }

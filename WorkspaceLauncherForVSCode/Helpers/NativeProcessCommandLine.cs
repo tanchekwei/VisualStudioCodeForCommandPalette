@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
 using WorkspaceLauncherForVSCode.Classes;
 
 namespace WorkspaceLauncherForVSCode.Helpers
@@ -37,11 +36,21 @@ namespace WorkspaceLauncherForVSCode.Helpers
                         return null;
 
                     // Read actual command line string
-                    byte[] buffer = new byte[commandLine.Length];
-                    if (!NativeMethods.ReadProcessMemory(hProcess, commandLine.Buffer, buffer, buffer.Length, out _))
-                        return null;
+                    if (commandLine.Length == 0 || commandLine.Buffer == IntPtr.Zero)
+                        return string.Empty;
 
-                    return Encoding.Unicode.GetString(buffer);
+                    IntPtr buffer = Marshal.AllocHGlobal(commandLine.Length);
+                    try
+                    {
+                        if (!NativeMethods.ReadProcessMemory(hProcess, commandLine.Buffer, buffer, commandLine.Length, out _))
+                            return null;
+
+                        return Marshal.PtrToStringUni(buffer, commandLine.Length / sizeof(char));
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal(buffer);
+                    }
                 }
                 finally
                 {
@@ -62,35 +71,39 @@ namespace WorkspaceLauncherForVSCode.Helpers
                 if (string.IsNullOrWhiteSpace(commandLine))
                     return null;
 
-                var args = commandLine.Trim();
+                var args = commandLine.AsSpan().Trim();
 
                 // Remove the quoted executable path
-                if (args.StartsWith('\"'))
+                if (args.Length > 0 && args[0] == '"')
                 {
-                    var endQuote = args.IndexOf('"', 1);
-                    if (endQuote < 0 || endQuote + 1 >= args.Length)
+                    var endQuote = args[1..].IndexOf('"');
+                    if (endQuote < 0)
                         return null;
 
-                    args = args[(endQuote + 1)..].Trim();
+                    var afterQuoteIndex = endQuote + 2;
+                    if (afterQuoteIndex >= args.Length)
+                        return null;
+
+                    args = args[afterQuoteIndex..].TrimStart();
                 }
                 else
                 {
                     var firstSpace = args.IndexOf(' ');
-                    if (firstSpace < 0 || firstSpace + 1 >= args.Length)
+                    if (firstSpace < 0)
                         return null;
 
-                    args = args[(firstSpace + 1)..].Trim();
+                    args = args[(firstSpace + 1)..].TrimStart();
                 }
 
                 // First argument is the solution path (possibly quoted)
-                if (args.StartsWith('\"'))
+                if (args.Length > 0 && args[0] == '"')
                 {
-                    var endQuote = args.IndexOf('"', 1);
-                    return endQuote > 0 ? args[1..endQuote] : null;
+                    var endQuote = args[1..].IndexOf('"');
+                    return endQuote >= 0 ? args.Slice(1, endQuote).ToString() : null;
                 }
 
                 var firstSpaceUnquoted = args.IndexOf(' ');
-                return firstSpaceUnquoted > 0 ? args[..firstSpaceUnquoted] : args;
+                return firstSpaceUnquoted > 0 ? args[..firstSpaceUnquoted].ToString() : args.ToString();
             }
             catch (Exception ex)
             {

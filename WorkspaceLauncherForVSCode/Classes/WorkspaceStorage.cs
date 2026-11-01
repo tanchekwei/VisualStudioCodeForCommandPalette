@@ -71,6 +71,11 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
                 var dbPath = Path.Combine(Utilities.BaseSettingsPath(Constant.AppName), DbName);
                 _connection = new SqliteConnection($"Data Source={dbPath}");
                 _connection.Open();
+
+                using var pragmaCmd = _connection.CreateCommand();
+                pragmaCmd.CommandText = "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;";
+                pragmaCmd.ExecuteNonQuery();
+
                 InitializeDatabase();
             }
             catch (Exception ex)
@@ -87,22 +92,27 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
                 using var transaction = _connection.BeginTransaction();
 
                 // 1. Initialize V2 Table and PinnedWorkspaces
-                var initCmd = _connection.CreateCommand();
-                initCmd.Transaction = transaction;
-                initCmd.CommandText = Queries.Initialize;
-                initCmd.ExecuteNonQuery();
+                using (var initCmd = _connection.CreateCommand())
+                {
+                    initCmd.Transaction = transaction;
+                    initCmd.CommandText = Queries.Initialize;
+                    initCmd.ExecuteNonQuery();
+                }
 
                 // 2. Check if old 'Workspaces' table exists (indicating legacy schema or previous version)
-                var checkCmd = _connection.CreateCommand();
-                checkCmd.Transaction = transaction;
-                checkCmd.CommandText = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='Workspaces'";
-                var count = checkCmd.ExecuteScalar() as long? ?? 0L;
-                var oldTableExists = count > 0;
+                bool oldTableExists;
+                using (var checkCmd = _connection.CreateCommand())
+                {
+                    checkCmd.Transaction = transaction;
+                    checkCmd.CommandText = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='Workspaces'";
+                    var count = checkCmd.ExecuteScalar() as long? ?? 0L;
+                    oldTableExists = count > 0;
+                }
 
                 if (oldTableExists)
                 {
                     // 3. Migrate data from 'Workspaces' to 'WorkspacesV2'
-                    var migrateCmd = _connection.CreateCommand();
+                    using var migrateCmd = _connection.CreateCommand();
                     migrateCmd.Transaction = transaction;
                     migrateCmd.CommandText = @"
                         INSERT OR IGNORE INTO WorkspacesV2 (Path, Name, Type, Frequency, LastAccessed)
@@ -136,8 +146,8 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
                         Name = reader.IsDBNull(1) ? null : reader.GetString(1),
                         WorkspaceType = (WorkspaceType)reader.GetInt32(2),
                         Frequency = reader.GetInt32(3),
-                        LastAccessed = reader.IsDBNull(4) ? DateTime.MinValue : DateTime.Parse(reader.GetString(4), CultureInfo.InvariantCulture),
-                        PinDateTime = reader.IsDBNull(5) ? null : DateTime.Parse(reader.GetString(5), CultureInfo.InvariantCulture),
+                        LastAccessed = reader.IsDBNull(4) ? DateTime.MinValue : DateTime.Parse(reader.GetString(4), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
+                        PinDateTime = reader.IsDBNull(5) ? null : DateTime.Parse(reader.GetString(5), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
                     });
                 }
             }
@@ -186,7 +196,7 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
                     nameParam.Value = workspace.Name ?? (object)DBNull.Value;
                     typeParam.Value = (int)workspace.WorkspaceType;
                     frequencyParam.Value = 0;
-                    lastAccessedParam.Value = workspace.LastAccessed.ToString("o");
+                    lastAccessedParam.Value = workspace.LastAccessed.ToString("o", CultureInfo.InvariantCulture);
                     await _saveWorkspaceCommand.ExecuteNonQueryAsync();
                 }
 
@@ -206,7 +216,7 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
                 command.CommandText = Queries.UpdateFrequency;
                 command.Parameters.AddWithValue("@path", path);
                 command.Parameters.AddWithValue("@Type", (int)type);
-                command.Parameters.AddWithValue("@LastAccessed", DateTime.Now.ToString("o"));
+                command.Parameters.AddWithValue("@LastAccessed", DateTime.Now.ToString("o", CultureInfo.InvariantCulture));
                 await command.ExecuteNonQueryAsync();
             }
             catch (Exception ex)
@@ -236,7 +246,7 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
                 using var command = _connection.CreateCommand();
                 command.CommandText = Queries.AddPinnedWorkspace;
                 command.Parameters.AddWithValue("@Path", path);
-                command.Parameters.AddWithValue("@PinDateTime", DateTime.UtcNow.ToString("o"));
+                command.Parameters.AddWithValue("@PinDateTime", DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture));
                 await command.ExecuteNonQueryAsync();
             }
             catch (Exception ex)

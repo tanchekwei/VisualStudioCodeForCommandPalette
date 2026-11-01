@@ -5,8 +5,6 @@ using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.ApplicationModel;
 using WorkspaceLauncherForVSCode.Classes;
-using WorkspaceLauncherForVSCode.Commands;
-using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Listeners;
 using WorkspaceLauncherForVSCode.Pages;
 
@@ -15,18 +13,15 @@ namespace WorkspaceLauncherForVSCode;
 public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvider
 {
     private readonly SettingsManager _settingsManager;
-    private readonly IVisualStudioCodeService _vscodeService;
     private readonly SettingsListener _settingsListener;
     private readonly VisualStudioCodePage _page;
     private readonly IFallbackCommandItem[] _fallbacks;
+    private readonly ICommandItem[] _topLevelCommands;
+
     public WorkspaceLauncherForVSCodeCommandsProvider(
         SettingsManager settingsManager,
-        IVisualStudioCodeService visualStudioCodeService,
         SettingsListener settingsListener,
-        VisualStudioCodePage page,
-        WorkspaceStorage workspaceStorage,
-        RefreshWorkspacesCommand refreshWorkspacesCommand,
-        IPinService pinService)
+        VisualStudioCodePage page)
     {
         try
         {
@@ -35,7 +30,6 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
             using var logger = new TimeLogger();
 #endif
             _settingsManager = settingsManager;
-            _vscodeService = visualStudioCodeService;
             DisplayName = Constant.VisualStudioCodeDisplayName;
             Icon = Classes.Icon.VisualStudioAndVisualStudioCode;
             Settings = _settingsManager.Settings;
@@ -45,7 +39,14 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
 
             _page = page;
 
-            var refreshCommandContextItem = new CommandContextItem(refreshWorkspacesCommand);
+            _topLevelCommands = [
+                new CommandItem(_page) {
+                    MoreCommands = [
+                        new CommandContextItem(Settings!.SettingsPage),
+                    ],
+                },
+            ];
+
             _fallbacks = new IFallbackCommandItem[_settingsManager.FallbackCount + Constant.FallbackIndex.StartOfDynamicFallback];
             _fallbacks[Constant.FallbackIndex.OpenInVisualStudioCode] = new FallbackOpenRecentVisualStudioCodeItem(_page);
             for (int i = Constant.FallbackIndex.StartOfDynamicFallback, fallbackResultIndex = 0; i < _fallbacks.Length; i++, fallbackResultIndex++)
@@ -59,10 +60,10 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
         {
             ErrorLogger.LogError(ex);
             _settingsManager = null!;
-            _vscodeService = null!;
             _settingsListener = null!;
             _page = null!;
             _fallbacks = null!;
+            _topLevelCommands = null!;
             throw;
         }
     }
@@ -82,24 +83,8 @@ public partial class WorkspaceLauncherForVSCodeCommandsProvider : CommandProvide
         }
     }
 
-    public override ICommandItem[] TopLevelCommands()
-    {
-        try
-        {
-            return [
-                new CommandItem(_page) {
-                    MoreCommands = [
-                        new CommandContextItem(Settings!.SettingsPage),
-                    ],
-                },
-            ];
-        }
-        catch (Exception ex)
-        {
-            ErrorLogger.LogError(ex);
-            return [];
-        }
-    }
+    public override ICommandItem[] TopLevelCommands() => _topLevelCommands;
+
     public override IFallbackCommandItem[] FallbackCommands() => _fallbacks;
 
     public override ICommandItem? GetCommandItem(string id)

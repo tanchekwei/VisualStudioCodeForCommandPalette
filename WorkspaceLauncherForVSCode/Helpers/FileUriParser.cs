@@ -21,11 +21,6 @@ namespace WorkspaceLauncherForVSCode.Helpers
                     return false;
                 }
 
-                // if (inputPath.StartsWith(Constant.VscodeRemoteScheme, StringComparison.OrdinalIgnoreCase))
-                // {
-                //     return TryParseRemoteUri(inputPath, out windowsPath);
-                // }
-
                 return TryParseFileUri(inputPath, out windowsPath);
             }
             catch (Exception ex)
@@ -59,57 +54,11 @@ namespace WorkspaceLauncherForVSCode.Helpers
             }
         }
 
-        // private static bool TryParseRemoteUri(
-        //     string path,
-        //     [NotNullWhen(true)] out string? windowsPath)
-        // {
-        //     windowsPath = null;
-        //     var decodedPath = System.Net.WebUtility.UrlDecode(path);
-        //     int start = decodedPath.IndexOf(Constant.VscodeRemoteScheme, StringComparison.OrdinalIgnoreCase) + Constant.VscodeRemoteScheme.Length;
-        //     int end = decodedPath.IndexOf('+', start);
-        //     if (end == -1)
-        //     {
-        //         return false;
-        //     }
-
-        //     var typeString = decodedPath.Substring(start, end - start);
-        //     if (VisualStudioCodeRemoteHelper.TryParse(typeString.Trim(), out var parsedRemoteType))
-        //     {
-        //         remoteType = parsedRemoteType;
-        //     }
-        //     else
-        //     {
-        //         string spaced = typeString.Replace('-', ' ');
-        //         TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
-        //         remoteTypeStr = textInfo.ToTitleCase(spaced.ToLowerInvariant());
-        //     }
-
-        //     remoteTypeData = decodedPath.Substring(end + 1);
-        //     int slashIndex = remoteTypeData.IndexOf('/');
-        //     remoteTypeDataFirstSegment = slashIndex >= 0 ? remoteTypeData.Substring(0, slashIndex) : remoteTypeData;
-        //     var remaining = slashIndex >= 0 ? remoteTypeData.Substring(slashIndex) : string.Empty;
-
-        //     if (remoteType == VisualStudioCodeRemoteType.Codespaces)
-        //     {
-        //         windowsPath = path;
-        //     }
-        //     else
-        //     {
-        //         windowsPath = $"{Constant.VscodeRemoteScheme}{typeString}+{remoteTypeDataFirstSegment}{remaining}";
-        //     }
-
-        //     return true;
-        // }
-
         public static string? HexToJson(string hex)
         {
             try
             {
-                var bytes = new byte[hex.Length / 2];
-                for (var i = 0; i < bytes.Length; i++)
-                {
-                    bytes[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
-                }
+                var bytes = Convert.FromHexString(hex);
                 return Encoding.UTF8.GetString(bytes);
             }
             catch (Exception ex)
@@ -119,14 +68,17 @@ namespace WorkspaceLauncherForVSCode.Helpers
             }
         }
 
-
         public static string CapitalizeDriveLetter(string path)
         {
             try
             {
-                if (path.Length >= 2 && char.IsLetter(path[0]) && path[1] == ':')
+                if (path.Length >= 2 && path[1] == ':' && char.IsLower(path[0]))
                 {
-                    return char.ToUpperInvariant(path[0]) + path.Substring(1);
+                    return string.Create(path.Length, path, static (span, state) =>
+                    {
+                        state.AsSpan().CopyTo(span);
+                        span[0] = char.ToUpperInvariant(state[0]);
+                    });
                 }
                 return path;
             }

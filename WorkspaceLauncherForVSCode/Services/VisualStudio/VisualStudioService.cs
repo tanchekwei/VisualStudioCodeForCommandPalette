@@ -19,7 +19,6 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
         private const string VsWhereDir = @"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer";
         private const string VsWhereBin = "vswhere.exe";
         private const string VisualStudioDataDir = @"%LOCALAPPDATA%\Microsoft\VisualStudio";
-        private const int SingleDirectory = 0;
 
         private List<VsCodeModels.VisualStudioInstance>? _instances;
 
@@ -92,7 +91,7 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
 
                         foreach (var instance in instancesJson)
                         {
-                            var applicationPrivateSettingsPath = await Task.Run(() => GetApplicationPrivateSettingsPathByInstanceId(instance.InstanceId));
+                            var applicationPrivateSettingsPath = GetApplicationPrivateSettingsPathByInstanceId(instance.InstanceId);
                             if (string.IsNullOrWhiteSpace(applicationPrivateSettingsPath))
                             {
                                 continue;
@@ -143,28 +142,16 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
             {
                 if (_instances == null)
                 {
-                    return new List<VsCodeModels.CodeContainer>();
-                }
-
-                var filteredInstances = new List<VsCodeModels.VisualStudioInstance>();
-                if (!showPrerelease)
-                {
-                    foreach (var instance in _instances)
-                    {
-                        if (!instance.IsPrerelease)
-                        {
-                            filteredInstances.Add(instance);
-                        }
-                    }
-                }
-                else
-                {
-                    filteredInstances.AddRange(_instances);
+                    return [];
                 }
 
                 var results = new List<VsCodeModels.CodeContainer>();
-                foreach (var instance in filteredInstances)
+                foreach (var instance in _instances)
                 {
+                    if (!showPrerelease && instance.IsPrerelease)
+                    {
+                        continue;
+                    }
                     results.AddRange(instance.GetCodeContainers());
                 }
 
@@ -183,7 +170,7 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
             catch (Exception ex)
             {
                 ErrorLogger.LogError(ex);
-                return new List<VsCodeModels.CodeContainer>();
+                return [];
             }
         }
 
@@ -192,28 +179,31 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio
             try
             {
                 var dataPath = Environment.ExpandEnvironmentVariables(VisualStudioDataDir);
-                var candidates = new List<FileInfo>();
+                if (!Directory.Exists(dataPath))
+                {
+                    return null;
+                }
+
+                FileInfo? newestCandidate = null;
 
                 foreach (var dir in Directory.EnumerateDirectories(dataPath, $"*{instanceId}", SearchOption.TopDirectoryOnly))
                 {
-                    var dirInfo = new DirectoryInfo(dir);
-                    if (!dirInfo.Name.StartsWith("SettingsBackup_", StringComparison.Ordinal))
+                    var dirName = Path.GetFileName(dir);
+                    if (!dirName.StartsWith("SettingsBackup_", StringComparison.Ordinal))
                     {
-                        var applicationPrivateSettingspath = Path.Combine(dirInfo.FullName, "ApplicationPrivateSettings.xml");
-                        var fileInfo = new FileInfo(applicationPrivateSettingspath);
+                        var applicationPrivateSettingsPath = Path.Combine(dir, "ApplicationPrivateSettings.xml");
+                        var fileInfo = new FileInfo(applicationPrivateSettingsPath);
                         if (fileInfo.Exists)
                         {
-                            candidates.Add(fileInfo);
+                            if (newestCandidate == null || fileInfo.LastWriteTime > newestCandidate.LastWriteTime)
+                            {
+                                newestCandidate = fileInfo;
+                            }
                         }
                     }
                 }
 
-                if (candidates.Count > 0)
-                {
-                    // Pick the most recently modified settings file
-                    candidates.Sort((a, b) => b.LastWriteTime.CompareTo(a.LastWriteTime));
-                    return candidates[SingleDirectory].FullName;
-                }
+                return newestCandidate?.FullName;
             }
             catch (Exception ex)
             {

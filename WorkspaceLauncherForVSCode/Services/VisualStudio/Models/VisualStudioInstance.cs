@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using System.Xml;
 using WorkspaceLauncherForVSCode.Classes;
@@ -46,7 +47,7 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio.Models
             var codeContainersString = GetCodeContainersPath();
             if (string.IsNullOrWhiteSpace(codeContainersString))
             {
-                return new List<CodeContainer>();
+                return [];
             }
 
             try
@@ -55,7 +56,7 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio.Models
 
                 if (containers == null)
                 {
-                    return new List<CodeContainer>();
+                    return [];
                 }
 
                 var results = new List<CodeContainer>(containers.Count);
@@ -68,7 +69,7 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio.Models
             catch (Exception ex)
             {
                 ErrorLogger.LogError(ex);
-                return new List<CodeContainer>();
+                return [];
             }
         }
 
@@ -76,36 +77,42 @@ namespace WorkspaceLauncherForVSCode.Services.VisualStudio.Models
         {
             try
             {
-                if (ApplicationPrivateSettingsPath == null)
+                if (ApplicationPrivateSettingsPath == null || !File.Exists(ApplicationPrivateSettingsPath))
                 {
                     return null;
                 }
 
-                var xmlDoc = new XmlDocument();
-                xmlDoc.Load(ApplicationPrivateSettingsPath);
-
-                using var collectionNodes = xmlDoc.GetElementsByTagName("collection");
-                var collectionName = "CodeContainers.Offline";
-                var collectionNode = null as XmlNode;
-
-                foreach (XmlNode node in collectionNodes)
+                using var reader = XmlReader.Create(ApplicationPrivateSettingsPath, new XmlReaderSettings
                 {
-                    var nameAttribute = node.Attributes?["name"];
-                    if (nameAttribute != null && nameAttribute.Value == collectionName)
+                    IgnoreComments = true,
+                    IgnoreWhitespace = true,
+                    DtdProcessing = DtdProcessing.Prohibit,
+                });
+
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "collection")
                     {
-                        collectionNode = node;
-                        break;
+                        if (reader.GetAttribute("name") == "CodeContainers.Offline")
+                        {
+                            while (reader.Read())
+                            {
+                                if (reader.NodeType == XmlNodeType.Element && reader.Name == "value")
+                                {
+                                    return reader.ReadElementContentAsString();
+                                }
+
+                                if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "collection")
+                                {
+                                    break;
+                                }
+                            }
+                            break;
+                        }
                     }
                 }
 
-                if (collectionNode != null)
-                {
-                    var valueNode = collectionNode?.SelectSingleNode("value");
-                    return valueNode?.InnerText;
-                }
-
                 return null;
-
             }
             catch (Exception ex)
             {

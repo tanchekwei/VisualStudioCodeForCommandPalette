@@ -41,14 +41,10 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
         {
             try
             {
-                var command = _connection.CreateCommand();
+                using var command = _connection.CreateCommand();
                 command.CommandText = "SELECT value FROM ItemTable WHERE key = 'history.recentlyOpenedPathsList'";
-                var reader = await command.ExecuteReaderAsync(cancellationToken);
-                if (await reader.ReadAsync(cancellationToken))
-                {
-                    return reader.GetString(0);
-                }
-                return string.Empty;
+                var result = await command.ExecuteScalarAsync(cancellationToken);
+                return result as string ?? string.Empty;
             }
             catch (Exception ex)
             {

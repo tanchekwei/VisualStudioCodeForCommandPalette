@@ -33,7 +33,7 @@ public sealed partial class VisualStudioCodePage : DynamicListPage, IDisposable
 
     public List<VisualStudioCodeWorkspace> AllWorkspaces { get; } = [];
     private readonly Dictionary<string, VisualStudioCodeWorkspace> _allWorkspacesById = [];
-    public SettingsManager SettingsManager { get; } = new();
+    public SettingsManager SettingsManager { get; }
     public IVisualStudioCodeService VSCodeService => _vscodeService;
     private readonly List<ListItem> _visibleItems = [];
     private IListItem[]? _combinedItemsCache;

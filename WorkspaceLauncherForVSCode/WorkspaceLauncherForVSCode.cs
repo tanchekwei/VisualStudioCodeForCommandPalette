@@ -6,7 +6,6 @@ using System.Threading;
 using Microsoft.CommandPalette.Extensions;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
-using WorkspaceLauncherForVSCode.Interfaces;
 using WorkspaceLauncherForVSCode.Listeners;
 using WorkspaceLauncherForVSCode.Pages;
 using WorkspaceLauncherForVSCode.Services;
@@ -17,12 +16,12 @@ namespace WorkspaceLauncherForVSCode;
 #if DEBUG
 [Guid("4c23de8f-6bdd-41a1-92f0-744d7af84659")]
 #else
-    [Guid("c6506a70-a0c8-4a96-9bc8-29714d6b2e34")]
+[Guid("c6506a70-a0c8-4a96-9bc8-29714d6b2e34")]
 #endif
 public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
 {
     private readonly ManualResetEvent _extensionDisposedEvent;
-
+    private readonly VisualStudioCodePage _page;
     private readonly WorkspaceLauncherForVSCodeCommandsProvider _provider;
 
     public WorkspaceLauncherForVSCode(ManualResetEvent extensionDisposedEvent)
@@ -41,7 +40,7 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
             var vscodeWatcherService = new VSCodeWorkspaceWatcherService(vscodeService, settingsManager);
             var vsWatcherService = new VSWorkspaceWatcherService(settingsManager, visualStudioService);
 
-            var page = new VisualStudioCodePage(
+            _page = new VisualStudioCodePage(
                 settingsManager,
                 vscodeService,
                 settingsListener,
@@ -55,12 +54,8 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
 
             _provider = new WorkspaceLauncherForVSCodeCommandsProvider(
                 settingsManager,
-                vscodeService,
                 settingsListener,
-                page,
-                workspaceStorage,
-                refreshWorkspacesCommand,
-                pinService);
+                _page);
         }
         catch (Exception ex)
         {
@@ -93,6 +88,7 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
     {
         try
         {
+            _page?.Dispose();
             this._extensionDisposedEvent.Set();
         }
         catch (Exception ex)

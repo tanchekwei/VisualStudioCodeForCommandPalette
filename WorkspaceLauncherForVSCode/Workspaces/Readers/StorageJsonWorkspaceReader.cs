@@ -24,25 +24,26 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
 #if DEBUG
                 using var logger = new TimeLogger();
 #endif
-                var workspaces = new ConcurrentBag<VisualStudioCodeWorkspace>();
                 var storageFilePath = Path.Combine(instance.StoragePath, "storage.json");
 
                 if (!File.Exists(storageFilePath))
                 {
-                    return workspaces;
+                    return [];
                 }
 
                 var lastWriteTime = File.GetLastWriteTimeUtc(storageFilePath);
                 if (_cache.TryGetValue(storageFilePath, out var cached) && cached.LastWriteTime == lastWriteTime)
                 {
+                    var cachedWorkspaces = new List<VisualStudioCodeWorkspace>(cached.Entries.Count);
                     foreach (var entry in cached.Entries)
                     {
-                        workspaces.Add(new VisualStudioCodeWorkspace(instance, entry.Path, entry.Type));
+                        cachedWorkspaces.Add(new VisualStudioCodeWorkspace(instance, entry.Path, entry.Type));
                     }
-                    return workspaces;
+                    return cachedWorkspaces;
                 }
 
                 var cacheEntries = new List<(string Path, WorkspaceType Type)>();
+                var workspaces = new List<VisualStudioCodeWorkspace>();
 
                 try
                 {
@@ -101,7 +102,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces.Readers
             catch (Exception ex)
             {
                 ErrorLogger.LogError(ex);
-                return new ConcurrentBag<VisualStudioCodeWorkspace>();
+                return [];
             }
         }
 

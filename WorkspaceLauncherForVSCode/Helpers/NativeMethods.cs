@@ -87,6 +87,10 @@ namespace WorkspaceLauncherForVSCode.Helpers
         public static extern bool GetTokenInformation(IntPtr tokenHandle, int tokenInfoClass,
             IntPtr tokenInfo, uint tokenInfoLength, out uint returnLength);
 
+        [DllImport("advapi32.dll", SetLastError = true)]
+        public static extern bool GetTokenInformation(IntPtr tokenHandle, int tokenInfoClass,
+            out int tokenInfo, uint tokenInfoLength, out uint returnLength);
+
         [DllImport("ntdll.dll")]
         public static extern int NtQueryInformationProcess(
             IntPtr processHandle,
@@ -108,6 +112,14 @@ namespace WorkspaceLauncherForVSCode.Helpers
             IntPtr hProcess,
             IntPtr lpBaseAddress,
             [Out] out UNICODE_STRING lpBuffer,
+            int dwSize,
+            out IntPtr lpNumberOfBytesRead);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool ReadProcessMemory(
+            IntPtr hProcess,
+            IntPtr lpBaseAddress,
+            IntPtr lpBuffer,
             int dwSize,
             out IntPtr lpNumberOfBytesRead);
 

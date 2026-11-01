@@ -3,8 +3,6 @@
 // See the LICENSE file in the project root for more information.
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Helpers;
 
@@ -14,9 +12,10 @@ namespace WorkspaceLauncherForVSCode.Components
     {
         private static readonly object _enumWindowsLock = new();
         private readonly List<Window> windows = new();
+        private readonly EnumWindowsProc _enumWindowsCallback;
         private static OpenWindows? instance;
 
-        internal List<Window> Windows => new(windows);
+        internal IReadOnlyList<Window> Windows => windows;
 
         internal static OpenWindows Instance
         {
@@ -27,7 +26,10 @@ namespace WorkspaceLauncherForVSCode.Components
             }
         }
 
-        private OpenWindows() { }
+        private OpenWindows()
+        {
+            _enumWindowsCallback = VisualStudioWindowEnumerationCallBack;
+        }
 
         internal void UpdateVisualStudioWindowsList()
         {
@@ -36,8 +38,7 @@ namespace WorkspaceLauncherForVSCode.Components
                 lock (_enumWindowsLock)
                 {
                     windows.Clear();
-                    EnumWindowsProc callbackptr = new EnumWindowsProc(VisualStudioWindowEnumerationCallBack);
-                    _ = NativeMethods.EnumWindows(callbackptr, IntPtr.Zero);
+                    _ = NativeMethods.EnumWindows(_enumWindowsCallback, IntPtr.Zero);
                 }
             }
             catch (Exception ex)
@@ -50,16 +51,37 @@ namespace WorkspaceLauncherForVSCode.Components
         {
             try
             {
+                // Fast pre-filter using lightweight Win32 APIs before creating expensive Window/Process objects
+                if (!NativeMethods.IsWindow(hwnd) || !NativeMethods.IsWindowVisible(hwnd))
+                {
+                    return true;
+                }
+
+                if (NativeMethods.GetWindow(hwnd, GetWindowCmd.GW_OWNER) != IntPtr.Zero)
+                {
+                    return true;
+                }
+
+                var exStyle = NativeMethods.GetWindowLong(hwnd, Win32Constants.GWL_EXSTYLE);
+                bool isToolWindow = (exStyle & (uint)ExtendedWindowStyles.WS_EX_TOOLWINDOW) == (uint)ExtendedWindowStyles.WS_EX_TOOLWINDOW;
+                bool isAppWindow = (exStyle & (uint)ExtendedWindowStyles.WS_EX_APPWINDOW) == (uint)ExtendedWindowStyles.WS_EX_APPWINDOW;
+                if (isToolWindow && !isAppWindow)
+                {
+                    return true;
+                }
+
+                if (NativeMethods.GetProp(hwnd, "ITaskList_Deleted") != IntPtr.Zero)
+                {
+                    return true;
+                }
+
                 Window newWindow = new Window(hwnd);
 
-                if (newWindow.IsWindow && newWindow.Visible && newWindow.IsOwner &&
-                    (!newWindow.IsToolWindow || newWindow.IsAppWindow) && !newWindow.TaskListDeleted &&
-                    newWindow.ClassName != "Windows.UI.Core.CoreWindow" &&
-                    !newWindow.IsCloaked)
+                if (newWindow.ClassName != "Windows.UI.Core.CoreWindow" && !newWindow.IsCloaked)
                 {
                     if (newWindow.Process?.Process != null && string.Equals(newWindow.Process.Process.ProcessName, "devenv", StringComparison.OrdinalIgnoreCase))
                     {
-                        if (newWindow.Process.Process is Process proc && IsProcessElevated(proc.Id))
+                        if (IsProcessElevated((int)newWindow.Process.ProcessId))
                         {
                             newWindow.IsProcessElevated = true;
                         }
@@ -89,19 +111,9 @@ namespace WorkspaceLauncherForVSCode.Components
                     if (!NativeMethods.OpenProcessToken(hProcess, 0x0008 /* TOKEN_QUERY */, out hToken))
                         return false;
 
-                    uint tokenInfoLength = (uint)Marshal.SizeOf<int>();
-                    IntPtr elevationPtr = Marshal.AllocHGlobal((int)tokenInfoLength);
-                    try
+                    if (NativeMethods.GetTokenInformation(hToken, NativeMethods.TokenElevation, out int elevation, sizeof(int), out _))
                     {
-                        if (NativeMethods.GetTokenInformation(hToken, NativeMethods.TokenElevation, elevationPtr, tokenInfoLength, out _))
-                        {
-                            int elevation = Marshal.ReadInt32(elevationPtr);
-                            return elevation != 0;
-                        }
-                    }
-                    finally
-                    {
-                        Marshal.FreeHGlobal(elevationPtr);
+                        return elevation != 0;
                     }
                 }
                 finally

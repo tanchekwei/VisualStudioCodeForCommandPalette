@@ -3,7 +3,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
@@ -120,12 +119,15 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
             }
             if (Workspace.WorkspaceType == WorkspaceType.AntigravityFolder || Workspace.WorkspaceType == WorkspaceType.AntigravityWorkspace)
             {
-                Workspace.VSCodeInstance.ExecutablePath = Regex.Replace(
-                    Workspace.VSCodeInstance.ExecutablePath,
-                    @"Antigravity(?! IDE)",
-                    "Antigravity IDE",
-                    RegexOptions.IgnoreCase
-                );
+                if (Workspace.VSCodeInstance.ExecutablePath != null &&
+                    !Workspace.VSCodeInstance.ExecutablePath.Contains("Antigravity IDE", StringComparison.OrdinalIgnoreCase))
+                {
+                    Workspace.VSCodeInstance.ExecutablePath = Workspace.VSCodeInstance.ExecutablePath.Replace(
+                        "Antigravity",
+                        "Antigravity IDE",
+                        StringComparison.OrdinalIgnoreCase
+                    );
+                }
             }
             if (page.SettingsManager.UseHelperLauncher)
             {

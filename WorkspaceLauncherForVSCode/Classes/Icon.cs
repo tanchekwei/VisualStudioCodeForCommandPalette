@@ -22,7 +22,6 @@ public static class Icon
     public static readonly IconInfo Unpinned = new IconInfo("\ue77a");
     public static readonly IconInfo Web = new("\uE774");
     public static readonly IconInfo Help = new IconInfo("\uE897");
-    public static readonly IconInfo Info = new IconInfo("\uE946");
     public static readonly IconInfo Setting = new IconInfo("\uE713");
     public static readonly IconInfo Bug = new IconInfo("\uEBE8");
     public static readonly IconInfo EraseTool = new IconInfo("\uE75C");

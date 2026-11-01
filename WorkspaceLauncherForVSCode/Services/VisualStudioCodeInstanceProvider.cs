@@ -217,12 +217,13 @@ namespace WorkspaceLauncherForVSCode.Services
         {
             try
             {
+                if (instances.Exists(instance => instance.ExecutablePath.Equals(path, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return;
+                }
+
                 if (File.Exists(path))
                 {
-                    if (instances.Exists(instance => instance.ExecutablePath.Equals(path, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        return;
-                    }
                     instances.Add(new VisualStudioCodeInstance(name, path, storagePath, type, codeType));
                 }
             }

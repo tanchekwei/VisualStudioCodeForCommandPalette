@@ -18,6 +18,9 @@ namespace WorkspaceLauncherForVSCode.Workspaces
     public static class WorkspaceItemFactory
     {
         public static readonly Tag PinTag = new Tag();
+        private static readonly KeyChord s_helpKeyChord = KeyChordHelpers.FromModifiers(false, false, false, false, (int)VirtualKey.F1, 0);
+        private static readonly KeyChord s_copyKeyChord = KeyChordHelpers.FromModifiers(true, false, false, false, (int)VirtualKey.C, 0);
+
         static WorkspaceItemFactory()
         {
             PinTag.Icon = Icon.Pinned;
@@ -54,6 +57,11 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 
                 AddCommonCommands(moreCommands, workspace, settingsManager, refreshCommandContextItem, pinService);
 
+                if (workspace.PinDateTime != null)
+                {
+                    tags.Add(PinTag);
+                }
+
                 var item = new ListItem(command)
                 {
                     Title = details.Title ?? "(no title)",
@@ -64,7 +72,6 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                     MoreCommands = moreCommands.ToArray(),
                 };
 
-                AddPinTag(item);
                 return item;
             }
             catch (Exception ex)
@@ -88,8 +95,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             }
 
             workspace.WindowsPath = workspace.Path;
-            var details = BuildDetails(workspace, icon);
             var tags = BuildTags(workspace, settingsManager);
+            var details = BuildDetails(workspace, icon, tags);
             List<CommandContextItem> moreCommands = [];
             if (settingsManager.VSSecondaryCommand == SecondaryCommand.OpenAsAdministrator)
             {
@@ -180,8 +187,8 @@ namespace WorkspaceLauncherForVSCode.Workspaces
         {
             var command = new OpenVisualStudioCodeCommand(workspace, page);
             var icon = workspace.VSCodeInstance?.CachedIcon ?? Icon.VisualStudioCode;
-            var details = BuildDetails(workspace, icon);
             var tags = BuildTags(workspace, settingsManager);
+            var details = BuildDetails(workspace, icon, tags);
             List<CommandContextItem> moreCommands = [];
             if (workspace.VisualStudioCodeRemoteUri is null)
             {
@@ -280,11 +287,11 @@ namespace WorkspaceLauncherForVSCode.Workspaces
 
             moreCommands.Add(new CommandContextItem(new HelpPage(settingsManager, workspace))
             {
-                RequestedShortcut = KeyChordHelpers.FromModifiers(false, false, false, false, (int)VirtualKey.F1, 0),
+                RequestedShortcut = s_helpKeyChord,
             });
             moreCommands.Add(new CommandContextItem(new CopyPathCommand(workspace.WindowsPath ?? string.Empty))
             {
-                RequestedShortcut = KeyChordHelpers.FromModifiers(true, false, false, false, (int)VirtualKey.C, 0),
+                RequestedShortcut = s_copyKeyChord,
             });
             moreCommands.Add(refreshCommandContextItem);
             moreCommands.Add(new CommandContextItem(new PinWorkspaceCommand(workspace, pinService)));
@@ -299,42 +306,11 @@ namespace WorkspaceLauncherForVSCode.Workspaces
             return workspace.WindowsPath ?? string.Empty;
         }
 
-        private static void AddPinTag(ListItem item)
-        {
-            if (item.Command is IHasWorkspace { Workspace.PinDateTime: not null })
-            {
-                bool hasPinTag = false;
-                if (item.Tags != null && item.Tags.Length > 0)
-                {
-                    foreach (var tag in item.Tags)
-                    {
-                        if (ReferenceEquals(tag, PinTag))
-                        {
-                            hasPinTag = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!hasPinTag)
-                {
-                    var originalLength = item.Tags?.Length ?? 0;
-                    var newTags = new Tag[originalLength + 1];
-                    if (item.Tags != null)
-                    {
-                        item.Tags.CopyTo(newTags, 0);
-                    }
-                    newTags[originalLength] = PinTag;
-                    item.Tags = newTags;
-                }
-            }
-        }
-
-        private static Details BuildDetails(VisualStudioCodeWorkspace workspace, IconInfo icon)
+        private static Details BuildDetails(VisualStudioCodeWorkspace workspace, IconInfo icon, List<Tag> tags)
         {
             List<DetailsElement> metadata =
             [
-              new DetailsElement() { Key = "Tags", Data = new DetailsTags() { Tags = [.. BuildTags(workspace)] } },
+              new DetailsElement() { Key = "Tags", Data = new DetailsTags() { Tags = [.. tags] } },
               new DetailsElement() { Key = "Path", Data = new DetailsLink() { Text = workspace.Path ?? "" } },
               new DetailsElement() { Key = "Windows Path", Data = new DetailsLink() { Text = workspace.WindowsPath ?? "" } },
             ];

@@ -55,7 +55,17 @@ namespace WorkspaceLauncherForVSCode.Services
 
                 if (_timer == null)
                 {
-                    _timer = new Timer(async _ => await CheckForChanges(), null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+                    _timer = new Timer(async _ =>
+                    {
+                        try
+                        {
+                            await CheckForChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            ErrorLogger.LogError(ex);
+                        }
+                    }, null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
                 }
                 else
                 {
@@ -144,7 +154,7 @@ namespace WorkspaceLauncherForVSCode.Services
                 _cachedConnection = new SqliteConnection($"Data Source={dbPath};Mode=ReadOnly;Cache=Shared;");
                 await _cachedConnection.OpenAsync();
 
-                var pragmaCmd = _cachedConnection.CreateCommand();
+                using var pragmaCmd = _cachedConnection.CreateCommand();
                 pragmaCmd.CommandText = "PRAGMA synchronous = OFF; PRAGMA cache_size = 10;";
                 await pragmaCmd.ExecuteNonQueryAsync();
 

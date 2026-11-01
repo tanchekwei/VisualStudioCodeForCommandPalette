@@ -11,16 +11,40 @@ namespace WorkspaceLauncherForVSCode.Components
     internal sealed class WindowProcess
     {
         private readonly uint processId;
-        private readonly Process? process;
+        private Process? process;
+        private bool processResolved;
+
         internal uint ProcessId => processId;
-        internal Process? Process => process;
+
+        internal Process? Process
+        {
+            get
+            {
+                if (!processResolved)
+                {
+                    processResolved = true;
+                    if (processId != 0)
+                    {
+                        try
+                        {
+                            process = Process.GetProcessById((int)processId);
+                        }
+                        catch (Exception ex)
+                        {
+                            ErrorLogger.LogError(ex);
+                        }
+                    }
+                }
+                return process;
+            }
+        }
+
         internal WindowProcess(IntPtr hwnd)
         {
             try
             {
                 _ = NativeMethods.GetWindowThreadProcessId(hwnd, out var pid);
                 processId = pid;
-                process = Process.GetProcessById((int)processId);
             }
             catch (Exception ex)
             {

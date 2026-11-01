@@ -22,7 +22,7 @@ namespace WorkspaceLauncherForVSCode.Services
 #endif
                 if (cancellationToken.IsCancellationRequested || !File.Exists(instance.ExecutablePath))
                 {
-                    return new List<VisualStudioCodeWorkspace>();
+                    return [];
                 }
 
                 var vscdbTask = VscdbWorkspaceReader.GetWorkspacesAsync(instance, cancellationToken);
@@ -33,7 +33,7 @@ namespace WorkspaceLauncherForVSCode.Services
                 var allWorkspaces = new List<VisualStudioCodeWorkspace>(vscdbTask.Result);
                 allWorkspaces.AddRange(storageJsonTask.Result);
 
-                var workspaceMap = new Dictionary<(string, WorkspaceType), VisualStudioCodeWorkspace>();
+                var workspaceMap = new Dictionary<(string, WorkspaceType), VisualStudioCodeWorkspace>(dbWorkspaces.Count);
                 foreach (var w in dbWorkspaces)
                 {
                     if (w.Path != null)
@@ -57,7 +57,7 @@ namespace WorkspaceLauncherForVSCode.Services
             catch (Exception ex)
             {
                 ErrorLogger.LogError(ex);
-                return new List<VisualStudioCodeWorkspace>();
+                return [];
             }
         }
     }
