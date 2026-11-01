@@ -110,6 +110,12 @@ For more detailed technical information about the project's architecture and com
 
 ## Changelog
 
+### 1.33.0.0
+- Fix #12: Stale PATH when launching VS Code from Command Palette
+- Fix #41: Downgrade Microsoft.CommandPalette.Extensions
+- Add reset extension database command
+- Reduce msix size
+
 ### 1.32.0.0
 - Fix #40: Antigravity IDE
 - Fix #38: Add Hide Invalid Paths settings
