@@ -4,7 +4,6 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.CommandPalette.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Commands;
 using WorkspaceLauncherForVSCode.Interfaces;
@@ -31,28 +30,37 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
         try
         {
             this._extensionDisposedEvent = extensionDisposedEvent;
-            var services = new ServiceCollection();
 
-            // Register dependencies
-            services.AddSingleton<SettingsManager>();
-            services.AddSingleton<IVisualStudioCodeService, VisualStudioCodeService>();
-            services.AddSingleton<VisualStudioService>();
-            services.AddSingleton<SettingsListener>();
-            services.AddSingleton<VisualStudioCodePage>();
-            services.AddSingleton<WorkspaceStorage>();
-            services.AddSingleton<RefreshWorkspacesCommand>();
-            services.AddSingleton<IPinService, PinService>();
-            services.AddSingleton<IVSCodeWorkspaceWatcherService, VSCodeWorkspaceWatcherService>();
-            services.AddSingleton<IVSWorkspaceWatcherService, VSWorkspaceWatcherService>();
-            services.AddSingleton<Dependencies>();
-            services.AddSingleton<WorkspaceLauncherForVSCodeCommandsProvider>();
+            var settingsManager = new SettingsManager();
+            var visualStudioService = new VisualStudioService();
+            var vscodeService = new VisualStudioCodeService(visualStudioService);
+            var settingsListener = new SettingsListener(settingsManager);
+            var workspaceStorage = new WorkspaceStorage();
+            var refreshWorkspacesCommand = new RefreshWorkspacesCommand(vscodeService, settingsManager);
+            var pinService = new PinService(workspaceStorage);
+            var vscodeWatcherService = new VSCodeWorkspaceWatcherService(vscodeService, settingsManager);
+            var vsWatcherService = new VSWorkspaceWatcherService(settingsManager, visualStudioService);
 
-            // Build the provider
-            var provider = services.BuildServiceProvider();
+            var page = new VisualStudioCodePage(
+                settingsManager,
+                vscodeService,
+                settingsListener,
+                workspaceStorage,
+                refreshWorkspacesCommand,
+                vscodeWatcherService,
+                vsWatcherService,
+                pinService);
 
-            StaticHelpItems.Initialize(provider.GetRequiredService<Dependencies>());
+            StaticHelpItems.Initialize(settingsManager);
 
-            _provider = provider.GetRequiredService<WorkspaceLauncherForVSCodeCommandsProvider>();
+            _provider = new WorkspaceLauncherForVSCodeCommandsProvider(
+                settingsManager,
+                vscodeService,
+                settingsListener,
+                page,
+                workspaceStorage,
+                refreshWorkspacesCommand,
+                pinService);
         }
         catch (Exception ex)
         {

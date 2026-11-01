@@ -30,11 +30,11 @@ namespace WorkspaceLauncherForVSCode.Pages
 
         public static ListItem SettingsItem { get; private set; } = null!;
 
-        public static void Initialize(Dependencies deps)
+        public static void Initialize(SettingsManager settingsManager)
         {
             try
             {
-                SettingsItem = new ListItem(deps.Get<SettingsManager>().Settings.SettingsPage)
+                SettingsItem = new ListItem(settingsManager.Settings.SettingsPage)
                 {
                     Title = "Setting",
                     Icon = Icon.Setting

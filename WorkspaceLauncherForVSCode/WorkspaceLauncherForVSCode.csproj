@@ -45,17 +45,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CommandPalette.Extensions" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.WindowsAppSDK" />
     <PackageReference Include="ToolGood.Words.Pinyin" />
     <PackageReference Include="WyHash" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Properties\Resource.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resource.resx</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Update="Assets\**\*.*">
@@ -67,12 +59,6 @@
       <Link>VisualStudioCodeForCommandPaletteLauncher.exe</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resource.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
 
   <!--
@@ -92,7 +78,7 @@
     <WarningsNotAsErrors>IL2081</WarningsNotAsErrors>
 
     <PublishTrimmed>true</PublishTrimmed>
-    <PublishSingleFile Condition="'$(BuildingInsideVisualStudio)' == 'true'">true</PublishSingleFile>
+    <TrimMode>full</TrimMode>
     <PublishAot>true</PublishAot>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
@@ -100,11 +86,35 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
+    <AppxPackageCompressionLevel>Maximum</AppxPackageCompressionLevel>
     <AppxBundle>Auto</AppxBundle>
-    <AppxBundlePlatforms>x86|x64|arm64</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
     <AppxPackageDir>..\AppPackages\</AppxPackageDir>
+  </PropertyGroup>
+
+  <!-- Native AOT compiler, runtime size, and symbol optimizations for Release -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <OptimizationPreference>Size</OptimizationPreference>
+    <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+    <IlcTrimTypeHierarchyData>true</IlcTrimTypeHierarchyData>
+    <IlcGenerateCompleteTypeMetadata>false</IlcGenerateCompleteTypeMetadata>
+    <StackTraceSupport>false</StackTraceSupport>
+    <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <EventSourceSupport>false</EventSourceSupport>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+    <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+    <DebuggerSupport>false</DebuggerSupport>
+    <StartupHookSupport>false</StartupHookSupport>
+    <CustomResourceTypesSupport>false</CustomResourceTypesSupport>
+
+    <!-- Prevent debug symbols / PDBs from being included inside the MSIX package -->
+    <DebugType>none</DebugType>
+    <StripSymbols>true</StripSymbols>
+    <AppxPackageIncludePrivateSymbols>false</AppxPackageIncludePrivateSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

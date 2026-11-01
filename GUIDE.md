@@ -16,7 +16,7 @@ The extension is designed following SOLID principles to ensure it is maintainabl
 The project is organized into the following key directories within the `WorkspaceLauncherForVSCode` project:
 
 - **`WorkspaceLauncherForVSCode/`**:
-  - [`WorkspaceLauncherForVSCode.cs`](./WorkspaceLauncherForVSCode/WorkspaceLauncherForVSCode.cs) - The main extension implementation and Dependency Injection container setup.
+  - [`WorkspaceLauncherForVSCode.cs`](./WorkspaceLauncherForVSCode/WorkspaceLauncherForVSCode.cs) - The main extension implementation and service initialization.
   - [`WorkspaceLauncherForVSCodeCommandsProvider.cs`](./WorkspaceLauncherForVSCode/WorkspaceLauncherForVSCodeCommandsProvider.cs) - The entry point for providing commands and fallback items to the Command Palette.
   - [`FallbackOpenRecentVisualStudioCodeItem.cs`](./WorkspaceLauncherForVSCode/FallbackOpenRecentVisualStudioCodeItem.cs) - A fallback command item that allows searching and jumping to the extension's page.
 - **`/Classes`**: Contains core data models and helper classes.

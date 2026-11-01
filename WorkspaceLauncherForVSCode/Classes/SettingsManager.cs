@@ -6,7 +6,6 @@ using System.IO;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
-using WorkspaceLauncherForVSCode.Properties;
 
 namespace WorkspaceLauncherForVSCode;
 
@@ -225,8 +224,8 @@ public class SettingsManager : JsonSettingsManager
 
     private readonly TextSetting _pageSize = new(
         Namespaced(nameof(PageSize)),
-        Resource.setting_pageSize_label,
-        Resource.setting_pageSize_desc,
+        "Page Size",
+        "Number of items to load per page.",
         "16");
 
     private readonly TextSetting _fallbackCount = new(
