@@ -151,7 +151,25 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
             }
             else
             {
-                ShellHelpers.OpenInShell(Workspace.VSCodeInstance.ExecutablePath, arguments, runAs: _elevated ? ShellHelpers.ShellRunAsType.Administrator : ShellHelpers.ShellRunAsType.None);
+                if (_elevated)
+                {
+                    ShellHelpers.OpenInShell(
+                        Workspace.VSCodeInstance.ExecutablePath,
+                        arguments,
+                        runAs: ShellHelpers.ShellRunAsType.Administrator);
+                }
+                else
+                {
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = Workspace.VSCodeInstance.ExecutablePath,
+                        Arguments = arguments,
+                        UseShellExecute = false,
+                    };
+
+                    startInfo.Environment["PATH"] = GetUpdatedPath();
+                    Process.Start(startInfo);
+                }
             }
 
             Task.Run(() => page.UpdateFrequencyAsync(Workspace.Path, Workspace.WorkspaceType));
@@ -163,5 +181,28 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
             ErrorLogger.LogError(ex);
             return CommandResult.KeepOpen();
         }
+    }
+
+    private static string GetUpdatedPath()
+    {
+        var machinePath = Environment.GetEnvironmentVariable(
+            "PATH",
+            EnvironmentVariableTarget.Machine);
+
+        var userPath = Environment.GetEnvironmentVariable(
+            "PATH",
+            EnvironmentVariableTarget.User);
+
+        if (string.IsNullOrWhiteSpace(machinePath))
+        {
+            return userPath ?? string.Empty;
+        }
+
+        if (string.IsNullOrWhiteSpace(userPath))
+        {
+            return machinePath;
+        }
+
+        return machinePath + Path.PathSeparator + userPath;
     }
 }
