@@ -62,6 +62,11 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
             public const string RemovePinnedWorkspace = "DELETE FROM PinnedWorkspaces WHERE Path = @Path";
 
             public const string ResetAllFrequencies = "UPDATE WorkspacesV2 SET Frequency = 0";
+
+            public const string ResetDatabase = @"
+                DELETE FROM WorkspacesV2;
+                DELETE FROM PinnedWorkspaces;
+            ";
         }
 
         public WorkspaceStorage()
@@ -232,6 +237,23 @@ LEFT JOIN PinnedWorkspaces p ON w.Path = p.Path;
                 using var command = _connection.CreateCommand();
                 command.CommandText = Queries.ResetAllFrequencies;
                 await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex);
+            }
+        }
+
+        public async Task ResetDatabaseAsync()
+        {
+            try
+            {
+                using var transaction = _connection.BeginTransaction();
+                using var command = _connection.CreateCommand();
+                command.Transaction = transaction;
+                command.CommandText = Queries.ResetDatabase;
+                await command.ExecuteNonQueryAsync();
+                transaction.Commit();
             }
             catch (Exception ex)
             {

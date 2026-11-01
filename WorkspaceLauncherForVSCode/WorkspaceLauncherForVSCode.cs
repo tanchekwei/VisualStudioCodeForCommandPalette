@@ -50,7 +50,7 @@ public sealed partial class WorkspaceLauncherForVSCode : IExtension, IDisposable
                 vsWatcherService,
                 pinService);
 
-            StaticHelpItems.Initialize(settingsManager);
+            StaticHelpItems.Initialize(settingsManager, workspaceStorage, _page.StartRefresh);
 
             _provider = new WorkspaceLauncherForVSCodeCommandsProvider(
                 settingsManager,

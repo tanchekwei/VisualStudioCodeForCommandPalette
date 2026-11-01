@@ -46,6 +46,11 @@ namespace WorkspaceLauncherForVSCode.Pages
 
                 items.Add(StaticHelpItems.OpenSettingsFolder);
 
+                if (StaticHelpItems.ResetDatabase != null)
+                {
+                    items.Add(StaticHelpItems.ResetDatabase);
+                }
+
                 return items.ToArray();
             }
             catch (Exception ex)

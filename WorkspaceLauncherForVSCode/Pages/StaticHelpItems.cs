@@ -29,8 +29,15 @@ namespace WorkspaceLauncherForVSCode.Pages
         };
 
         public static ListItem SettingsItem { get; private set; } = null!;
+        public static ListItem ResetDatabase { get; private set; } = null!;
+        public static ListItem ResetDatabaseItem => ResetDatabase;
 
         public static void Initialize(SettingsManager settingsManager)
+        {
+            Initialize(settingsManager, null, null);
+        }
+
+        public static void Initialize(SettingsManager settingsManager, WorkspaceStorage? workspaceStorage, Action? refreshAction)
         {
             try
             {
@@ -39,6 +46,16 @@ namespace WorkspaceLauncherForVSCode.Pages
                     Title = "Setting",
                     Icon = Icon.Setting
                 };
+
+                if (workspaceStorage != null && refreshAction != null)
+                {
+                    ResetDatabase = new ListItem(new ResetDatabaseCommand(workspaceStorage, refreshAction))
+                    {
+                        Title = "Reset Extension Database",
+                        Subtitle = "Reset extension database and refresh all records",
+                        Icon = Icon.EraseTool
+                    };
+                }
             }
             catch (Exception ex)
             {
