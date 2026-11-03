@@ -5,8 +5,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using static Microsoft.CommandPalette.Extensions.Toolkit.ShellHelpers;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Enums;
+using WorkspaceLauncherForVSCode.Helpers;
 using WorkspaceLauncherForVSCode.Interfaces;
 
 namespace WorkspaceLauncherForVSCode.Commands;
@@ -153,10 +155,7 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
             {
                 if (_elevated)
                 {
-                    ShellHelpers.OpenInShell(
-                        Workspace.VSCodeInstance.ExecutablePath,
-                        arguments,
-                        runAs: ShellHelpers.ShellRunAsType.Administrator);
+                    OpenInShell(Workspace.VSCodeInstance.ExecutablePath, arguments, runAs: ShellRunAsType.Administrator);
                 }
                 else
                 {
@@ -167,7 +166,7 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
                         UseShellExecute = false,
                     };
 
-                    startInfo.Environment["PATH"] = GetUpdatedPath();
+                    startInfo.Environment["PATH"] = ExtensionShellHelpers.GetUpdatedPath();
                     Process.Start(startInfo);
                 }
             }
@@ -181,28 +180,5 @@ internal sealed partial class OpenVisualStudioCodeCommand : InvokableCommand, IH
             ErrorLogger.LogError(ex);
             return CommandResult.KeepOpen();
         }
-    }
-
-    private static string GetUpdatedPath()
-    {
-        var machinePath = Environment.GetEnvironmentVariable(
-            "PATH",
-            EnvironmentVariableTarget.Machine);
-
-        var userPath = Environment.GetEnvironmentVariable(
-            "PATH",
-            EnvironmentVariableTarget.User);
-
-        if (string.IsNullOrWhiteSpace(machinePath))
-        {
-            return userPath ?? string.Empty;
-        }
-
-        if (string.IsNullOrWhiteSpace(userPath))
-        {
-            return machinePath;
-        }
-
-        return machinePath + Path.PathSeparator + userPath;
     }
 }

@@ -2,8 +2,10 @@
 // Licensed under the MIT License. See the LICENSE file in the project root for details.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using static Microsoft.CommandPalette.Extensions.Toolkit.ShellHelpers;
 using WorkspaceLauncherForVSCode.Classes;
 using WorkspaceLauncherForVSCode.Components;
 using WorkspaceLauncherForVSCode.Enums;
@@ -111,7 +113,22 @@ public partial class OpenSolutionCommand : InvokableCommand, IHasWorkspace
 
             if (Workspace.VSInstance != null)
             {
-                ShellHelpers.OpenInShell(Workspace.VSInstance.InstancePath, $"\"{Workspace.Path}\"", runAs: _elevated ? ShellHelpers.ShellRunAsType.Administrator : ShellHelpers.ShellRunAsType.None);
+                if (_elevated)
+                {
+                    OpenInShell(Workspace.VSInstance.InstancePath, $"\"{Workspace.Path}\"", runAs: ShellRunAsType.Administrator);
+                }
+                else
+                {
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = Workspace.VSInstance.InstancePath,
+                        Arguments = $"\"{Workspace.Path}\"",
+                        UseShellExecute = false,
+                    };
+
+                    startInfo.Environment["PATH"] = ExtensionShellHelpers.GetUpdatedPath();
+                    Process.Start(startInfo);
+                }
             }
 
             return CommandResult.Dismiss();
