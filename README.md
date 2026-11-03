@@ -110,6 +110,10 @@ For more detailed technical information about the project's architecture and com
 
 ## Changelog
 
+### Unreleased
+- Fix: Detect Cursor at `%LOCALAPPDATA%\Programs\cursor\Cursor.exe` (user installer) and `Program Files\cursor` (system)
+- UX: Clarify Cursor settings need Save; update default Cursor path
+
 ### 1.33.0.0
 - Fix #12: Stale PATH when launching VS Code from Command Palette
 - Fix #41: Downgrade Microsoft.CommandPalette.Extensions

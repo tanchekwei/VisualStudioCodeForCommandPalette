@@ -118,11 +118,14 @@ namespace WorkspaceLauncherForVSCode.Services
                     }
                     else
                     {
-                        var cursorPath = Path.Combine(appDataBasePath, "Cursor", "Cursor.exe");
-                        if (File.Exists(cursorPath))
-                        {
-                            AddInstance(instances, "Cursor", cursorPath, cursorStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Cursor);
-                        }
+                        // User installer default: %LOCALAPPDATA%\Programs\cursor\Cursor.exe
+                        // (not %APPDATA%\Cursor\Cursor.exe — that folder only holds profile/storage)
+                        var cursorUserPath = Path.Combine(appdataProgramFilesPath, "Programs", "cursor", "Cursor.exe");
+                        AddInstance(instances, "Cursor", cursorUserPath, cursorStoragePath, VisualStudioCodeInstallationType.User, VisualStudioCodeType.Cursor);
+
+                        // System / machine-wide installer
+                        var cursorSystemPath = Path.Combine(programsFolderPathBase, "cursor", "Cursor.exe");
+                        AddInstance(instances, "Cursor [System]", cursorSystemPath, cursorStoragePath, VisualStudioCodeInstallationType.System, VisualStudioCodeType.Cursor);
                     }
                 }
                 if (enabledEditions.HasFlag(VisualStudioCodeEdition.Antigravity))
