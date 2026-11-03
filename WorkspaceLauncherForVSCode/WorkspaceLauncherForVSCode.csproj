@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <RootNamespace>WorkspaceLauncherForVSCode</RootNamespace>
@@ -17,7 +17,7 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
 
-    <AssemblyVersion>1.33.0.0</AssemblyVersion>
+    <AssemblyVersion>1.33.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -46,6 +46,7 @@
     <PackageReference Include="Microsoft.CommandPalette.Extensions" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.WindowsAppSDK" />
+    <PackageReference Include="Shmuelie.WinRTServer" />
     <PackageReference Include="ToolGood.Words.Pinyin" />
     <PackageReference Include="WyHash" />
   </ItemGroup>
@@ -54,7 +55,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="Exists('..\VisualStudioCodeForCommandPaletteLauncher\bin\$(Platform)\release\net8.0\publish\VisualStudioCodeForCommandPaletteLauncher.exe')">
     <Content Include="..\VisualStudioCodeForCommandPaletteLauncher\bin\$(Platform)\release\net8.0\publish\VisualStudioCodeForCommandPaletteLauncher.exe">
       <Link>VisualStudioCodeForCommandPaletteLauncher.exe</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
