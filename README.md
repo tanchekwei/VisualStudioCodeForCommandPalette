@@ -113,6 +113,8 @@ For more detailed technical information about the project's architecture and com
 ### 1.33.1.0
 - Fix #41: Use Shmuelie.WinRTServer for COM activation (fixes E_NOINTERFACE with CmdPal 0.13)
 - Bump Microsoft.CommandPalette.Extensions to 0.12.260812002
+- Fix: Detect Cursor at `%LOCALAPPDATA%\Programs\cursor\Cursor.exe` (user installer) and `Program Files\cursor` (system)
+- UX: Clarify Cursor settings need Save; update default Cursor path
 
 ### 1.33.0.0
 - Fix #12: Stale PATH when launching VS Code from Command Palette

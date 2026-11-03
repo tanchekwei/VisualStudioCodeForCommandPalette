@@ -153,14 +153,14 @@ public class SettingsManager : JsonSettingsManager
     private readonly ToggleSetting _enableCursor = new(
         Namespaced(nameof(_enableCursor)),
         "Enable Cursor",
-        "Loads folders from Cursor",
+        "Loads folders from Cursor. Click Save at the bottom after changing settings.",
         false);
 
     private readonly TextSetting _cursorPath = new(
         Namespaced(nameof(CursorPath)),
         "Cursor Path",
-        "The executable path for Cursor. Leave default if installed in the standard location.",
-        Path.Combine("C:", "Program Files", "cursor", "Cursor.exe"));
+        "Full path to Cursor.exe. Leave empty to auto-detect (%LOCALAPPDATA%\\Programs\\cursor\\Cursor.exe or Program Files\\cursor\\Cursor.exe).",
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "cursor", "Cursor.exe"));
 
     private readonly ToggleSetting _enableAntigravity = new(
         Namespaced(nameof(_enableAntigravity)),
