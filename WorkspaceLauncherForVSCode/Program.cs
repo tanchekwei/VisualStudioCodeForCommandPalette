@@ -37,7 +37,6 @@ public class Program
                 server.Start();
 
                 extensionDisposedEvent.WaitOne();
-                extensionInstance?.Dispose();
                 server.Stop();
                 server.UnsafeDispose();
             }
