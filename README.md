@@ -110,6 +110,11 @@ For more detailed technical information about the project's architecture and com
 
 ## Changelog
 
+### 1.35.0.0
+- Bump packages
+- Added vscode-remote type Tunnel (vscode-remote://tunnel+...)
+- Remove Windows App SDK dependency
+
 ### 1.34.0.0
 - Fix #12: Stale PATH when launching Visual Studio from Command Palette
 - Fix #41: Use Shmuelie.WinRTServer for COM activation (fixes E_NOINTERFACE with CmdPal 0.13) in #41 by @xgdgsc
