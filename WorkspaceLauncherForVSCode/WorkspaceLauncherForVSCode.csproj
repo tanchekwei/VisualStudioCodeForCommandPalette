@@ -19,7 +19,9 @@
 
     <AssemblyVersion>1.34.0.0</AssemblyVersion>
   </PropertyGroup>
-
+  <ItemGroup>
+    <Content Include="Assets\**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
   <ItemGroup>
     <Manifest Condition="'$(BuildingInsideVisualStudio)' == 'true'" Include="$(ApplicationManifest)" />
   </ItemGroup>
@@ -37,7 +39,7 @@
     <AssemblyName>WorkspaceLauncherForVSCodeDev</AssemblyName>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(BuildingInsideVisualStudio)' == 'true'">   
+  <ItemGroup Condition="'$(BuildingInsideVisualStudio)' == 'true'">
     <AppxManifest Include="Package.appxmanifest" Condition="'$(Configuration)' == 'Release'" />
     <AppxManifest Include="Package-Dev.appxmanifest" Condition="'$(Configuration)' == 'Debug'" />
   </ItemGroup>
@@ -45,7 +47,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CommandPalette.Extensions" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" ExcludeAssets="all" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" PrivateAssets="all" />
     <PackageReference Include="Shmuelie.WinRTServer" />
     <PackageReference Include="ToolGood.Words.Pinyin" />
     <PackageReference Include="WyHash" />
