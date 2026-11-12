@@ -15,7 +15,8 @@ public static class VisualStudioCodeRemoteTypeHelper
             { "dev-container", VisualStudioCodeRemoteType.DevContainer },
             { "codespaces", VisualStudioCodeRemoteType.Codespaces },
             { "attached-container", VisualStudioCodeRemoteType.AttachedContainer },
-            { "ssh-remote", VisualStudioCodeRemoteType.SSHRemote }
+            { "ssh-remote", VisualStudioCodeRemoteType.SSHRemote },
+            { "tunnel", VisualStudioCodeRemoteType.Tunnel }
         };
 
     public static bool TryParse(string input, out VisualStudioCodeRemoteType env)
@@ -47,6 +48,7 @@ public static class VisualStudioCodeRemoteTypeHelper
                 VisualStudioCodeRemoteType.Codespaces => "Codespaces",
                 VisualStudioCodeRemoteType.AttachedContainer => "Attached Container",
                 VisualStudioCodeRemoteType.SSHRemote => "SSH Remote",
+                VisualStudioCodeRemoteType.Tunnel => "Tunnel",
                 _ => input.Value.ToString()
             };
         }

@@ -9,5 +9,6 @@ namespace WorkspaceLauncherForVSCode.Enums
         Codespaces,
         AttachedContainer,
         SSHRemote,
+        Tunnel,
     }
 }

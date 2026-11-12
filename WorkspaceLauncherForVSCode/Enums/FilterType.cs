@@ -22,6 +22,7 @@ namespace WorkspaceLauncherForVSCode.Enums
         RemoteDevContainer,
         RemoteCodespaces,
         RemoteAttachedContainer,
-        RemoteSSHRemote
+        RemoteSSHRemote,
+        RemoteTunnel
     }
 }

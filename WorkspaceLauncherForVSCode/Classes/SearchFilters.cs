@@ -82,7 +82,8 @@ internal sealed partial class SearchFilters : Filters
                  filterId == nameof(FilterType.RemoteDevContainer) ||
                  filterId == nameof(FilterType.RemoteCodespaces) ||
                  filterId == nameof(FilterType.RemoteAttachedContainer) ||
-                 filterId == nameof(FilterType.RemoteSSHRemote))
+                 filterId == nameof(FilterType.RemoteSSHRemote) ||
+                 filterId == nameof(FilterType.RemoteTunnel))
         {
             if (editions == VisualStudioCodeEdition.None)
             {
@@ -110,6 +111,7 @@ internal sealed partial class SearchFilters : Filters
             new Filter() { Id = nameof(FilterType.RemoteCodespaces), Name = "Codespaces", Icon = Icon.Web },
             new Filter() { Id = nameof(FilterType.RemoteAttachedContainer), Name = "Attached Container", Icon = Icon.Web },
             new Filter() { Id = nameof(FilterType.RemoteSSHRemote), Name = "SSH Remote", Icon = Icon.Web },
+            new Filter() { Id = nameof(FilterType.RemoteTunnel), Name = "Tunnel", Icon = Icon.Web },
             new Separator("Visual Studio Code Forks"),
             new Filter() { Id = nameof(FilterType.Vscodium), Name = "VSCodium", Icon = Icon.Vscodium },
             new Filter() { Id = nameof(FilterType.Antigravity), Name = "Antigravity IDE", Icon = Icon.Antigravity },

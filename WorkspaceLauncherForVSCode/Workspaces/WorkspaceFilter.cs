@@ -164,6 +164,7 @@ namespace WorkspaceLauncherForVSCode.Workspaces
                 FilterType.RemoteDevContainer => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.DevContainer,
                 FilterType.RemoteAttachedContainer => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.AttachedContainer,
                 FilterType.RemoteSSHRemote => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.SSHRemote,
+                FilterType.RemoteTunnel => item.VisualStudioCodeRemoteUri?.Type == VisualStudioCodeRemoteType.Tunnel,
                 FilterType.VisualStudio2026 => item.WorkspaceType == WorkspaceType.Solution2026,
                 FilterType.VisualStudio => item.WorkspaceType == WorkspaceType.Solution,
                 _ => true,
